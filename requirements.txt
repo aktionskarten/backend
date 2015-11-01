@@ -1,4 +1,5 @@
 flask
 flask-script
 flask-restful
+flask-sqlalchemy
 GeoAlchemy
