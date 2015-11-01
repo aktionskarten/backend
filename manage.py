@@ -7,5 +7,11 @@ from app import create_app
 app = create_app()
 manager = Manager(app)
 
+@manager.command
+def resetdb():
+    # drop and create all tables
+    db.drop_all()
+    db.create_all()
+
 if __name__ == '__main__':
     manager.run()
