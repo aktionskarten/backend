@@ -1,10 +1,6 @@
 from flask import Flask
-from flask_restful import Resource, Api
+from flask_restful import Api
 from .exts import db
-
-class Maps(Resource):
-    def get(self, name):
-        return { 'name': name }
 
 def create_app(config=None):
     """Creates the Flask app."""
@@ -16,8 +12,9 @@ def create_app(config=None):
     # init flask-sqlalchemy
     db.init_app(app)
 
-    # add flask-restful to app
+    # add rest endpoints
     api = Api(app)
+    from resources import Maps
     api.add_resource(Maps, '/maps/<string:name>')
 
     return app
