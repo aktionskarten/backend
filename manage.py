@@ -7,9 +7,11 @@ from app import create_app
 app = create_app()
 manager = Manager(app)
 
+
 @manager.command
 def resetdb():
     # drop and create all tables
+    from app.exts import db
     db.drop_all()
     db.create_all()
 

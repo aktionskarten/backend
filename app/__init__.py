@@ -17,6 +17,23 @@ def create_app(config=None):
     from resources import Maps
     api.add_resource(Maps, '/maps/<string:name>')
 
+    # TODO: integrate better
+    @app.before_first_request
+    def enable_spatialite():
+        conn = db.engine.connect()
+        raw = conn.connection.connection
+
+        # extension
+        raw.enable_load_extension(True)
+        raw.execute("select load_extension('/usr/lib/mod_spatialite.so')")
+
+        # init
+        cursor = raw.execute("PRAGMA table_info(geometry_columns);")
+        if cursor.fetchall() == 0:
+            raw.execute("SELECT InitSpatialMetaData();")
+        conn.close()
+
+
     return app
 
 if __name__ == '__main__':
