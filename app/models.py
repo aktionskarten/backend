@@ -1,4 +1,6 @@
 from geoalchemy2 import Geometry
+from geoalchemy2.shape import from_shape
+from app.utils import parse_bbox_string
 from .exts import db
 
 
@@ -9,6 +11,9 @@ class Map(db.Model):
     bbox = db.Column(Geometry('POLYGON', srid=4326))
     public = db.Column(db.Boolean, default=False)
     editable = db.Column(db.Boolean, default=True)
+
+    def set_bbox(self, bbox_string):
+        self.bbox = from_shape(parse_bbox_string(bbox_string))
 
 
 class Feature(db.Model):
