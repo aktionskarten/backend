@@ -4,6 +4,7 @@ REST API for aktionskarten-frontend.
 
 Install dependencies
 
+  $ pacman -S libspatialite
   $ virtualenv env
   $ . env/bin/activate
   $ pip install -r requirements.txt
