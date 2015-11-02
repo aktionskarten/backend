@@ -3,5 +3,5 @@ flask-script
 flask-restful
 flask-sqlalchemy
 flask-migrate
-GeoAlchemy
+GeoAlchemy2
 pysqlite
