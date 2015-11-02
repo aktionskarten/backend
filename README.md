@@ -12,7 +12,7 @@ Install dependencies
 
 Start Server
 
-  $ python app.py runserver
+  $ python manage.py runserver
 
 
 API Usage
