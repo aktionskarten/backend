@@ -9,4 +9,6 @@ class Map(db.Model):
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     geo = db.Column(Geometry(srid=4326))
+    map_id = db.Column(db.Integer, db.ForeignKey('map.id'))
+
 
