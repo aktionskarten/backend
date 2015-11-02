@@ -9,6 +9,11 @@ Install dependencies
   $ . env/bin/activate
   $ pip install -r requirements.txt
 
+Init database
+
+  $ python manage.py db init
+  $ python manage.py db migrate
+  $ python manage.py db upgrade
 
 Start Server
 
