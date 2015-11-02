@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from .exts import db
 
+
 def create_app(config=None):
     """Creates the Flask app."""
     app = Flask(__name__)
@@ -32,7 +33,6 @@ def create_app(config=None):
         if cursor.fetchall() == 0:
             raw.execute("SELECT InitSpatialMetaData();")
         conn.close()
-
 
     return app
 
