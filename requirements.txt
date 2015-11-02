@@ -5,3 +5,4 @@ flask-sqlalchemy
 flask-migrate
 GeoAlchemy2
 pysqlite
+shapely
