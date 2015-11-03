@@ -2,6 +2,7 @@
 
 from flask import request
 from flask_restful import Resource
+from .models import Map, Feature
 
 
 class Maps(Resource):

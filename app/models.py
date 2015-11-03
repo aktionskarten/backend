@@ -7,14 +7,18 @@ from .exts import db
 class Map(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    features = db.relationship("Feature", backref="map")
-    bbox = db.Column(Geometry('POLYGON', srid=4326))
+    _bbox = db.Column(Geometry('POLYGON', srid=4326))
     public = db.Column(db.Boolean, default=False)
     editable = db.Column(db.Boolean, default=True)
+    features = db.relationship("Feature", backref="map")
 
-    def set_bbox(self, bbox_string):
-        self.bbox = from_shape(parse_bbox_string(bbox_string))
+    @property
+    def bbox(self):
+        return self._bbox;
 
+    @bbox.setter
+    def bbox(self, bbox_string):
+        self._bbox = from_shape(parse_bbox_string(bbox_string), 4326)
 
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
