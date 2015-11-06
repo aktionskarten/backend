@@ -1,8 +1,3 @@
-flask
-flask-script
-flask-restful
-flask-sqlalchemy
-flask-migrate
-GeoAlchemy2
-pysqlite
-shapely
+django
+djangorestframework
+django-websocket-redis
