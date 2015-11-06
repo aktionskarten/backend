@@ -1,24 +1,10 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+import os
+import sys
 
-from flask.ext.script import Manager
-from flask.ext.migrate import Migrate, MigrateCommand
-from app import create_app
-from app.exts import db
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "actionmaps_backend.settings")
 
-# create app
-app = create_app()
-manager = Manager(app)
-migrate = Migrate(app, db)
+    from django.core.management import execute_from_command_line
 
-# add manager scripts
-manager.add_command('db', MigrateCommand)
-
-@manager.command
-def resetdb():
-    # drop and create all tables
-    from app.exts import db
-    db.drop_all()
-    db.create_all()
-
-if __name__ == '__main__':
-    manager.run()
+    execute_from_command_line(sys.argv)
