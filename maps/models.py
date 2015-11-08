@@ -5,14 +5,25 @@ from django.utils.translation import ugettext_lazy as _
 from maps.utils import parse_bbox_string
 
 
+class MapManager(models.Manager):
+    def public(self):
+        qs = self.get_queryset()
+        return qs.filter(public=True)
+
+
 class Map(models.Model):
-    name = models.CharField(_(u'name'), max_length=50)
+    name = models.CharField(_(u'name'), max_length=50, primary_key=True)
     bbox = models.PolygonField(_(u'bounding box'))
     public = models.BooleanField(_(u'public'), default=False)
     editable = models.BooleanField(_(u'editable'), default=True)
 
     def set_bbox(self, bbox_string):
         self.bbox = parse_bbox_string(bbox_string)
+
+    def get_bbox(self):
+        return
+
+    objects = MapManager()
 
 
 class Feature(models.Model):
