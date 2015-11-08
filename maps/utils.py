@@ -7,7 +7,7 @@ from django.contrib.gis.geos.polygon import Polygon
 def parse_bbox_string(bbox_string):
     """
     :param bbox_string: BBox defined in string should be: [(lat,lon), (lat,lon), (lat,lon), (lat,lon)]
-    :return: Shaply Polygon
+    :return: Polygon
     """
 
     class NoBBoxException(Exception):
@@ -23,15 +23,14 @@ def parse_bbox_string(bbox_string):
     # ensure tuples with floats
     pattern = '\s*\(\s*(\d+\.\d+),\s*(\d+\.\d+)\s*\)'
 
-    points = []
+    lat = []
+    lon = []
     for point in re.findall(pattern, bbox_string):
-        points.append(
-            (float(point[0]), float(point[1]))
-        )
+        lat.append(point[0])
+        lon.append(point[1])
 
     # ensure exactly 4 points
-    if len(points) != 4:
+    if len(lat) != 4 or len(lon) != 4:
         raise NoBBoxException('Not 4 coordinates.')
 
-    return Polygon(points)
-
+    return Polygon.from_bbox((min(lat), min(lon), max(lat), max(lon)))
