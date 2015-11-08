@@ -34,3 +34,7 @@ def parse_bbox_string(bbox_string):
         raise NoBBoxException('Not 4 coordinates.')
 
     return Polygon.from_bbox((min(lat), min(lon), max(lat), max(lon)))
+
+
+def get_bbox_string(bbox):
+    return list(bbox.coords[0][:4])
