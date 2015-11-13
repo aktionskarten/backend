@@ -6,7 +6,7 @@ from django.contrib.gis.geos.polygon import Polygon
 
 def parse_bbox_string(bbox_string):
     """
-    :param bbox_string: BBox defined in string should be: [(lat,lon), (lat,lon), (lat,lon), (lat,lon)]
+    :param bbox_string: BBox defined in string should be: [[min_lat, min_lon],[max_lat, max_lon]]
     :return: Polygon
     """
 
@@ -21,7 +21,7 @@ def parse_bbox_string(bbox_string):
     bbox_string = match.groupdict()['tuple_list']
 
     # ensure tuples with floats
-    pattern = '\s*\(\s*(\d+\.\d+),\s*(\d+\.\d+)\s*\)'
+    pattern = '\s*\[\s*(\d+\.\d+),\s*(\d+\.\d+)\s*\]'
 
     lat = []
     lon = []
@@ -29,12 +29,8 @@ def parse_bbox_string(bbox_string):
         lat.append(point[0])
         lon.append(point[1])
 
-    # ensure exactly 4 points
-    if len(lat) != 4 or len(lon) != 4:
-        raise NoBBoxException('Not 4 coordinates.')
-
     return Polygon.from_bbox((min(lat), min(lon), max(lat), max(lon)))
 
 
 def get_bbox_string(bbox):
-    return list(bbox.coords[0][:4])
+    return [[min(bbox.boundary.x), min(bbox.boundary.y)], [max(bbox.boundary.x), max(bbox.boundary.y)]]
