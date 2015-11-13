@@ -32,5 +32,6 @@ class FeatureSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super(FeatureSerializer, self).to_representation(instance)
+        response['geo'] = instance.geo.json
         response['id'] = instance.id
         return response
