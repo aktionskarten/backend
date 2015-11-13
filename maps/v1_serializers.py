@@ -28,10 +28,9 @@ class MapSerializer(serializers.ModelSerializer):
 class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
-        fields = ('geo', 'map')
+        fields = ('geo', 'map', 'id')
 
     def to_representation(self, instance):
         response = super(FeatureSerializer, self).to_representation(instance)
         response['geo'] = instance.geo.json
-        response['id'] = instance.id
         return response
