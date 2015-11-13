@@ -2,7 +2,7 @@
 # Serializers define the API representation.
 
 from rest_framework import serializers
-from maps.models import Map
+from maps.models import Map, Feature
 from maps.utils import parse_bbox_string, get_bbox_string
 
 
@@ -22,4 +22,15 @@ class MapSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super(MapSerializer, self).to_representation(instance)
         response['bbox'] = get_bbox_string(instance.bbox)
+        return response
+
+
+class FeatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feature
+        fields = ('geo', 'map')
+
+    def to_representation(self, instance):
+        response = super(FeatureSerializer, self).to_representation(instance)
+        response['id'] = instance.id
         return response

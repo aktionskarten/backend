@@ -25,6 +25,9 @@ class Map(models.Model):
 
     objects = MapManager()
 
+    def __unicode__(self):
+        return self.name
+
 
 class Feature(models.Model):
     geo = models.GeometryField(u'')

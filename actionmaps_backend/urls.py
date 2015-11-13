@@ -24,6 +24,7 @@ router = routers.DefaultRouter()
 # api v1
 prefix = u'api/v1/'
 router.register(prefix+r'maps', v1_views.MapViewSet)
+router.register(prefix+r'maps/(?P<map_name>.*)/features', v1_views.FeatureViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
