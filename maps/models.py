@@ -17,6 +17,9 @@ class Map(models.Model):
     public = models.BooleanField(_(u'public'), default=False)
     editable = models.BooleanField(_(u'editable'), default=True)
 
+    def __str__(self):
+        return self.name
+
     def set_bbox(self, bbox_string):
         self.bbox = parse_bbox_string(bbox_string)
 
@@ -24,9 +27,6 @@ class Map(models.Model):
         return
 
     objects = MapManager()
-
-    def __unicode__(self):
-        return self.name
 
 
 class Feature(models.Model):
