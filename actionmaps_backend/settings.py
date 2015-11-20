@@ -126,10 +126,7 @@ REST_FRAMEWORK = {
 
 
 # CORS
-if DEBUG is True:
-    CORS_ORIGIN_ALLOW_ALL = True
-else:
-    CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 CORS_ORIGIN_WHITELIST = (
     # 'example.com'
