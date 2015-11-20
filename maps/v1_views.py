@@ -7,7 +7,7 @@ from maps.v1_serializers import MapSerializer, FeatureSerializer
 
 
 class MapViewSet(viewsets.ModelViewSet):
-    queryset = Map.objects.public()
+    queryset = Map.objects.all()
     serializer_class = MapSerializer
 
 
