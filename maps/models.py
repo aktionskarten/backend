@@ -2,8 +2,6 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from maps.utils import parse_bbox_string
-
 
 class MapManager(models.Manager):
     def public(self):
@@ -19,12 +17,6 @@ class Map(models.Model):
 
     def __str__(self):
         return self.name
-
-    def set_bbox(self, bbox_string):
-        self.bbox = parse_bbox_string(bbox_string)
-
-    def get_bbox(self):
-        return
 
     objects = MapManager()
 
