@@ -42,10 +42,13 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_gis',
 
+    'corsheaders',
     'maps',
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,3 +123,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ]
 }
+
+
+# CORS
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+
+CORS_ORIGIN_WHITELIST = (
+    # 'example.com'
+)
