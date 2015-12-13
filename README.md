@@ -2,24 +2,28 @@
 
 REST API for aktionskarten-frontend.
 
-Install dependencies
+### HowTo get started
 
-  $ pacman -S libspatialite
-  $ virtualenv env
-  $ . env/bin/activate
-  $ pip install -r requirements.txt
+Install dependencies
+```
+$ pacman -S libspatialite
+$ virtualenv env
+$ . env/bin/activate
+$ pip install -r requirements.txt
+```
 
 Init database
-
+```
   $ python manage.py migrate
+```
 
 Start Server
-
+```
   $ python manage.py runserver
-
+```
 
 API Usage
-
+```
   $ curl -i http://localhost:5000/maps/foosajdlkasd
   HTTP/1.0 200 OK
   Content-Type: application/json
@@ -30,3 +34,4 @@ API Usage
   {
       "name": "foosajdlkasd"
   }
+```
