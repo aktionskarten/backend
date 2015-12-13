@@ -113,7 +113,7 @@ STATIC_URL = '/static/'
 
 # Enable Spatialite
 
-SPATIALITE_LIBRARY_PATH = '/usr/lib/mod_spatialite.so.7'
+SPATIALITE_LIBRARY_PATH = '/usr/lib/mod_spatialite.so'
 
 # REST
 REST_FRAMEWORK = {
