@@ -10,7 +10,6 @@ class MapSerializer(GeoFeatureModelSerializer):
         model = Map
         geo_field = 'bbox'
         fields = ('name', 'bbox', 'public', 'editable')
-        auto_bbox = True
 
 
 class FeatureSerializer(GeoFeatureModelSerializer):
