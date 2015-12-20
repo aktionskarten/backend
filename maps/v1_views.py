@@ -3,12 +3,16 @@ from rest_framework import viewsets
 
 # ViewSets define the view behavior.
 from maps.models import Map, Feature
-from maps.v1_serializers import MapSerializer, FeatureSerializer
+from maps.v1_serializers import MapSerializer, MapListSerializer, FeatureSerializer
 
 
 class MapViewSet(viewsets.ModelViewSet):
     queryset = Map.objects.all()
-    serializer_class = MapSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return MapListSerializer
+        return MapSerializer
 
 
 class FeatureViewSet(viewsets.ModelViewSet):
