@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# Serializers define the API representation.
+"""
+Serializers define the API representation
+"""
 
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework.serializers import ModelSerializer
@@ -7,6 +9,9 @@ from maps.models import Map, Feature
 
 
 class MapSerializer(GeoFeatureModelSerializer):
+    """
+    serializer for Map Class
+    """
     class Meta:
         model = Map
         geo_field = 'bbox'
@@ -15,6 +20,9 @@ class MapSerializer(GeoFeatureModelSerializer):
 
 
 class MapListSerializer(ModelSerializer):
+    """
+    serializer for List of Map Class
+    """
     class Meta:
         model = Map
         fields = ('url', 'name')
@@ -22,6 +30,9 @@ class MapListSerializer(ModelSerializer):
 
 
 class FeatureSerializer(GeoFeatureModelSerializer):
+    """
+    serializer for Feature class
+    """
     class Meta:
         model = Feature
         geo_field = 'geo'
