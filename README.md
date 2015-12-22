@@ -17,6 +17,12 @@ Init database
   $ python manage.py migrate
 ```
 
+Start tests
+```
+  $ nosetests
+  $ pylint actionmaps_backend maps manage.py
+```
+
 Start Server
 ```
   $ python manage.py runserver
