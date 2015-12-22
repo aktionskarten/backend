@@ -4,3 +4,4 @@ djangorestframework-gis
 django-cors-headers
 nose
 pylint
+pylint_django
