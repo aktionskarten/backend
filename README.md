@@ -20,7 +20,7 @@ Init database
 Start tests
 ```
   $ nosetests
-  $ pylint actionmaps_backend maps manage.py
+  $ pylint actionmaps_backend maps manage.py --load-plugins pylint_django
 ```
 
 Start Server
