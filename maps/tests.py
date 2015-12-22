@@ -1,3 +1,6 @@
-from django.test import TestCase
+"""
+Tests for application maps
+"""
+# from django.test import Te/stCase
 
 # Create your tests here.

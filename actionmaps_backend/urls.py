@@ -19,15 +19,15 @@ from rest_framework import routers
 from maps import v1_views
 
 # Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
+ROUTER = routers.DefaultRouter()
 
 # api v1
-prefix = u'api/v1/'
-router.register(prefix+r'maps', v1_views.MapViewSet)
-router.register(prefix+r'maps/(?P<map_name>.*)/features', v1_views.FeatureViewSet)
+PREFIX = u'api/v1/'
+ROUTER.register(PREFIX + r'maps', v1_views.MapViewSet)
+ROUTER.register(PREFIX + r'maps/(?P<map_name>.*)/features', v1_views.FeatureViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    url(r'^', include(router.urls)),
+    url(r'^', include(ROUTER.urls)),
 ]
