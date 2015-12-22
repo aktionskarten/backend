@@ -1,5 +1,7 @@
 # aktionskarten-backend
 
+[![Build Status](https://travis-ci.org/KartographischeAktion/aktionskarten-backend.svg?branch=master)](https://travis-ci.org/KartographischeAktion/aktionskarten-backend)
+
 REST API for aktionskarten-frontend.
 
 ### HowTo get started
