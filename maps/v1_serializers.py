@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Serializers define the API representation
+
+They render the Models to Json
+
 """
 
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -10,7 +13,17 @@ from maps.models import Map, Feature
 
 class MapSerializer(GeoFeatureModelSerializer):
     """
-    serializer for Map Class
+    render Map to JSON
+
+    with fields:
+        id: String (name)
+        bbox: [min_lat, min_lng, max_lat, max_lng]
+        properties: {
+            public: Boolean
+            editable: Boolean
+        }
+        geometry: GeoJson for bbox
+
     """
     class Meta:
         model = Map
@@ -21,7 +34,11 @@ class MapSerializer(GeoFeatureModelSerializer):
 
 class MapListSerializer(ModelSerializer):
     """
-    serializer for List of Map Class
+    render List of Maps to JSON
+
+    with fields:
+        name: String
+        url: String (URL to Map on REST API)
     """
     class Meta:
         model = Map
@@ -31,7 +48,12 @@ class MapListSerializer(ModelSerializer):
 
 class FeatureSerializer(GeoFeatureModelSerializer):
     """
-    serializer for Feature class
+    render Feature to JSON
+        id: int
+        geometry: geoJSON for Feature
+        properties : {
+            map: String (name of Map the Feature belongs to)
+        }
     """
     class Meta:
         model = Feature

@@ -30,6 +30,8 @@ class MapManager(models.Manager):
 class Map(models.Model):
     """
     Class representing the Maps generated with aktionskarten-frontend
+    (https://github.com/KartographischeAktion/aktionskarten-frontend)
+
     name: name of the Map used in title and url (unique identifier)
     bbox: the bounding box of the Map
         all features need to be in the bbox
@@ -51,6 +53,7 @@ class Map(models.Model):
 class Feature(models.Model):
     """
     Class representing the Features of a map
+
     geo: the type of the Feature i.e. Point, Polygon, etc
     map: the Map the feature belongs to
     """
