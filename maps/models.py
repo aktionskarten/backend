@@ -62,10 +62,10 @@ class Feature(models.Model):
     """
 
     def __str__(self):
-        return u'Feature #'+self.id + u' for map: ' + self.map
+        return u'Feature #' + str(self.id) + u' for map: ' + str(self.map)
 
     def __unicode__(self):
-        return u'Feature #'+self.id + u' for map: ' + self.map
+        return u'Feature #' + str(self.id) + u' for map: ' + str(self.map)
 
     geo = models.GeometryField(u'')
     map = models.ForeignKey(Map, related_name=u'features')
