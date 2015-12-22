@@ -47,6 +47,9 @@ class Map(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return self.name
+
     objects = MapManager()
 
 
@@ -57,5 +60,12 @@ class Feature(models.Model):
     geo: the type of the Feature i.e. Point, Polygon, etc
     map: the Map the feature belongs to
     """
+
+    def __str__(self):
+        return u'Feature #'+self.id + u' for map: ' + self.map
+
+    def __unicode__(self):
+        return u'Feature #'+self.id + u' for map: ' + self.map
+
     geo = models.GeometryField(u'')
     map = models.ForeignKey(Map, related_name=u'features')
