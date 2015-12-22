@@ -7,6 +7,7 @@ from maps.v1_serializers import MapSerializer, MapListSerializer, FeatureSeriali
 
 
 class MapViewSet(viewsets.ModelViewSet):
+    # pylint: disable=no-member
     queryset = Map.objects.all()
 
     def get_serializer_class(self):
@@ -16,6 +17,7 @@ class MapViewSet(viewsets.ModelViewSet):
 
 
 class FeatureViewSet(viewsets.ModelViewSet):
+    # pylint: disable=no-member
     queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
 
