@@ -1,0 +1,12 @@
+language: python
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "pypy"
+install: "sudo pip install -r requirements.txt"
+script: 
+  - "nosetests"
+  - "pylint --load-plugins pylint_django actionmaps_backend maps manage.py"
+sudo: true

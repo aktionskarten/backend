@@ -2,3 +2,6 @@ django==1.8
 djangorestframework
 djangorestframework-gis
 django-cors-headers
+nose
+pylint
+pylint_django
