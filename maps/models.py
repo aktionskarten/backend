@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class MapManager(models.Manager):
     def public(self):
+        # pylint: disable=no-member
         qs = self.get_queryset()
         return qs.filter(public=True)
 
