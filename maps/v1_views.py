@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-ViewSets define the view behavior.
+ViewSets define the view behavior
+
+The Models are matched to their respective Serializers
+
 """
 
 from rest_framework import viewsets
@@ -12,7 +15,10 @@ from maps.v1_serializers import MapSerializer, MapListSerializer, FeatureSeriali
 class MapViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Maps
-    connects Map with MapListSerializer and MapSerializer
+
+    use MapListSerializer for list of maps
+    use MapSerializer for Map
+    to render Maps to JSON
     """
     # pylint: disable=no-member
     queryset = Map.objects.all()
@@ -26,7 +32,8 @@ class MapViewSet(viewsets.ModelViewSet):
 class FeatureViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Features
-    connects Feature with FeatureSerializer
+
+    use FeatureSerializer to render Features to JSON
     """
     # pylint: disable=no-member
     queryset = Feature.objects.all()

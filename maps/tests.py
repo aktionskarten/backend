@@ -1,5 +1,5 @@
 """
-tests for application maps
+Tests for application maps
 """
 # from django.test import Te/stCase
 
