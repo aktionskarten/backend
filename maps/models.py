@@ -69,3 +69,4 @@ class Feature(models.Model):
 
     geo = models.GeometryField(u'')
     map = models.ForeignKey(Map, related_name=u'features')
+    radius = models.FloatField('radius', null=True)

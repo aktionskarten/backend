@@ -58,4 +58,4 @@ class FeatureSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Feature
         geo_field = 'geo'
-        fields = ('geo', 'map', 'id')
+        fields = ('geo', 'map', 'id', 'radius')
