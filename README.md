@@ -14,8 +14,9 @@ $ . env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-Init database
+Init database & after every update
 ```
+  $ python manage.py makemigrations maps
   $ python manage.py migrate
 ```
 
