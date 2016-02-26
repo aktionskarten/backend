@@ -131,3 +131,8 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_ORIGIN_WHITELIST = (
     # 'example.com'
 )
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
