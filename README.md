@@ -44,3 +44,14 @@ API Usage
       "name": "foosajdlkasd"
   }
 ```
+
+### Production
+
+Create settings_local
+  Creates a new SECRET_KEY and disables debugging.
+  ALLOWED_HOSTS can be set with *--hosts* (IPs, domains the backend runs on).
+  CORS_WHITELIST can be set with *--cors* (IPs, domains the frontend runs on).
+```
+  $ python manage.py create_settings_local --cors localhost 127.0.0.1 --hosts localhost example.com 127.0.0.1
+```
+
