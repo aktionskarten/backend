@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+helper to create local_settings.py for production
+"""
+
+from os import path
 from django.core.management.base import BaseCommand
 from django.utils.crypto import get_random_string
-import random
-from os import path
-from shutil import move
-
-random = random.SystemRandom()
-
 
 def get_secret_key():
     """
@@ -37,7 +36,8 @@ class Command(BaseCommand):
         settings_local_path = settings_local_dir + u'local_settings.py'
 
         if path.isfile(settings_local_path):
-            self.stdout.write("local_settings.py already exists! Please delete it manually then rerun the command.")
+            self.stdout.write("local_settings.py already exists!")
+            self.stdout.write("Please delete it manually then rerun the command.")
             return
 
         settings_file = open(settings_local_path, 'w')
@@ -62,3 +62,4 @@ class Command(BaseCommand):
         settings_file.close()
 
         self.stdout.write("local_settings successfully created.")
+
