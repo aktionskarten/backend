@@ -9,15 +9,18 @@ from django.utils.crypto import get_random_string
 
 def get_secret_key():
     """
-    Create a random secret key.
+      Create a random secret key.
 
-    Taken from the Django project.
+      Taken from the Django project.
     """
     chars = u'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     return get_random_string(50, chars)
 
 
 class Command(BaseCommand):
+    """
+      Command to create local settings for production      
+    """
     help = 'create local settings for production'
 
     def add_arguments(self, parser):
