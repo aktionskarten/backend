@@ -19,7 +19,7 @@ def get_secret_key():
 
 class Command(BaseCommand):
     """
-      Command to create local settings for production      
+      Command to create local settings for production
     """
     help = 'create local settings for production'
 
