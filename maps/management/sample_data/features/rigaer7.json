@@ -1,0 +1,15 @@
+{
+    "id": 7,
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            13.460269,
+            52.513463
+        ]
+    },
+    "properties": {
+        "map": "Rigaer",
+        "radius": null
+    }
+}
