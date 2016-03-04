@@ -22,29 +22,29 @@ class Command(BaseCommand):
 
         # import maps
         os.chdir('maps')
-        for file in os.listdir('.'):
-            file_pointer = open(file)
+        for json_file in os.listdir('.'):
+            file_pointer = open(json_file)
             json_data = json.loads(file_pointer.read())
             map_serializer = MapSerializer(data=json_data)
             if map_serializer.is_valid():
                 map_serializer.create(map_serializer.validated_data)
-                self.stdout.write(file + u' imported')
+                self.stdout.write(json_file + u' imported')
             else:
-                self.stdout.write(file + u' already exists')
+                self.stdout.write(json_file + u' already exists')
             file_pointer.close()
 
         # import features
         os.chdir('../features')
-        for file in os.listdir('.'):
-            self.stdout.write(file)
-            file_pointer = open(file)
+        for json_file in os.listdir('.'):
+            self.stdout.write(json_file)
+            file_pointer = open(json_file)
             json_data = json.loads(file_pointer.read())
             feature_serializer = FeatureSerializer(data=json_data)
             if feature_serializer.is_valid():
                 feature_serializer.create(feature_serializer.validated_data)
-                self.stdout.write(file + u' imported')
+                self.stdout.write(json_file + u' imported')
             else:
-                self.stdout.write(file + u' was NOT READABLE')
+                self.stdout.write(json_file + u' was NOT READABLE')
             file_pointer.close()
 
 
