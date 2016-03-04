@@ -19,6 +19,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         sample_data_dir = 'maps/management/sample_data/'
         os.chdir(sample_data_dir)
+
+        # import maps
         os.chdir('maps')
         for file in os.listdir('.'):
             file_pointer = open(file)
@@ -29,20 +31,20 @@ class Command(BaseCommand):
                 self.stdout.write(file + u' imported')
             else:
                 self.stdout.write(file + u' already exists')
-
             file_pointer.close()
+
+        # import features
         os.chdir('../features')
         for file in os.listdir('.'):
             self.stdout.write(file)
             file_pointer = open(file)
             json_data = json.loads(file_pointer.read())
             feature_serializer = FeatureSerializer(data=json_data)
-            import ipdb; ipdb.set_trace();
             if feature_serializer.is_valid():
                 feature_serializer.create(feature_serializer.validated_data)
                 self.stdout.write(file + u' imported')
             else:
                 self.stdout.write(file + u' was NOT READABLE')
-
+            file_pointer.close()
 
 
