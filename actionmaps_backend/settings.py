@@ -131,3 +131,11 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_ORIGIN_WHITELIST = (
     # 'example.com'
 )
+
+try:
+    # pylint: disable=wildcard-import,wrong-import-position
+    # needs to be here to overwrite settings
+    from local_settings import *
+except ImportError:
+    pass
+
