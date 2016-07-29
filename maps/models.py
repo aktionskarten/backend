@@ -3,6 +3,7 @@
 Models needed for the representation of a map
 """
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields.jsonb import JSONField
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -67,6 +68,6 @@ class Feature(models.Model):
     def __unicode__(self):
         return u'Feature #' + str(self.id) + u' for map: ' + str(self.map)
 
-    geo = models.GeometryField(u'')
-    map = models.ForeignKey(Map, related_name=u'features')
-    radius = models.FloatField('radius', null=True)
+    geo = models.GeometryField(_(u'geo'))
+    map = models.ForeignKey(Map, related_name=_('features'))
+    style = JSONField(_(u'style editor variables'))

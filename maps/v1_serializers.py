@@ -8,6 +8,7 @@ They render the Models to Json
 
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework.serializers import ModelSerializer
+
 from maps.models import Map, Feature
 
 
@@ -58,4 +59,4 @@ class FeatureSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Feature
         geo_field = 'geo'
-        fields = ('geo', 'map', 'id', 'radius')
+        fields = ('geo', 'map', 'id', 'style')
