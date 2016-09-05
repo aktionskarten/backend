@@ -70,4 +70,4 @@ class Feature(models.Model):
 
     geo = models.GeometryField(_(u'geo'))
     map = models.ForeignKey(Map, related_name=_('features'))
-    style = JSONField(_(u'style editor variables'))
+    style = JSONField(_(u'style editor variables'), null=True)

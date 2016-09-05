@@ -63,7 +63,6 @@
         ]
     },
     "properties": {
-        "map": "Rigaer",
-        "radius": null
+        "map": "Rigaer"
     }
 }
