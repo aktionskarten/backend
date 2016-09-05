@@ -65,4 +65,3 @@ class Command(BaseCommand):
         settings_file.close()
 
         self.stdout.write("local_settings successfully created.")
-
