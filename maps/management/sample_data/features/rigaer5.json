@@ -10,6 +10,8 @@
     },
     "properties": {
         "map": "Rigaer",
-        "radius": 5.815605200898308
+        "style": {
+            "radius": 5.815605200898308
+        }
     }
 }

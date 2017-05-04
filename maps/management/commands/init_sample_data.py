@@ -46,5 +46,3 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(json_file + u' was NOT READABLE')
             file_pointer.close()
-
-
