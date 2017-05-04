@@ -9,14 +9,23 @@ It stores the points of interest, the bounding box, lines, multilines and areas 
 ### HowTo get started
 
 #####Install dependencies
+Please ensure the version of postgres is greater than or equal 9.1.
 ```
-$ pacman -S libspatialite gdal
+$ pacman -S gdal postgis postgresql
 $ virtualenv env
 $ . env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-#####Init database & after every update
+#####Create a database
+Create user for postgres, set password etc.
+Set options in settings.py (DATABASES)
+Create database with same host, user and name as in settings.py. (And maybe password... add ```-W {{PASSWORD}}```)
+``
+$ psql -h {{HOST}} -U {{USER}} -c 'CREATE DATABASE {{NAME}};'
+```
+
+#####Init database structure & after every update
 ```
 $ python manage.py makemigrations maps
 $ python manage.py migrate

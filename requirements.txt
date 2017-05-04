@@ -1,8 +1,9 @@
-django==1.8
+django>=1.10
 djangorestframework
 djangorestframework-gis
 django-cors-headers
 gdal
 nose
+psycopg2
 pylint
 pylint_django

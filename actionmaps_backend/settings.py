@@ -85,9 +85,12 @@ WSGI_APPLICATION = 'actionmaps_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(BASE_DIR, 'db.spatialite'),
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'aktionskarten',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+    },
 }
 
 
@@ -138,4 +141,3 @@ try:
     from local_settings import *
 except ImportError:
     pass
-
