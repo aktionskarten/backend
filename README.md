@@ -8,7 +8,7 @@ It stores the points of interest, the bounding box, lines, multilines and areas 
 
 ### HowTo get started
 
-#####Install dependencies
+##### Install dependencies
 Please ensure the version of postgres is greater than or equal 9.1.
 ```
 $ pacman -S gdal postgis postgresql
@@ -17,33 +17,35 @@ $ . env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-#####Create a database
+If you encounter problems with gdal ensure you install the same version installed on your system.
+
+##### Create a database
 Create user for postgres, set password etc.
 Set options in settings.py (DATABASES)
 Create database with same host, user and name as in settings.py. (And maybe password... add ```-W {{PASSWORD}}```)
-``
+```
 $ psql -h {{HOST}} -U {{USER}} -c 'CREATE DATABASE {{NAME}};'
 ```
 
-#####Init database structure & after every update
+##### Init database structure & after every update
 ```
 $ python manage.py makemigrations maps
 $ python manage.py migrate
 ```
 
-#####Import sample data
+##### Import sample data
 Import json files from maps/management/sample_data/maps and maps/management/sample_data/features.
 ```
 $ python manage.py init_sample_data
 ```
 
-#####Start tests
+##### Start tests
 ```
 $ nosetests
 $ pylint actionmaps_backend maps manage.py --load-plugins pylint_django
 ```
 
-#####Start Server
+##### Start Server
 ```
 $ python manage.py runserver
 ```
@@ -52,7 +54,7 @@ $ python manage.py runserver
 $ python manage.py runserver 0.0.0.0:8080
 ```
 
-#####API Usage
+##### API Usage
 [aktionskarten-backend](https://github.com/KartographischeAktion/aktionskarten-backend) provides a RESTful API for storing the data related to the maps created with [aktionskarten-frontend](https://github.com/KartographischeAktion/aktionskarten-frontend).<br>
 
 
@@ -78,7 +80,7 @@ $ curl -X POST -H "Content-Type: application/json" -d @maps/management/sample_da
 
 ### Production
 
-#####Create settings_local
+##### Create settings_local
 Creates a new SECRET_KEY and disables debugging.<br>
 ALLOWED_HOSTS can be set with *--hosts* (IPs, domains the backend runs on).<br>
 CORS_WHITELIST can be set with *--cors* (IPs, domains the frontend runs on).
