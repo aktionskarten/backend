@@ -1,0 +1,17 @@
+<Map srs="+init=epsg:3857">
+  <Style name="legend">
+      <Rule>
+          <TextSymbolizer placement="point" size="16" fill="red" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+              <Layout dx="10">[key]</Layout>
+              <Layout dx="120">[value]</Layout>
+          </TextSymbolizer>
+      </Rule>
+  </Style>
+      <Layer name="layer" clear-label-cache="on">
+      <StyleName>legend</StyleName>
+      <Datasource>
+          <Parameter name="type">geojson</Parameter>
+          <Parameter name="inline"><![CDATA[{}]]></Parameter>
+      </Datasource>
+  </Layer>
+</Map>
