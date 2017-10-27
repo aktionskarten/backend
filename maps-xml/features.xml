@@ -1,0 +1,30 @@
+<Map srs="+init=epsg:3857">
+  <Style name="geoms">
+      <Rule>
+          <Filter>[mapnik::geometry_type]=polygon</Filter>
+          <PolygonSymbolizer fill="[fillColor]" fill-opacity="[fillOpacity]" />
+          <LineSymbolizer stroke="[color]" stroke-width="2" stroke-opacity="[opacity]" />
+      </Rule>
+      <Rule>
+          <Filter>[mapnik::geometry_type]=linestring</Filter>
+          <LineSymbolizer stroke="[color]" stroke-width="10" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
+          <LinePatternSymbolizer type="png" file="symbols/arrow.png" />
+      </Rule>
+      <Rule>
+          <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
+          <MarkersSymbolizer fill="[color]" fill-opacity="[fillOpacity]" width="[radius]" height="[radius]" stroke="[color]" stroke-width="[weight]" stroke-opacity="[opacity]" placement="point" marker-type="ellipse" allow-overlap="true" />
+      </Rule>
+      <Rule>
+          <ElseFilter/>
+          <Filter>[mapnik::geometry_type]=point</Filter>
+          <PointSymbolizer file="../markers/default.png" allow-overlap="yes" />
+      </Rule>
+  </Style>
+      <Layer name="layer" srs="+init=epsg:4326">
+      <StyleName>geoms</StyleName>
+      <Datasource>
+          <Parameter name="type">geojson</Parameter>
+          <Parameter name="inline"><![CDATA[{}]]></Parameter>
+      </Datasource>
+  </Layer>
+</Map>

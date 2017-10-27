@@ -1,0 +1,46 @@
+<Map srs="+init=epsg:3857">
+  <Style name="grid" opacity="1.0">
+      <Rule>
+          <Filter>[type] = 'grid'</Filter>
+          <LineSymbolizer stroke="[color]" stroke-opacity="[opacity]" stroke-width="[weight]" />
+      </Rule>
+  </Style>
+  <Style name="labels" opacity="0.6">
+      <Rule>
+          <Filter>[type] != 'grid'</Filter>
+          <LineSymbolizer stroke="[color]" stroke-width="50" />
+      </Rule>
+      <Rule>
+          <Filter>[pos] = 'TOP'</Filter>
+          <TextSymbolizer fill="[labelColor]" placement="line" dy="14" size="16" face-name="DejaVu Sans Bold" horizontal-alignment="middle" vertical-alignment="middle" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>[pos] = 'BOTTOM'</Filter>
+          <TextSymbolizer fill="[labelColor]" placement="line" dy="-14" size="16" face-name="DejaVu Sans Bold" horizontal-alignment="middle" vertical-alignment="middle" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>[pos] = 'LEFT'</Filter>
+          <TextSymbolizer fill="[labelColor]" placement="line" dy="14" size="16" face-name="DejaVu Sans Bold" horizontal-alignment="middle" vertical-alignment="middle" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>[pos] = 'RIGHT'</Filter>
+          <TextSymbolizer fill="[labelColor]" placement="line" dy="-14" size="16" face-name="DejaVu Sans Bold" horizontal-alignment="middle" vertical-alignment="middle" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+  </Style>
+  <Layer name="layer" srs="+init=epsg:4326">
+      <StyleName>grid</StyleName>
+      <StyleName>labels</StyleName>
+      <Datasource>
+          <Parameter name="type">geojson</Parameter>
+          <Parameter name="inline"><![CDATA[{}]]></Parameter>
+      </Datasource>
+  </Layer>
+</Map>

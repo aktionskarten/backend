@@ -1,9 +1,9 @@
-django>=1.10
-djangorestframework
-djangorestframework-gis
-django-cors-headers
-gdal
-nose
+flask
+itsdangerous
+flask-sqlalchemy
+geoalchemy2
 psycopg2
-pylint
-pylint_django
+numpy
+geojson
+shapely
+cairocffi
