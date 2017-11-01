@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, request, jsonify, abort
 from flask_cors import CORS
 from werkzeug.security import safe_str_cmp
@@ -94,7 +96,14 @@ def map_feature_get(map_id, feature_id):
 
     if request.method == 'PATCH':
         if 'style' in request.json:
-            f.style = request.json['style']
+            style = request.json['style']
+            if 'iconColor' in style:
+                # ensure that we deal with hex values (not rgb(r,g,b))
+                if style['iconColor'].startsWith('rgb'):
+                    rgb = re.findall(r'\d+', style['iconColor'])
+                    iconColor = ''.join([('%02x' % int(x)) for x in rgb])
+                    style['iconColor'] = iconColor
+            f.style = style
         if 'geo' in request.json:
             f.geo = request.json['geo']
     else:
