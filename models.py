@@ -1,6 +1,7 @@
 import flask_sqlalchemy
 import geojson
 import os
+import re
 
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -89,6 +90,12 @@ class Feature(db.Model):
         if 'properties' in value:
             self.style = value['properties']
 
+        if 'iconColor' in self.style:
+            # ensure that we deal with hex values (not rgb(r,g,b))
+            if self.style['iconColor'].startsWith('rgb'):
+                rgb = re.findall(r'\d+', self.style['iconColor'])
+                iconColor = ''.join([('%02x' % int(x)) for x in rgb])
+                self.style['iconColor'] = iconColor
         self._geo = from_shape(shape(value))
 
     def to_dict(self):
