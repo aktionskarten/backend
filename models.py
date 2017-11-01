@@ -88,9 +88,15 @@ class Feature(db.Model):
     def geo(self, value):
         if 'properties' in value:
             self.style = value['properties']
+
         self._geo = from_shape(shape(value))
 
     def to_dict(self):
         properties = self.style.copy() if self.style else {}
+
+        # scale is needed for rendering images in mapnik
+        if 'iconSize' in properties:
+            properties['scale'] = (20/150.) * (properties['iconSize'][0]/20)
         properties['id'] = self.id
+
         return geojson.Feature(geometry=self.geo, properties=properties)
