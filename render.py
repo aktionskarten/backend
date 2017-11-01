@@ -1,8 +1,14 @@
+from flask import Blueprint, send_file, current_app
+
+from models import db, Map
 import mapnik
 import json
 import cairo
 import io
 from geojson import FeatureCollection, Feature, Point
+
+
+render = Blueprint('Render', __name__)
 
 
 def get_xml(path):
@@ -40,8 +46,7 @@ def render_map(_map, mimetype='application/pdf'):
     mapnik_map.buffer_size = 5
 
     # add osm data
-    mapfile = "mapnik-stylesheets/osm.xml"
-    mapnik.load_map(mapnik_map, mapfile)
+    mapnik.load_map(mapnik_map, current_app.config['MAPNIK_OSM_XML'])
 
     # add grid
     data = _map.grid
@@ -81,3 +86,30 @@ def render_map(_map, mimetype='application/pdf'):
     f.seek(0)
 
     return f
+
+
+@render.route('/api/maps/<int:map_id>/export/svg')
+def map_export_svg(map_id):
+    m = db.session.query(Map).get(map_id)
+    mimetype = 'image/svg+xml'
+    return send_file(render_map(m, mimetype),
+                     attachment_filename='map.svg',
+                     mimetype=mimetype)
+
+
+@render.route('/api/maps/<int:map_id>/export/pdf')
+def map_export_pdf(map_id):
+    m = db.session.query(Map).get(map_id)
+    mimetype = 'application/pdf'
+    return send_file(render_map(m, mimetype),
+                     attachment_filename='map.pdf',
+                     mimetype=mimetype)
+
+
+@render.route('/api/maps/<int:map_id>/export/png')
+def map_export_png(map_id):
+    m = db.session.query(Map).get(map_id)
+    mimetype = 'image/png'
+    return send_file(render_map(m, mimetype),
+                     attachment_filename='map.png',
+                     mimetype=mimetype)

@@ -1,24 +1,23 @@
-import os
+import flask_sqlalchemy
 import geojson
+import os
 
-from grid import Grid
-from shapely.geometry import shape, mapping, box
-from sqlalchemy.ext.hybrid import hybrid_property
-from geoalchemy2 import Geometry
 from geoalchemy2.shape import from_shape, to_shape
+from sqlalchemy.ext.hybrid import hybrid_property
+from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
-from app import db
+from geoalchemy2 import Geometry
+from grid import Grid
 
 
-def gen_token():
-    return os.urandom(24)
+db = flask_sqlalchemy.SQLAlchemy()
 
 
 class Map(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode)
-    secret = db.Column(db.Binary, default=gen_token)
+    secret = db.Column(db.Binary, default=lambda: os.urandom(24))
     public = db.Column(db.Boolean, default=True)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True)
@@ -95,6 +94,3 @@ class Feature(db.Model):
         properties = self.style.copy() if self.style else {}
         properties['id'] = self.id
         return geojson.Feature(geometry=self.geo, properties=properties)
-
-
-db.create_all()
