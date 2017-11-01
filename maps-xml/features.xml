@@ -17,7 +17,7 @@
       <Rule>
           <ElseFilter/>
           <Filter>[mapnik::geometry_type]=point</Filter>
-          <PointSymbolizer file="../markers/default.png" allow-overlap="yes" />
+          <PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />
       </Rule>
   </Style>
       <Layer name="layer" srs="+init=epsg:4326">
