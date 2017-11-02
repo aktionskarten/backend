@@ -9,7 +9,28 @@ mapnik for rendering and open street map data.
 
 ## Install
 
+### Dev
 For installation see [INSTALL](INSTALL.md).
+
+### Docker
+Currently the dockerfile / scripts in ./docker are the living documentation what
+steps are needed to set up this application.  If you are fine with docker just
+run `docker-compose up`.  The application will be running but we are still
+lacking of the GIS data. So run this command to initialize:
+
+```
+docker-compose run -e PBF_URL=http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf web /source/docker/initdb.sh
+```
+
+It will load the berlin osm map in to your db instance. You could do it with
+germany or even planet, but keep in mind that this will take a loooong time.
+
+Now you can start through the backend following command
+
+```
+docker-compose run web
+```
+
 
 ## API
 

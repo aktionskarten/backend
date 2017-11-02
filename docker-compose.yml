@@ -9,13 +9,11 @@ services:
       - DB_HOST=db
       - DB_NAME=gis
       - DATABASE_URI=postgresql://postgres:@db/gis
-      - MAPNIK_STYLESHEET_PATH=/opt/mapnik-stylesheets
     ports:
       - '5000:5000'
     depends_on:
       - db
     volumes:
-      - mapnik-volume:/opt/mapnik-stylesheets
       - .:/source
   db:
     image: mdillon/postgis:9.6-alpine
