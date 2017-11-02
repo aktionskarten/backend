@@ -9,7 +9,7 @@ from models import db
 def create_app():
     app = Flask(__name__)
 
-    app.config.from_object('default_settings')
+    app.config.from_object('settings')
     if 'SETTINGS' in environ:
         app.config.from_envvar('SETTINGS')
 
