@@ -99,7 +99,7 @@ def map_feature_get(map_id, feature_id):
             style = request.json['style']
             if 'iconColor' in style:
                 # ensure that we deal with hex values (not rgb(r,g,b))
-                if style['iconColor'].startsWith('rgb'):
+                if style['iconColor'].startswith('rgb'):
                     rgb = re.findall(r'\d+', style['iconColor'])
                     iconColor = ''.join([('%02x' % int(x)) for x in rgb])
                     style['iconColor'] = iconColor
