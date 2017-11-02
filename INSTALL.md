@@ -75,6 +75,7 @@ python2
 Install dependencies and start app
 ```
   pip install -r requirements.txt
+  markers/generate_markers.sh
   python app.py
 ```
 
@@ -162,5 +163,6 @@ Install backend
   git clone https://github.com/KartographischeAktion/aktionskarten-backend.git
   cd aktionskarten-backend
   pip install -r requirements.txt
+  markers/generate_markers.sh
   python app.py
 ```
