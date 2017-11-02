@@ -18,7 +18,7 @@ maps created with aktionskarten-frontend. The following endpoints are
 implemented:
 
 * `/api/maps` - list of the public maps
-* `/api/maps/<map_id> - bounding box and properties
+* `/api/maps/<map_id>` - bounding box and properties
 * `/api/maps/<map_id>/features` - features (circles, lines, markers, ...) of a map
 * `/api/maps/<map_id>/grid` - grid in size of bbox of map
 
