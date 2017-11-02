@@ -16,12 +16,12 @@ You can either run the backend with python or python3:
 
 Install packages (python2)
 ```
-  apt install python-virtualenv python-wheel python-cairocffi python-mapnik pyhton-shapely python-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts
+  apt install python-virtualenv python-wheel python-cairocffi python-mapnik pyhton-shapely python-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts imagemagick
 ```
 
 Install packages (python3)
 ```
-  apt install python3-wheel python3-cairocffi python3-mapnik python3-venv python3-shapely python3-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts
+  apt install python3-wheel python3-cairocffi python3-mapnik python3-venv python3-shapely python3-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts imagemagick
 ```
 
 Start postgres
@@ -69,6 +69,8 @@ python3
 python2
 ```
   virtual--system-site-packages env2
+  echo 'export FLASK_APP=src/app.py' >> env/bin/activate
+  echo 'export FLASK_DEBUG=1' >> env/bin/activate
   . env2/bin/activate
 ```
 
@@ -76,7 +78,7 @@ Install dependencies and start app
 ```
   pip install -r requirements.txt
   markers/generate_markers.sh
-  python app.py
+  flask run
 ```
 
 
@@ -103,7 +105,7 @@ Add user and initialize postgres database.
   vim /etc/locale.gen
   echo 'LANG=en_US.UTF-8' > /etc/locale.conf
   locale-gen 
-  pacman -S python-wheel python-cairocffi python-shapely python-numpy git wget bzip2 postgresql postgis sudo
+  pacman -S python-wheel python-cairocffi python-shapely python-numpy git wget bzip2 postgresql postgis sudo imagemagick
   su - postgres -c "initdb --locale en_US.UTF-8 -D '/var/lib/postgres/data'"
 ```
 
@@ -144,6 +146,8 @@ Install carto to generate mapnik osm xml style:
 Create virtualenv for python2
 ```
   virtualenv2 --system-site-packages env
+  echo 'export FLASK_APP=src/app.py' >> env/bin/activate
+  echo 'export FLASK_DEBUG=1' >> env/bin/activate
   . env/bin/activate
 ```
 
@@ -164,5 +168,5 @@ Install backend
   cd aktionskarten-backend
   pip install -r requirements.txt
   markers/generate_markers.sh
-  python app.py
+  flask run
 ```
