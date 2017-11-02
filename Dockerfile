@@ -37,6 +37,6 @@ RUN pip3 install -r /source/requirements.txt
 
 ADD . /source
 
-RUN /source/src/markers/generate_markers.sh
+RUN /source/markers/generate_markers.sh
 
 CMD /source/docker/docker-entrypoint.sh
