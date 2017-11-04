@@ -1,47 +1,35 @@
-#from flask_socketio import SocketIO, join_room, leave_room, send
-#
-#socketio = SocketIO(app, path="/api/live")
-#
-#
-#@socketio.on('message')
-#def handle_message(message):
-#    print('received message: ' + message)
-#
-#@socketio.on('my event')
-#def handle_my_custom_event(json):
-#    print('received json: ' + str(json))
-#
-#@socketio.on('join')
-#def on_join(data):
-#    map_id = data['map_id']
-#    print("joined room")
-#    join_room(map_id)
-#    send('has entered the room.', room=map_id)
-#
-#
-#@socketio.on('leave')
-#def on_leave(data):
-#    map_id = data['map_id']
-#    print("left room")
-#    leave_room(map_id)
-#    #send(username + ' has left the room.', room=room)
-#
-#@app.route('/live')
-#def live():
-#    return '''
-#    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-#<script type="text/javascript" charset="utf-8">
-#    var socket = io.connect('http://' + document.domain + ':' + location.port, {'path': '/api/live'});
-#    var map_id = 1
-#    socket.on('connect', function() {
-#        socket.emit('join', {'map_id':map_id});
-#    });
-#
-#    socket.on('message', function(data) {
-#        console.log(data);
-#//        socket.emit('leave', {'map_id':map_id})
-#    });
-#
-#    console.log("started");
-#</script>
-#    '''
+from models import Feature
+from flask_socketio import SocketIO, join_room, leave_room, send
+
+
+socketio = SocketIO()
+
+
+@socketio.on('join')
+def on_join(map_id):
+    join_room(map_id)
+    send('user joined', room=map_id)
+
+
+@socketio.on('leave')
+def on_leave(map_id):
+    leave_room(map_id)
+    send('user left', room=map_id)
+
+
+@Feature.on_created.connect
+def model_on_created(data):
+    socketio.emit('created', data, room=data['properties']['map_id'])
+    print("create event", data)
+
+
+@Feature.on_updated.connect
+def model_on_updated(data):
+    socketio.emit('updated', data, room=data['properties']['map_id'])
+    print("update event", data)
+
+
+@Feature.on_deleted.connect
+def model_on_deleted(data):
+    socketio.emit('deleted', data, room=data['properties']['map_id'])
+    print("delete event", data)
