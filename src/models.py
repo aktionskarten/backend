@@ -109,7 +109,7 @@ class Feature(db.Model):
 
         # scale is needed for rendering images in mapnik
         if 'iconSize' in properties:
-            properties['scale'] = (20/150.) * (properties['iconSize'][0]/20)
+            properties['scale'] = (20/150) * (properties['iconSize'][0]/20) * 2
 
         properties['id'] = self.id
         properties['map_id'] = self.map_id
