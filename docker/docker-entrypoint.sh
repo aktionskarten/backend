@@ -4,4 +4,4 @@ export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 export PYTHONPATH=${PYTHONPATH}:.
 /source/markers/generate_markers.sh
-FLASK_APP=src/app.py FLASK_DEBUG=1 flask run --host=0.0.0.0
+FLASK_DEBUG=1 flask run --host=0.0.0.0

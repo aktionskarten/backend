@@ -9,3 +9,4 @@ numpy
 geojson
 shapely
 cairocffi
+blinker
