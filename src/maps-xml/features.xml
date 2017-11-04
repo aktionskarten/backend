@@ -8,7 +8,8 @@
       <Rule>
           <Filter>[mapnik::geometry_type]=linestring</Filter>
           <LineSymbolizer stroke="[color]" stroke-width="10" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
-          <LinePatternSymbolizer type="png" file="symbols/arrow.png" />
+          <!-- #TODO: There was no arrow png in the osm carto package, i naively chose to use one of the generated ones?? -->
+          <LinePatternSymbolizer type="png" file="../markers/[iconColor]/arrow.png" />
       </Rule>
       <Rule>
           <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
