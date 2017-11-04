@@ -1,6 +1,7 @@
 from flask import Blueprint, send_file, current_app
 
 from models import db, Map
+import os
 import mapnik
 import json
 import cairo
@@ -9,7 +10,7 @@ from geojson import FeatureCollection, Feature, Point
 
 
 render = Blueprint('Render', __name__)
-
+SRC_PATH = os.path.dirname(__file__)
 
 def get_xml(path):
     with open(path, 'r') as f:
@@ -28,7 +29,7 @@ def add_legend(mapnik_map, data):
         features.append(Feature(geometry=point, properties=properties))
 
     collection = FeatureCollection(features)
-    path = "maps-xml/legend.xml"
+    path = os.path.join(SRC_PATH, "maps-xml/legend.xml")
     xml_str = get_xml(path).format(json.dumps(collection)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
@@ -50,13 +51,13 @@ def render_map(_map, mimetype='application/pdf'):
 
     # add grid
     data = _map.grid
-    path = "maps-xml/grid.xml"
+    path = os.path.join(SRC_PATH, "maps-xml/grid.xml")
     xml_str = get_xml(path).format(json.dumps(data)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
     # add all features
     features = FeatureCollection([f.to_dict() for f in _map.features])
-    path = "maps-xml/features.xml"
+    path = os.path.join(SRC_PATH, "maps-xml/features.xml")
     xml_str = get_xml(path).format(json.dumps(features)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 

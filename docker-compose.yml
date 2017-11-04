@@ -6,9 +6,10 @@ services:
     build: .
     command: /source/docker/docker-entrypoint.sh
     environment:
-      - DB_HOST=db
-      - DB_NAME=gis
-      - DATABASE_URI=postgresql://postgres:@db/gis
+      - PGUSER=postgres
+      - PGHOST=db
+      - PGDATABASE=gis
+      - SETTINGS=../docker/docker_settings.py
     ports:
       - '5000:5000'
     depends_on:
@@ -19,6 +20,3 @@ services:
     image: mdillon/postgis:9.6-alpine
     environment:
       - POSTGRES_DB=gis
-
-volumes:
-  mapnik-volume:
