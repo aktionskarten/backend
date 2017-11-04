@@ -1,17 +1,22 @@
 import flask_sqlalchemy
+import itertools
 import geojson
 import os
 
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSON
 from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
 from geoalchemy2 import Geometry
+from blinker import Namespace
+from sqlalchemy import event
 from grid import Grid
 
 
 db = flask_sqlalchemy.SQLAlchemy()
+db_signals = Namespace()
 
 
 class Map(db.Model):
@@ -21,6 +26,10 @@ class Map(db.Model):
     public = db.Column(db.Boolean, default=True)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True)
+
+    on_created = db_signals.signal('map-created')
+    on_updated = db_signals.signal('map-updated')
+    on_deleted = db_signals.signal('map-deleted')
 
     def __init__(self, name, bbox):
         self.name = name
@@ -74,7 +83,11 @@ class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
     _geo = db.Column(Geometry())
-    style = db.Column(db.JSON)
+    style = db.Column(JSON)
+
+    on_created = db_signals.signal('feature-created')
+    on_updated = db_signals.signal('feature-updated')
+    on_deleted = db_signals.signal('feature-deleted')
 
     def __init__(self, data):
         self.geo = data
@@ -97,6 +110,34 @@ class Feature(db.Model):
         # scale is needed for rendering images in mapnik
         if 'iconSize' in properties:
             properties['scale'] = (20/150.) * (properties['iconSize'][0]/20)
+
         properties['id'] = self.id
+        properties['map_id'] = self.map_id
 
         return geojson.Feature(geometry=self.geo, properties=properties)
+
+
+@event.listens_for(db.session, 'after_commit')
+def receive_after_commit(session):
+    for action in ['created', 'updated', 'deleted']:
+        if action in session.info:
+            for (cls, data) in session.info[action]:
+                getattr(cls, 'on_' + action).send(data)
+
+
+@event.listens_for(db.session, 'before_flush')
+def receive_before_flush(session, flush_context, instances):
+    events = [('created', session.new), ('updated', session.dirty),
+              ('deleted', session.deleted)]
+    for (action, instances) in events:
+        session.info[action] = [obj for obj in instances
+                                if action == 'deleted' or
+                                session.is_modified(obj, False)]
+
+
+@event.listens_for(db.session, 'after_flush')
+def receive_after_flush(session, flush_context):
+    for action in ['created', 'updated', 'deleted']:
+        if action in session.info:
+            session.info[action] = [(obj.__class__, obj.to_dict())
+                                    for obj in session.info[action]]
