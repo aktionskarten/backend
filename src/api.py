@@ -102,7 +102,7 @@ def map_feature_get(map_id, feature_id):
                 if style['iconColor'].startswith('rgb'):
                     rgb = re.findall(r'\d+', style['iconColor'])
                     iconColor = ''.join([('%02x' % int(x)) for x in rgb])
-                    style['iconColor'] = iconColor
+                    style['iconColor'] = '#' + iconColor
             f.style = style
         if 'geo' in request.json:
             f.geo = request.json['geo']
