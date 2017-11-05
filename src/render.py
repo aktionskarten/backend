@@ -89,7 +89,7 @@ def render_map(_map, mimetype='application/pdf'):
     return f
 
 
-@render.route('/api/maps/<int:map_id>/export/svg')
+@render.route('/api/maps/<string:map_id>/export/svg')
 def map_export_svg(map_id):
     m = db.session.query(Map).get(map_id)
     mimetype = 'image/svg+xml'
@@ -98,7 +98,7 @@ def map_export_svg(map_id):
                      mimetype=mimetype)
 
 
-@render.route('/api/maps/<int:map_id>/export/pdf')
+@render.route('/api/maps/<string:map_id>/export/pdf')
 def map_export_pdf(map_id):
     m = db.session.query(Map).get(map_id)
     mimetype = 'application/pdf'
@@ -107,7 +107,7 @@ def map_export_pdf(map_id):
                      mimetype=mimetype)
 
 
-@render.route('/api/maps/<int:map_id>/export/png')
+@render.route('/api/maps/<string:map_id>/export/png')
 def map_export_png(map_id):
     m = db.session.query(Map).get(map_id)
     mimetype = 'image/png'
