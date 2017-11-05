@@ -1,8 +1,9 @@
 import flask_sqlalchemy
-import itertools
 import geojson
 import os
+import json
 
+from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSON
@@ -26,7 +27,7 @@ class Map(db.Model):
     secret = db.Column(db.Binary, default=lambda: os.urandom(24))
     public = db.Column(db.Boolean, default=True)
     _bbox = db.Column(Geometry('POLYGON'))
-    features = db.relationship('Feature', backref='map', lazy=True)
+    features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id")
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
@@ -50,6 +51,12 @@ class Map(db.Model):
     def grid(self):
         return Grid(*self.bbox).generate(cells=12)
 
+    @property
+    def hash(self):
+        data = [f.to_dict() for f in self.features]
+        raw = json.dumps(data, separators=(',', ':'), sort_keys=True)
+        return sha256(raw).hexdigest()
+
     @hybrid_property
     def bbox(self):
         return to_shape(self._bbox).bounds
@@ -63,7 +70,8 @@ class Map(db.Model):
             'id': self.id,
             'name': self.name,
             'public': self.public,
-            'bbox': self.bbox
+            'bbox': self.bbox,
+            'hash': self.hash
         }
 
     def gen_token(self):
