@@ -11,7 +11,7 @@ api = Blueprint('API', __name__)
 CORS(api)
 
 
-@api.route('/api/maps/<int:map_id>/auth')
+@api.route('/api/maps/<string:map_id>/auth')
 def auth(map_id):
     secret = request.headers.get('X-Secret', '')
     obj = db.session.query(Map).get(map_id)
@@ -52,14 +52,14 @@ def maps():
     return jsonify([m.to_dict() for m in db.session.query(Map).all()])
 
 
-@api.route('/api/maps/<int:map_id>/')
-@api.route('/api/maps/<int:map_id>')
+@api.route('/api/maps/<string:map_id>/')
+@api.route('/api/maps/<string:map_id>')
 def map_get(map_id):
     m = db.session.query(Map).get(map_id)
     return jsonify(m.to_dict())
 
 
-@api.route('/api/maps/<int:map_id>/features', methods=['GET', 'POST'])
+@api.route('/api/maps/<string:map_id>/features', methods=['GET', 'POST'])
 def map_features(map_id):
     m = db.session.query(Map).get(map_id)
     if not m:
@@ -79,7 +79,7 @@ def map_features(map_id):
     return jsonify(FeatureCollection(features))
 
 
-@api.route('/api/maps/<int:map_id>/features/<int:feature_id>',
+@api.route('/api/maps/<string:map_id>/features/<int:feature_id>',
            methods=['PUT', 'PATCH', 'DELETE'])
 def map_feature_get(map_id, feature_id):
     f = db.session.query(Feature).get(feature_id)
@@ -114,7 +114,7 @@ def map_feature_get(map_id, feature_id):
     return jsonify(f.to_dict())
 
 
-@api.route('/api/maps/<int:map_id>/grid')
+@api.route('/api/maps/<string:map_id>/grid')
 def map_get_grid(map_id):
     m = db.session.query(Map).get(map_id)
     return jsonify(m.grid)
