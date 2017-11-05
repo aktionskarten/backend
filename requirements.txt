@@ -10,3 +10,4 @@ geojson
 shapely
 cairocffi
 blinker
+slugify

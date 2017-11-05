@@ -12,6 +12,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
 from geoalchemy2 import Geometry
 from blinker import Namespace
 from sqlalchemy import event
+from slugify import slugify
 from grid import Grid
 
 
@@ -20,7 +21,7 @@ db_signals = Namespace()
 
 
 class Map(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Unicode, primary_key=True)
     name = db.Column(db.Unicode)
     secret = db.Column(db.Binary, default=lambda: os.urandom(24))
     public = db.Column(db.Boolean, default=True)
@@ -79,9 +80,15 @@ class Map(db.Model):
         return True
 
 
+@event.listens_for(Map.name, 'set')
+def generate_slug(target, value, oldvalue, initiator):
+    if value and (not target.id or value != oldvalue):
+        target.id = slugify(value)
+
+
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
+    map_id = db.Column(db.Unicode, db.ForeignKey('map.id'), nullable=False)
     _geo = db.Column(Geometry())
     style = db.Column(JSON)
 
