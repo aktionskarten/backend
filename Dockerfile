@@ -35,8 +35,10 @@ ADD requirements.txt /source
 
 RUN pip3 install -r /source/requirements.txt
 
-ADD . /source
+# load shapefiles for osm theme
+WORKDIR /usr/share/openstreetmap-carto-common
+RUN ./get-shapefiles.sh
 
-RUN /source/src/markers/generate_markers.sh
+ADD . /source
 
 CMD /source/docker/docker-entrypoint.sh
