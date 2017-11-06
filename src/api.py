@@ -48,7 +48,6 @@ def maps():
         db.session.add(m)
         db.session.commit()
         return jsonify(m.to_dict())
-
     return jsonify([m.to_dict() for m in db.session.query(Map).all()])
 
 
