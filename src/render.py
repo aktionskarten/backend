@@ -4,7 +4,13 @@ from models import db, Map
 import os
 import mapnik
 import json
-import cairo
+
+# somesystems have a different cairo
+try:
+    import cairo
+except:
+    import cairocffi as cairo
+
 import io
 from geojson import FeatureCollection, Feature, Point
 
