@@ -167,3 +167,13 @@ Date: Thu, 02 Nov 2017 11:08:01 GMT
   "type": "Feature"
 }
 ```
+
+## Tests
+
+You can run some tests with pytest, though PYTHONPATH and correct settings have to be configured.
+
+```
+SETTINGS=config/testing.py PYTHONPATH=src pytest
+```
+
+Note that you need a postgres database like configured in testing.py

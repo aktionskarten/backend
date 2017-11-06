@@ -10,4 +10,7 @@ geojson
 shapely
 cairocffi
 blinker
+pytest
 awesome-slugify
+factory-boy
+faker
