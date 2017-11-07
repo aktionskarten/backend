@@ -14,3 +14,4 @@ pytest
 awesome-slugify
 factory-boy
 faker
+pylint
