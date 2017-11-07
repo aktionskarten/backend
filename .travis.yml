@@ -1,36 +1,20 @@
-language: python
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
+sudo: required
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.17.0
+
+language: generic
 
 services:
-  - postgresql
+  - docker
 
-before_script:
-  - psql -c 'create database test;' -U postgres
+# install docker compose
+before-script:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
-cache: pip
-
-install:
-  - git clone https://github.com/mapnik/mapnik.git --branch v3.0.x
-  - cd mapnik
-  - git submodule update --init
-  - sudo python scons/scons.py install
-  - cd ..
-  - git clone https://github.com/mapnik/python-mapnik.git
-  - cd python-mapnik
-  - python setup.py install
-  - pip install -r requirements.txt
-
+# run the compose, which spins up a postgis db, and execute pytest. We still have to wait ~10secs before starting because postgis needs some startup time
 script:
-  - pylint src
-  - SETTINGS=config/testing.py PYTHONPATH=src pytest
-
-addons:
-  apt:
-    packages:
-    - libharfbuzz-dev
-    - libmapnik-dev
-
-sudo: required
+  - docker-compose run web /bin/sh -c 'sleep 10 && cd /source && SETTINGS=../docker/docker_settings.py PYTHONPATH=src pytest' --build
