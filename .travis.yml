@@ -1,15 +1,20 @@
-language: python
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "pypy"
-before_install:
- - "sudo apt-get -qq update"
- - "sudo apt-get install -y python-gdal"
-install: "sudo pip install -r requirements.txt"
-script: 
-  - "nosetests"
-  - "pylint --load-plugins pylint_django actionmaps_backend maps"
-sudo: true
+sudo: required
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.17.0
+
+language: generic
+
+services:
+  - docker
+
+# install docker compose
+before-script:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+# run the compose, which spins up a postgis db, and execute pytest. We still have to wait ~10secs before starting because postgis needs some startup time
+script:
+  - docker-compose run web /bin/sh -c 'sleep 10 && cd /source && SETTINGS=../docker/docker_settings.py PYTHONPATH=src pytest' --build

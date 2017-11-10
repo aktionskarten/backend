@@ -55,7 +55,7 @@ class Map(db.Model):
     def hash(self):
         data = [f.to_dict() for f in self.features]
         raw = json.dumps(data, separators=(',', ':'), sort_keys=True)
-        return sha256(raw).hexdigest()
+        return sha256(raw.encode()).hexdigest()
 
     @hybrid_property
     def bbox(self):
