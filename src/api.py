@@ -118,4 +118,6 @@ def map_feature_get(map_id, feature_id):
 @api.route('/api/maps/<string:map_id>/grid')
 def map_get_grid(map_id):
     m = db.session.query(Map).get(map_id)
+    if not m:
+        abort(404)
     return jsonify(m.grid)
