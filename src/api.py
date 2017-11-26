@@ -45,6 +45,8 @@ def maps():
             abort(400)
 
         m = Map(request.json['bbox'])
+        if 'name' in request.json:
+            m.name = request.json['name']
         db.session.add(m)
         db.session.commit()
         return jsonify(m.to_dict())
