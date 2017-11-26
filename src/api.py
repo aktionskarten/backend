@@ -55,6 +55,8 @@ def maps():
 @api.route('/api/maps/<string:map_id>')
 def map_get(map_id):
     m = db.session.query(Map).get(map_id)
+    if not m:
+        abort(404)
     return jsonify(m.to_dict())
 
 
