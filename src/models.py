@@ -90,7 +90,7 @@ class Map(db.Model):
 
 @event.listens_for(Map.name, 'set')
 def generate_slug(target, value, oldvalue, initiator):
-    if value and (not target.id or value != oldvalue):
+    if value and value != oldvalue:
         target.id = slugify(value)
 
 
