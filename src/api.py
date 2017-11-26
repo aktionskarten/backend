@@ -41,10 +41,10 @@ def verify_token():
 @api.route('/api/maps', methods=['GET', 'POST'])
 def maps():
     if request.method == 'POST':
-        if ('name' not in request.json or 'bbox' not in request.json):
+        if ('bbox' not in request.json):
             abort(400)
 
-        m = Map(request.json['name'], request.json['bbox'])
+        m = Map(request.json['bbox'])
         db.session.add(m)
         db.session.commit()
         return jsonify(m.to_dict())
