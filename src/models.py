@@ -3,6 +3,7 @@ import geojson
 import os
 import json
 
+from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -22,7 +23,7 @@ db_signals = Namespace()
 
 
 class Map(db.Model):
-    id = db.Column(db.Unicode, primary_key=True)
+    id = db.Column(db.Unicode, primary_key=True, default=lambda: uuid4().hex)
     name = db.Column(db.Unicode)
     secret = db.Column(db.Binary, default=lambda: os.urandom(24))
     public = db.Column(db.Boolean, default=True)
@@ -33,8 +34,7 @@ class Map(db.Model):
     on_updated = db_signals.signal('map-updated')
     on_deleted = db_signals.signal('map-deleted')
 
-    def __init__(self, name, bbox):
-        self.name = name
+    def __init__(self, bbox):
         self._bbox = from_shape(box(*bbox))
         self.serializer = TimedJSONWebSignatureSerializer(self.secret,
                                                           expires_in=600)
