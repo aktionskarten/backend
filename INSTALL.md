@@ -137,8 +137,10 @@ Install carto to generate mapnik osm xml style:
   npm install -g carto
   git clone https://github.com/gravitystorm/openstreetmap-carto.git
   cd openstreetmap-carto
-  osm2pgsql -G --hstore --style openstreetmap-carto.style --tag-transform-script openstreetmap-carto.lua -d gis /tmp/berlin-latest.osm  
-  psql -d gis -f indexes.sql
+  wget http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2
+  bzip2 -d berlin-latest.osm.bz2
+  osm2pgsql -U gis -W -G --hstore --style openstreetmap-carto.style --tag-transform-script openstreetmap-carto.lua -d gis berlin-latest.osm  
+  sudo -u postgres psql -d gis -f indexes.sql
   scripts/get-shapefiles.py -s
   carto project.mml > osm.xml
 ```
