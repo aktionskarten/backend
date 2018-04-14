@@ -2,12 +2,14 @@ import flask_sqlalchemy
 import geojson
 import os
 import json
+import datetime
 
 from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
+from sqlalchemy import desc
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
@@ -23,56 +25,96 @@ db_signals = Namespace()
 
 
 class Map(db.Model):
-    id = db.Column(db.Unicode, primary_key=True, default=lambda: uuid4().hex)
-    name = db.Column(db.Unicode)
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.Unicode)
     secret = db.Column(db.Binary, default=lambda: os.urandom(24))
-    public = db.Column(db.Boolean, default=True)
+    name = db.Column(db.Unicode)
+    description = db.Column(db.Unicode)
+    place = db.Column(db.Unicode)
+    datetime = db.Column(db.DateTime)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id")
+    attributes = db.Column(JSONB)
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
     on_deleted = db_signals.signal('map-deleted')
 
-    def __init__(self, bbox):
-        self._bbox = from_shape(box(*bbox))
+    def __init__(self, name):
+        self.name = name
         self.serializer = TimedJSONWebSignatureSerializer(self.secret,
                                                           expires_in=600)
 
-    @property
-    def legend(self):
-        return {
-            'Twitter': '@foo',
-            'EA': '030 69 55555',
-            'Datum': '30.06.2018'
-        }
+    @classmethod
+    def all(cls):
+        return db.session.query(Map).order_by(desc(Map.datetime)).all()
+
+    @classmethod
+    def get(cls, slug):
+        return db.session.query(Map).filter(Map.slug == slug).first()
 
     @property
     def grid(self):
-        return Grid(*self.bbox).generate(cells=12)
+        if (self.bbox):
+            return Grid(*self.bbox).generate()
+        return []
 
     @property
     def hash(self):
-        data = [f.to_dict() for f in self.features]
+        data = self.to_dict(False)
+        data['features'] = [f.to_dict() for f in self.features]
         raw = json.dumps(data, separators=(',', ':'), sort_keys=True)
         return sha256(raw.encode()).hexdigest()
 
     @hybrid_property
+    def time(self):
+        return self.datetime.time()
+
+    @time.setter
+    def time(self, t):
+        args = {'hour': t.hour, 'minute': t.minute, 'second': t.second}
+        if self.datetime:
+            self.datetime.replace(**args)
+        else:
+            self.datetime = datetime.datetime(**args)
+
+    @hybrid_property
+    def date(self):
+        return self.datetime.date()
+
+    @date.setter
+    def date(self, value):
+        args = [value.year, value.month, value.day]
+        if self.datetime:
+            self.datetime.replace(*args)
+        else:
+            self.datetime = datetime.datetime(*args)
+
+    @hybrid_property
     def bbox(self):
+        if (self._bbox is None):
+            return None
         return to_shape(self._bbox).bounds
 
     @bbox.setter
     def bbox(self, value):
-        self._bbox = from_shape(shape(value))
+        self._bbox = from_shape(box(*value))
 
-    def to_dict(self):
-        return {
-            'id': self.id,
+    def to_dict(self, hash_included=True):
+        data = {
+            'id': self.slug,
             'name': self.name,
-            'public': self.public,
+            'description': self.description,
+            'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
+            'attributes': self.attributes,
             'bbox': self.bbox,
-            'hash': self.hash
+            'place': self.place
         }
+
+        if hash_included:
+            data['hash'] = self.hash
+
+        return data
 
     def gen_token(self):
         return self.serializer.dumps(self.id)
@@ -91,21 +133,29 @@ class Map(db.Model):
 @event.listens_for(Map.name, 'set')
 def generate_slug(target, value, oldvalue, initiator):
     if value and value != oldvalue:
-        target.id = slugify(value)
+        target.slug = slugify(value)
 
 
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    map_id = db.Column(db.Unicode, db.ForeignKey('map.id'), nullable=False)
+    map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
     _geo = db.Column(Geometry())
-    style = db.Column(JSON)
+    style = db.Column(JSONB)
 
     on_created = db_signals.signal('feature-created')
     on_updated = db_signals.signal('feature-updated')
     on_deleted = db_signals.signal('feature-deleted')
 
-    def __init__(self, data):
-        self.geo = data
+    def __init__(self, feature):
+        if 'geometry' in feature:
+            self.geo = feature['geometry']
+
+        if 'properties' in feature:
+            self.style = feature['properties']
+
+    @classmethod
+    def get(cls, id):
+        return db.session.query(Feature).get(id)
 
     @hybrid_property
     def geo(self):
