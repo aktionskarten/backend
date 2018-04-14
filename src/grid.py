@@ -11,31 +11,7 @@ class Grid:
         self.min_y = min_y
         self.max_y = max_y
 
-    def generate(self, cells):
-        grid = self.generate_grid(cells)
-        labels = self.generate_labels(cells)
-        return FeatureCollection([grid] + labels)
-
-    def generate_grid(self, cells):
-        coords = []
-
-        # columns
-        for x in linspace(self.min_x, self.max_x, num=cells):
-            coords.append([(x, self.min_y), (x, self.max_y)])
-
-        # rows
-        for y in linspace(self.min_y, self.max_y, num=cells):
-            coords.append([(self.min_x, y), (self.max_x, y)])
-
-        prop = {
-            'type': 'grid',
-            'color': "#999",
-            'opacity': 0.3,
-            'weight': 2
-        }
-        return Feature(geometry=MultiLineString(coords), properties=prop)
-
-    def generate_labels(self, cells):
+    def generate(self, cells = 12):
         features = []
 
         # top and bottom labels
@@ -60,7 +36,6 @@ class Grid:
 
         # left and right labels
         entries = linspace(self.min_y, self.max_y, num=cells)
-        print(entries)
         start = entries[0]
         for i, end in enumerate(entries[1:]):
             geos = [
@@ -79,4 +54,4 @@ class Grid:
 
             start = end
 
-        return features
+        return FeatureCollection(features)
