@@ -1,5 +1,6 @@
 from models import Feature
 from flask_socketio import SocketIO, join_room, leave_room, send
+from models import Map
 
 
 socketio = SocketIO()
@@ -7,14 +8,16 @@ socketio = SocketIO()
 
 @socketio.on('join')
 def on_join(map_id):
-    join_room(map_id)
-    send('user joined', room=map_id)
+    m = Map.get(map_id)
+    join_room(m.id)
+    send('user joined', room=m.id)
 
 
 @socketio.on('leave')
 def on_leave(map_id):
-    leave_room(map_id)
-    send('user left', room=map_id)
+    m = Map.get(map_id)
+    leave_room(m.id)
+    send('user left', room=m.id)
 
 
 @Feature.on_created.connect
