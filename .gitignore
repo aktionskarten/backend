@@ -63,3 +63,6 @@ migrations
 local_settings
 
 markers/
+
+# ignore compiled maps
+src/static/maps/
