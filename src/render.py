@@ -1,6 +1,3 @@
-from flask import Blueprint, send_file, current_app
-
-from models import db, Map
 import os
 import mapnik
 import json
@@ -12,35 +9,62 @@ except:
     import cairocffi as cairo
 
 import io
+import mimetypes
+
+from flask import Blueprint, send_file, current_app, jsonify
+from models import db, Map
 from geojson import FeatureCollection, Feature, Point
+from hashlib import sha256
 
 
 render = Blueprint('Render', __name__)
-SRC_PATH = os.path.dirname(__file__)
+
 
 def get_xml(path):
-    with open(path, 'r') as f:
+    path_abs = os.path.join(os.path.dirname(__file__), path)
+    with open(path_abs, 'r') as f:
         return f.read()
 
 
-def add_legend(mapnik_map, data):
+def add_legend(mapnik_map, _map):
     features = []
     box = mapnik_map.envelope()
-    offset = ((box.maxy - box.miny) / 12) / len(data)
-    x = box.minx + 1.5*offset
-    y = box.miny + offset
-    for i, k in enumerate(data.keys()):
-        point = Point((x, y+offset*(1+i)))
-        properties = {'key': k, 'value': data[k]}
-        features.append(Feature(geometry=point, properties=properties))
 
-    collection = FeatureCollection(features)
-    path = os.path.join(SRC_PATH, "maps-xml/legend.xml")
-    xml_str = get_xml(path).format(json.dumps(collection)).encode()
+    # add name, place and date
+    point = Point((box.minx, box.maxy))
+    features.append(Feature(geometry=point, properties={
+        'name': _map.name,
+        'place': _map.place,
+        'date': _map.datetime.strftime('%d.%m.%Y %H:%M')
+        }))
+
+    # add properties
+    if (_map.attributes and len(_map.attributes) > 0):
+        cell_size = ((box.maxy - box.miny) / 11.)
+        offset = cell_size / 3
+        x = box.minx + offset
+        y = box.miny + offset
+        for i, k in enumerate(_map.attributes.keys()):
+            point = Point((x, y+offset*i))
+            properties = {'key': k, 'value': _map.attributes[k]}
+            features.append(Feature(geometry=point, properties=properties))
+
+    collection = json.dumps(FeatureCollection(features))
+    xml_str = get_xml("maps-xml/legend.xml").format(collection).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
 
-def render_map(_map, mimetype='application/pdf'):
+def strip(feature):
+    props = feature['properties']
+    # dashArray="1" results in Leaflet as a straight line but in mapnik as
+    # strokes. In mapnik to render a straight line, you don't provide any
+    # dashArray. To have the same render result, delete it here.
+    if 'dashArray' in props and props['dashArray'] == "1":
+        del props['dashArray']
+    return feature
+
+
+def render_map(_map, mimetype='application/pdf', scale=1):
     merc = mapnik.Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over')
     longlat = mapnik.Projection('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
     transform = mapnik.ProjTransform(longlat, merc)
@@ -48,7 +72,8 @@ def render_map(_map, mimetype='application/pdf'):
     bbox = mapnik.Box2d(*_map.bbox)
     merc_bbox = transform.forward(bbox)
 
-    mapnik_map = mapnik.Map(int(merc_bbox.width()), int(merc_bbox.height()))
+    # size is DINA4 @ 150dpi
+    mapnik_map = mapnik.Map(1754, 1240)
     mapnik_map.zoom_to_box(merc_bbox)
     mapnik_map.buffer_size = 5
 
@@ -57,66 +82,114 @@ def render_map(_map, mimetype='application/pdf'):
 
     # add grid
     data = _map.grid
-    path = os.path.join(SRC_PATH, "maps-xml/grid.xml")
-    xml_str = get_xml(path).format(json.dumps(data)).encode()
+    xml_str = get_xml("maps-xml/grid.xml").format(json.dumps(data)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
     # add all features
-    features = FeatureCollection([f.to_dict() for f in _map.features])
-    path = os.path.join(SRC_PATH, "maps-xml/features.xml")
-    xml_str = get_xml(path).format(json.dumps(features)).encode()
+    features = FeatureCollection([strip(f.to_dict()) for f in _map.features])
+    xml_str = get_xml("maps-xml/features.xml").format(json.dumps(features)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
     # add legend
-    add_legend(mapnik_map, _map.legend)
+    add_legend(mapnik_map, _map)
 
     # export as in-memory file
     f = io.BytesIO()
 
+    # create corresponding surface for mimetype
     if mimetype == 'image/svg+xml':
         surface = cairo.SVGSurface(f, mapnik_map.width, mapnik_map.height)
     elif mimetype == 'image/png':
-        ratio = float(mapnik_map.height) / mapnik_map.width
-        mapnik.height = 800
-        mapnik.width = int(600*ratio)
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, mapnik_map.width,
-                                     mapnik_map.height)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, mapnik_map.width, mapnik_map.height)
     else:
         surface = cairo.PDFSurface(f, mapnik_map.width, mapnik_map.height)
 
+    # let mapnik render the actual map
     mapnik.render(mapnik_map, surface)
 
+    # pngs can be in different sizes through a scaling factor
     if mimetype == 'image/png':
+        if (scale != 1):
+            # render first and then scale resulting image otherwise fonts
+            # occurr in wrong sizes
+            pattern = cairo.SurfacePattern(surface)
+            scaler = cairo.Matrix()
+            scaler.scale(1./scale, 1./scale)
+            pattern.set_matrix(scaler)
+            pattern.set_filter(cairo.FILTER_FAST)
+
+            # apply scale and save as new image surface
+            width = int(mapnik_map.width * scale)
+            height = int(mapnik_map.height * scale)
+            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+            ctx = cairo.Context(surface)
+            ctx.set_source(pattern)
+            ctx.paint()
+
         surface.write_to_png(f)
+    else:
+        surface.finish()
 
-    surface.finish()
     f.seek(0)
-
     return f
+
+
+def send_map(map_id, extension, scale=1, suffix=None):
+    m = Map.get(map_id)
+    dirname = sha256(map_id).hexdigest()
+    mimetype = mimetypes.types_map['.' + extension]
+
+    if (suffix):
+        filename = '{}_{}.{}'.format(map_id, suffix, extension)
+    else:
+        filename = '{}.{}'.format(map_id, extension)
+
+    # for development you can disable caching of maps
+    if current_app.config['NO_MAP_CACHE']:
+        return send_file(render_map(m, mimetype, scale),
+                         attachment_filename=filename,
+                         mimetype=mimetype)
+
+    static_path = current_app.static_folder
+    path = os.path.join(static_path, 'maps', dirname, m.hash, filename)
+    if not os.path.exists(path):
+        basename = os.path.dirname(path)
+        if not os.path.exists(basename):
+            os.makedirs(basename)
+        with open(path, 'wb') as f:
+            f.write(render_map(m, mimetype, scale).read())
+
+    return send_file(path,
+                     attachment_filename=filename,
+                     mimetype=mimetype)
 
 
 @render.route('/api/maps/<string:map_id>/export/svg')
 def map_export_svg(map_id):
-    m = db.session.query(Map).get(map_id)
-    mimetype = 'image/svg+xml'
-    return send_file(render_map(m, mimetype),
-                     attachment_filename='map.svg',
-                     mimetype=mimetype)
+    return send_map(map_id, 'svg')
 
 
 @render.route('/api/maps/<string:map_id>/export/pdf')
 def map_export_pdf(map_id):
-    m = db.session.query(Map).get(map_id)
-    mimetype = 'application/pdf'
-    return send_file(render_map(m, mimetype),
-                     attachment_filename='map.pdf',
-                     mimetype=mimetype)
+    return send_map(map_id, 'pdf')
 
 
 @render.route('/api/maps/<string:map_id>/export/png')
-def map_export_png(map_id):
+@render.route('/api/maps/<string:map_id>/export/png:<string:size>')
+def map_export_png(map_id, size='large'):
+    if size == 'large':
+        scale = 1
+    elif size == 'small':
+        scale = 0.5
+    else:
+        size = 'medium'
+        scale = 0.75
+
+    return send_map(map_id, 'png', scale, size)
+
+
+@render.route('/api/maps/<string:map_id>/export/geojson')
+def map_export_geojson(map_id):
     m = db.session.query(Map).get(map_id)
-    mimetype = 'image/png'
-    return send_file(render_map(m, mimetype),
-                     attachment_filename='map.png',
-                     mimetype=mimetype)
+    features = [f.to_dict() for f in m.features]
+    return jsonify(FeatureCollection(features, properties=m.to_dict(False)))

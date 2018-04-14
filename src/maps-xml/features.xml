@@ -1,24 +1,47 @@
 <Map srs="+init=epsg:3857">
   <Style name="geoms">
       <Rule>
-          <Filter>[mapnik::geometry_type]=polygon</Filter>
+          <Filter>[mapnik::geometry_type]=polygon and not ([fillColor] = null)</Filter>
           <PolygonSymbolizer fill="[fillColor]" fill-opacity="[fillOpacity]" />
-          <LineSymbolizer stroke="[color]" stroke-width="2" stroke-opacity="[opacity]" />
+          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />
+      </Rule>
+      <Rule>
+          <Filter>[mapnik::geometry_type]=polygon</Filter>
+          <PolygonSymbolizer fill="[color]" fill-opacity="[fillOpacity]" />
+          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />
       </Rule>
       <Rule>
           <Filter>[mapnik::geometry_type]=linestring</Filter>
-          <LineSymbolizer stroke="[color]" stroke-width="10" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
-          <!-- #TODO: There was no arrow png in the osm carto package, i naively chose to use one of the generated ones?? -->
-          <LinePatternSymbolizer type="png" file="../markers/[iconColor]/arrow.png" />
+          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
+          #TODO: There was no arrow png in the osm carto package, i naively chose to use one of the generated ones??
+          <LinePatternSymbolizer type="png" file="../markers/arrow.png" />
+      </Rule>
+      <Rule>
+          <Filter>[mapnik::geometry_type]=linestring and not ([label] = null)</Filter>
+          <TextSymbolizer dy="15" placement="line" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
       </Rule>
       <Rule>
           <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
           <MarkersSymbolizer fill="[color]" fill-opacity="[fillOpacity]" width="[radius]" height="[radius]" stroke="[color]" stroke-width="[weight]" stroke-opacity="[opacity]" placement="point" marker-type="ellipse" allow-overlap="true" />
       </Rule>
       <Rule>
-          <ElseFilter/>
           <Filter>[mapnik::geometry_type]=point</Filter>
-          <PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />
+          <!--<PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />-->
+          <PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />
+      </Rule>
+      <Rule>
+          <Filter>([mapnik::geometry_type]=polygon or ([mapnik::geometry_type]=point and not([radius] = null))) and not ([label] = null)</Filter>
+          <TextSymbolizer placement="interior" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>([mapnik::geometry_type]=point and [radius] = null) and not ([label] = null)</Filter>
+          <TextSymbolizer vertical-alignment="bottom" dy="20" placement="point" size="32" fill="[iconColor]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+              [label]
+          </TextSymbolizer>
       </Rule>
   </Style>
       <Layer name="layer" srs="+init=epsg:4326">
