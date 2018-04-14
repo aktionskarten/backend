@@ -1,13 +1,22 @@
 <Map srs="+init=epsg:3857">
   <Style name="legend">
       <Rule>
-          <TextSymbolizer placement="point" size="16" fill="red" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
-              <Layout dx="10">[key]</Layout>
-              <Layout dx="120">[value]</Layout>
+          <Filter>not ([name] = null)</Filter>
+          <TextSymbolizer dx="30" dy="30" wrap-width="1500" placement="point" vertical-alignment="bottom" horizontal-alignment="right" size="60" fill="red" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+            [name] + "\n"
+            <Format size="24" line-spacing="20">[date]</Format>
+            <Format size="24" line-spacing="20">" @ "</Format>
+            <Format size="24" line-spacing="20">[place]</Format>
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <TextSymbolizer placement="point" vertical-alignment="top" horizontal-alignment="right" size="16" fill="black" halo-fill="white" halo-radius="1" face-name="DejaVu Sans Bold" allow-overlap="true">
+              <Layout>[key]</Layout>
+              <Layout dx="150">[value]</Layout>
           </TextSymbolizer>
       </Rule>
   </Style>
-      <Layer name="layer" clear-label-cache="on">
+  <Layer name="layer" clear-label-cache="on">
       <StyleName>legend</StyleName>
       <Datasource>
           <Parameter name="type">geojson</Parameter>
