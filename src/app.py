@@ -18,8 +18,8 @@ def create_app():
 
     socketio.init_app(app)
 
-    app.register_blueprint(api)
-    app.register_blueprint(render)
+    for blueprint in [api, render]:
+        app.register_blueprint(blueprint)
 
     return app
 
