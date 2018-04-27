@@ -125,7 +125,7 @@ class Map(db.Model):
             'name': self.name,
             'description': self.description,
             'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
-            'attributes': self.attributes,
+            'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place
         }
