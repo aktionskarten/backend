@@ -193,6 +193,6 @@ def map_export_png(map_id, size='large'):
 
 @render.route('/api/maps/<string:map_id>/export/geojson')
 def map_export_geojson(map_id):
-    m = db.session.query(Map).get(map_id)
+    m = Map.get(map_id)
     features = [f.to_dict() for f in m.features]
     return jsonify(FeatureCollection(features, properties=m.to_dict(False)))
