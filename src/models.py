@@ -59,7 +59,9 @@ class Map(db.Model):
 
     @classmethod
     def all(cls):
-        return db.session.query(Map).order_by(desc(Map.datetime)).all()
+        return db.session.query(Map).filter(Map._bbox.isnot(None)) \
+                                    .order_by(desc(Map.datetime)) \
+                                    .all()
 
     @classmethod
     def get(cls, slug):
