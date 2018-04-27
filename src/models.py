@@ -38,7 +38,7 @@ class Map(db.Model):
     name = db.Column(db.Unicode)
     description = db.Column(db.Unicode)
     place = db.Column(db.Unicode)
-    datetime = db.Column(db.DateTime)
+    datetime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id")
     attributes = db.Column(JSONB)
