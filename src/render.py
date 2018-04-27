@@ -147,7 +147,8 @@ def send_map(map_id, extension, scale=1, suffix=None):
         filename = '{}.{}'.format(map_id, extension)
 
     # for development you can disable caching of maps
-    if current_app.config['NO_MAP_CACHE']:
+    config = current_app.config
+    if 'NO_MAP_CACHE' in config and config['NO_MAP_CACHE']:
         return send_file(render_map(m, mimetype, scale),
                          attachment_filename=filename,
                          mimetype=mimetype)
