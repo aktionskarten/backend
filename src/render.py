@@ -44,10 +44,11 @@ def add_legend(mapnik_map, _map):
         offset = cell_size / 3
         x = box.minx + offset
         y = box.miny + offset
-        for i, k in enumerate(_map.attributes.keys()):
-            point = Point((x, y+offset*i))
-            properties = {'key': k, 'value': _map.attributes[k]}
-            features.append(Feature(geometry=point, properties=properties))
+        if (_map.attributes):
+            for i, (k, v) in enumerate(_map.attributes):
+                point = Point((x, y+offset*i))
+                properties = {'key': k, 'value': v}
+                features.append(Feature(geometry=point, properties=properties))
 
     collection = json.dumps(FeatureCollection(features))
     xml_str = get_xml("maps-xml/legend.xml").format(collection).encode()
