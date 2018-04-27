@@ -76,9 +76,8 @@ def maps_new():
         if key in request.json and request.json[key]:
             setattr(m, key, request.json[key])
 
-    if 'date' in request.json and 'time' in request.json:
-        date_str = "{} {}".format(request.json['date'], request.json['time'])
-        m.datetime = datetime.strptime(date_str, '%Y-%m-%d %H:%M')
+    if 'datetime' in request.json:
+        m.datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
 
     db.session.add(m)
     db.session.commit()
@@ -104,14 +103,12 @@ def map_edit(map_id):
     if not m:
         abort(404)
 
-    print(request.json)
     for key in ['name', 'bbox', 'description', 'place', 'attributes']:
         if key in request.json and request.json[key]:
                 setattr(m, key, request.json[key])
 
-    if 'date' in request.json and 'time' in request.json:
-        date_str = "{} {}".format(request.json['date'], request.json['time'])
-        m.datetime = datetime.strptime(date_str, '%Y-%m-%d %H:%M')
+    if 'datetime' in request.json:
+        m.datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
 
     db.session.add(m)
     db.session.commit()
