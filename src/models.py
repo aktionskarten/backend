@@ -53,6 +53,11 @@ class Map(db.Model):
     def get(cls, slug):
         return db.session.query(Map).filter(Map.slug == slug).first()
 
+    @classmethod
+    def delete(cls, slug):
+        db.session.delete(cls.get(slug))
+        db.session.commit()
+
     @property
     def grid(self):
         if (self.bbox):
