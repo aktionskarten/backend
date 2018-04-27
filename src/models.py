@@ -3,6 +3,8 @@ import geojson
 import os
 import json
 import datetime
+import string
+import random
 
 from uuid import uuid4
 from hashlib import sha256
@@ -24,10 +26,15 @@ db = flask_sqlalchemy.SQLAlchemy()
 db_signals = Namespace()
 
 
+def _gen_secret(length=24):
+    chars = string.ascii_letters + string.digits
+    return ''.join(random.SystemRandom().choice(chars) for _ in range(length))
+
+
 class Map(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.Unicode)
-    secret = db.Column(db.Binary, default=lambda: os.urandom(24))
+    secret = db.Column(db.Unicode, default=_gen_secret)
     name = db.Column(db.Unicode)
     description = db.Column(db.Unicode)
     place = db.Column(db.Unicode)
@@ -42,8 +49,13 @@ class Map(db.Model):
 
     def __init__(self, name):
         self.name = name
-        self.serializer = TimedJSONWebSignatureSerializer(self.secret,
-                                                          expires_in=600)
+
+    @property
+    def serializer(self):
+        if not hasattr(self, '_serializer'):
+            self._serializer = TimedJSONWebSignatureSerializer(self.secret,
+                                                               expires_in=600)
+        return self._serializer
 
     @classmethod
     def all(cls):
@@ -105,7 +117,7 @@ class Map(db.Model):
     def bbox(self, value):
         self._bbox = from_shape(box(*value))
 
-    def to_dict(self, hash_included=True):
+    def to_dict(self, hash_included=True, secret_included=False):
         data = {
             'id': self.slug,
             'name': self.name,
@@ -118,6 +130,9 @@ class Map(db.Model):
 
         if hash_included:
             data['hash'] = self.hash
+
+        if secret_included:
+            data['secret'] = self.secret
 
         return data
 
