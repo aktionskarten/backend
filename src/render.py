@@ -81,15 +81,16 @@ def render_map(_map, mimetype='application/pdf', scale=1):
     # add osm data
     mapnik.load_map(mapnik_map, current_app.config['MAPNIK_OSM_XML'])
 
+    # add all features
+    features = FeatureCollection([strip(f.to_dict()) for f in _map.features])
+    xml_str = get_xml("maps-xml/features.xml").format(json.dumps(features)).encode()
+    mapnik.load_map_from_string(mapnik_map, xml_str)
+
     # add grid
     data = _map.grid
     xml_str = get_xml("maps-xml/grid.xml").format(json.dumps(data)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
-    # add all features
-    features = FeatureCollection([strip(f.to_dict()) for f in _map.features])
-    xml_str = get_xml("maps-xml/features.xml").format(json.dumps(features)).encode()
-    mapnik.load_map_from_string(mapnik_map, xml_str)
 
     # add legend
     add_legend(mapnik_map, _map)
