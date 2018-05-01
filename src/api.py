@@ -17,13 +17,11 @@ CORS(api)
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-
-        print(request.headers)
         if 'X-Map' not in request.headers or 'X-Token' not in request.headers:
             abort(401)
 
-        map_id = request.headers.get('X-Map').encode()
-        token = request.headers.get('X-Token').encode()
+        map_id = request.headers.get('X-Map')
+        token = request.headers.get('X-Token')
 
         if not map_id or not token:
             abort(400)
