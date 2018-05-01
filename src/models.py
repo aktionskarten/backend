@@ -139,7 +139,7 @@ class Map(db.Model):
         return data
 
     def gen_token(self):
-        return self.serializer.dumps(self.id)
+        return self.serializer.dumps(self.id).decode('utf-8')
 
     def check_token(self, token):
         try:
