@@ -1,0 +1,16 @@
+[Unit]
+Description=Aktionskaten backend gunicorn daemon
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/pid
+User=www-data
+Group=www-data
+WorkingDirectory={{DEST_DIR}}/src
+ExecStart=/usr/bin/gunicorn3 --worker-class eventlet -w 1 --pythonpath {{DEST_DIR}}/env/lib/python3.5/site-packages app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
