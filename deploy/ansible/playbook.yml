@@ -209,7 +209,7 @@
     - name: "Generating safe diffie hellman params"
       shell: openssl dhparam -out dhparam.pem 4096
         args:
-          chdir: /etc/ssl/certs/dhparam.pem
+          chdir: /etc/ssl/
           creates: dhparam.pem
 
     - name: "Enabling nginx site"
