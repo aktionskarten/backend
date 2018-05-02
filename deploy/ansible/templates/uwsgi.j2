@@ -1,0 +1,17 @@
+[uwsgi]
+chdir = {{DEST_DIR}}/src
+home  = {{DEST_DIR}}/env
+module = app:app
+
+plugin = python3
+master = true
+;processes = 5
+
+uid=www-data
+gid=www-data
+
+http-websockets=true
+gevent=1000
+
+http-socket = :8000
+vacuum = true
