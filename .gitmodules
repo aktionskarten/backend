@@ -1,0 +1,3 @@
+[submodule "deploy/ansible/roles/ansible-role-nginx-letsencrypt"]
+	path = deploy/ansible/roles/ansible-role-nginx-letsencrypt
+	url = https://github.com/aktionskarten/ansible-role-nginx-letsencrypt.git
