@@ -8,7 +8,7 @@ server {
     ssl_certificate /etc/ssl/letsencrypt/{{SERVER_NAME}}.crt;
     ssl_certificate_key /etc/ssl/letsencrypt/{{SERVER_NAME}}.key;
     ssl_session_timeout 5m;
-    ssl_dhparam /etc/ssl/private/dhparam.pem;
+    ssl_dhparam /etc/ssl/dhparam.pem;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
     ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
