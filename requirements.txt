@@ -4,7 +4,7 @@ itsdangerous
 flask-sqlalchemy
 geoalchemy2
 flask-socketio
-psycopg2
+psycopg2-binary
 numpy
 geojson
 shapely
@@ -15,3 +15,4 @@ awesome-slugify
 factory-boy
 faker
 pylint
+eventlet
