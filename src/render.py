@@ -138,7 +138,7 @@ def render_map(_map, mimetype='application/pdf', scale=1):
 
 def send_map(map_id, extension, scale=1, suffix=None):
     m = Map.get(map_id)
-    dirname = sha256(map_id).hexdigest()
+    dirname = sha256(map_id.encode()).hexdigest()
     mimetype = mimetypes.types_map['.' + extension]
 
     if (suffix):
