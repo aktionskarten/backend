@@ -54,4 +54,21 @@ class Grid:
 
             start = end
 
+        # grid
+        coords = []
+        for x in linspace(self.min_x, self.max_x, num=cells):  # columns
+            coords.append([(x, self.min_y), (x, self.max_y)])
+
+        for y in linspace(self.min_y, self.max_y, num=cells):  # rows
+            coords.append([(self.min_x, y), (self.max_x, y)])
+
+        prop = {
+            'type': 'grid',
+            'color': "#999",
+            'opacity': 0.3,
+            'weight': 2
+        }
+        grid = Feature(geometry=MultiLineString(coords), properties=prop)
+        features.append(grid)
+
         return FeatureCollection(features)

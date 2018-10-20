@@ -1,4 +1,10 @@
 <Map srs="+init=epsg:3857">
+  <Style name="grid" opacity="1.0">
+      <Rule>
+          <Filter>[type] = 'grid'</Filter>
+          <LineSymbolizer stroke="[color]" stroke-opacity="[opacity]" stroke-width="[weight]" />
+      </Rule>
+  </Style>
   <Style name="labels" opacity="0.6">
       <Rule>
           <Filter>[type] != 'grid'</Filter>
