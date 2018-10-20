@@ -16,6 +16,13 @@ from models import db, Map
 from geojson import FeatureCollection, Feature, Point
 from hashlib import sha256
 
+# somesystems have a different cairo
+try:
+    import cairo
+except:
+    import cairocffi as cairo
+
+
 
 render = Blueprint('Render', __name__)
 
