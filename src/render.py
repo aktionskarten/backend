@@ -160,12 +160,12 @@ def send_map(map_id, extension, scale=1, suffix=None):
     else:
         filename = '{}.{}'.format(map_id, extension)
 
-    # for development you can disable caching of maps
+    # for development you can disable render caching of maps
     config = current_app.config
     if 'NO_MAP_CACHE' in config and config['NO_MAP_CACHE']:
         return send_file(render_map(m, mimetype, scale),
                          attachment_filename=filename,
-                         mimetype=mimetype)
+                         mimetype=mimetype, cache_timeout=0)
 
     static_path = current_app.static_folder
     path = os.path.join(static_path, 'maps', dirname, m.hash, filename)
@@ -178,7 +178,7 @@ def send_map(map_id, extension, scale=1, suffix=None):
 
     return send_file(path,
                      attachment_filename=filename,
-                     mimetype=mimetype)
+                     mimetype=mimetype, cache_timeout=0)
 
 
 @render.route('/api/maps/<string:map_id>/export/svg')
