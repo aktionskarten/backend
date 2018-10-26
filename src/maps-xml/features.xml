@@ -1,5 +1,5 @@
 <Map srs="+init=epsg:3857">
-  <Style name="geoms">
+  <Style name="features">
       <Rule>
           <Filter>[mapnik::geometry_type]=polygon and not ([fillColor] = null)</Filter>
           <PolygonSymbolizer fill="[fillColor]" fill-opacity="[fillOpacity]" />
@@ -11,16 +11,20 @@
           <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />
       </Rule>
       <Rule>
-          <Filter>[mapnik::geometry_type]=linestring</Filter>
-          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
+          <Filter>[mapnik::geometry_type]=linestring and ([color] = null)</Filter>
+          <LineSymbolizer stroke="#3388ff" stroke-width="15" stroke-opacity="1" />
+      <!--
           #TODO: There was no arrow png in the osm carto package, i naively chose to use one of the generated ones??
           <LinePatternSymbolizer type="png" file="../markers/arrow.png" />
+      -->
       </Rule>
       <Rule>
-          <Filter>[mapnik::geometry_type]=linestring and not ([label] = null)</Filter>
-          <TextSymbolizer dy="15" placement="line" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
-              [label]
-          </TextSymbolizer>
+          <Filter>[mapnik::geometry_type]=linestring</Filter>
+          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
+      <!--
+          #TODO: There was no arrow png in the osm carto package, i naively chose to use one of the generated ones??
+          <LinePatternSymbolizer type="png" file="../markers/arrow.png" />
+      -->
       </Rule>
       <Rule>
           <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
@@ -29,23 +33,29 @@
       <Rule>
           <Filter>[mapnik::geometry_type]=point</Filter>
           <!--<PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />-->
-          <PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />
+          <PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" />
       </Rule>
       <Rule>
-          <Filter>([mapnik::geometry_type]=polygon or ([mapnik::geometry_type]=point and not([radius] = null))) and not ([label] = null)</Filter>
-          <TextSymbolizer placement="interior" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+          <Filter>([mapnik::geometry_type]=point and [radius] = null) and not ([label] = null)</Filter>
+          <TextSymbolizer vertical-alignment="bottom" dy="20" placement="point" size="32" fill="[iconColor]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
               [label]
           </TextSymbolizer>
       </Rule>
       <Rule>
-          <Filter>([mapnik::geometry_type]=point and [radius] = null) and not ([label] = null)</Filter>
-          <TextSymbolizer vertical-alignment="bottom" dy="20" placement="point" size="32" fill="[iconColor]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+          <Filter>[mapnik::geometry_type]=linestring and not ([label] = null)</Filter>
+          <TextSymbolizer dy="15" placement="line" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>([mapnik::geometry_type]=polygon or ([mapnik::geometry_type]=point and not([radius] = null))) and not ([label] = null)</Filter>
+          <TextSymbolizer placement="interior" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
               [label]
           </TextSymbolizer>
       </Rule>
   </Style>
-      <Layer name="layer" srs="+init=epsg:4326">
-      <StyleName>geoms</StyleName>
+      <Layer name="layer" srs="+init=epsg:4326" clear-label-cache="on">
+      <StyleName>features</StyleName>
       <Datasource>
           <Parameter name="type">geojson</Parameter>
           <Parameter name="inline"><![CDATA[{}]]></Parameter>
