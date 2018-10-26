@@ -20,6 +20,7 @@ from blinker import Namespace
 from sqlalchemy import event
 from slugify import slugify
 from grid import Grid
+from flask import url_for
 
 
 db = flask_sqlalchemy.SQLAlchemy()
@@ -40,7 +41,7 @@ class Map(db.Model):
     place = db.Column(db.Unicode)
     datetime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     _bbox = db.Column(Geometry('POLYGON'))
-    features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id")
+    features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
 
     on_created = db_signals.signal('map-created')
@@ -127,7 +128,13 @@ class Map(db.Model):
             'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
-            'place': self.place
+            'place': self.place,
+            'thumbnail': url_for('Render.map_export_png', map_id=self.slug, size='small', _external=True),
+            'exports': {
+                'pdf': url_for('Render.map_export_pdf', map_id=self.slug, _external=True),
+                'svg': url_for('Render.map_export_svg', map_id=self.slug, _external=True),
+                'png': url_for('Render.map_export_png', map_id=self.slug, _external=True)
+            }
         }
 
         if hash_included:
@@ -195,8 +202,8 @@ class Feature(db.Model):
         properties = self.style.copy() if self.style else {}
 
         # scale is needed for rendering images in mapnik
-        if 'iconSize' in properties:
-            properties['scale'] = (20/150) * (properties['iconSize'][0]/20) * 2
+        #if 'iconSize' in properties:
+        #    properties['scale'] = (20/150) * (properties['iconSize'][0]/20) * 2
 
         properties['id'] = self.id
         properties['map_id'] = self.map_id
