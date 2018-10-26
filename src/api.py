@@ -55,6 +55,18 @@ def maps():
     return jsonify([m.to_dict() for m in Map.all()])
 
 
+def _parse_datetime(_datetime):
+    if not _datetime:
+        _datetime = datetime.now()
+    if 'date' in request.json:
+        _date = datetime.strptime(request.json['date'], '%Y-%m-%d')
+        _datetime.replace(year=_date.year, month=_date.month, day=_date.day)
+    if 'time' in request.json:
+        _time = datetime.strptime(request.json['time'], '%H:%M')
+        _datetime.replace(hour=_time.hour, minute=_time.minute)
+    if 'datetime' in request.json:
+        _datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
+
 @api.route('/api/maps/', methods=['POST'])
 @api.route('/api/maps', methods=['POST'])
 def maps_new():
@@ -74,8 +86,7 @@ def maps_new():
         if key in request.json and request.json[key]:
             setattr(m, key, request.json[key])
 
-    if 'datetime' in request.json:
-        m.datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
+    _parse_datetime(m.datetime)
 
     db.session.add(m)
     db.session.commit()
@@ -105,8 +116,7 @@ def map_edit(map_id):
         if key in request.json and request.json[key]:
                 setattr(m, key, request.json[key])
 
-    if 'datetime' in request.json:
-        m.datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
+    _parse_datetime(m.datetime)
 
     db.session.add(m)
     db.session.commit()
