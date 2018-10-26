@@ -57,6 +57,11 @@ def add_legend(mapnik_map, _map):
                 properties = {'key': k, 'value': v}
                 features.append(Feature(geometry=point, properties=properties))
 
+    # add osm copyright
+    properties = {'type': 'copyright', 'text': 'Tiles © OpenStreetMap contributers, CC-BY-SA'}
+    point = Point((box.maxx, box.miny))
+    features.append(Feature(geometry=point, properties=properties))
+
     collection = json.dumps(FeatureCollection(features))
     xml_str = get_xml("maps-xml/legend.xml").format(collection).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
