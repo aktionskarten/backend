@@ -201,10 +201,6 @@ class Feature(db.Model):
     def to_dict(self):
         properties = self.style.copy() if self.style else {}
 
-        # scale is needed for rendering images in mapnik
-        #if 'iconSize' in properties:
-        #    properties['scale'] = (20/150) * (properties['iconSize'][0]/20) * 2
-
         properties['id'] = self.id
         properties['map_id'] = self.map.slug
 
