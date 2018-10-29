@@ -9,15 +9,15 @@ socketio = SocketIO()
 @socketio.on('join')
 def on_join(map_id):
     m = Map.get(map_id)
-    join_room(m.id)
-    send('user joined', room=m.id)
+    join_room(m.slug)
+    send('user joined', room=m.slug)
 
 
 @socketio.on('leave')
 def on_leave(map_id):
     m = Map.get(map_id)
-    leave_room(m.id)
-    send('user left', room=m.id)
+    leave_room(m.slug)
+    send('user left', room=m.slug)
 
 
 @Feature.on_created.connect

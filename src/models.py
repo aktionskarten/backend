@@ -206,7 +206,7 @@ class Feature(db.Model):
         #    properties['scale'] = (20/150) * (properties['iconSize'][0]/20) * 2
 
         properties['id'] = self.id
-        properties['map_id'] = self.map_id
+        properties['map_id'] = self.map.slug
 
         return geojson.Feature(geometry=self.geo, properties=properties)
 
