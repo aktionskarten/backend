@@ -74,6 +74,10 @@ def strip(feature):
     # dashArray. To have the same render result, delete it here.
     if 'dashArray' in props and props['dashArray'] == "1":
         del props['dashArray']
+
+    if 'iconSize' in props:
+        props['scale'] = (20/150) * (props['iconSize'][0]/20) * 2
+
     return feature
 
 

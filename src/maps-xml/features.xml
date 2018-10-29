@@ -32,8 +32,8 @@
       </Rule>
       <Rule>
           <Filter>[mapnik::geometry_type]=point</Filter>
-          <!--<PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes" />-->
-          <PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" />
+          <PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" />
+          <!--<PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" />-->
       </Rule>
       <Rule>
           <Filter>([mapnik::geometry_type]=point and [radius] = null) and not ([label] = null)</Filter>
