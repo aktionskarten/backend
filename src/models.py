@@ -77,7 +77,7 @@ class Map(db.Model):
     def grid(self):
         if (self.bbox):
             return Grid(*self.bbox).generate()
-        return []
+        return None
 
     @property
     def hash(self):
