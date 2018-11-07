@@ -125,6 +125,7 @@ def map_edit(map_id):
 
 @api.route('/api/maps/<string:map_id>/', methods=['DELETE'])
 @api.route('/api/maps/<string:map_id>', methods=['DELETE'])
+@login_required
 def map_delete(map_id):
     Map.delete(map_id)
     return ('', 204)
