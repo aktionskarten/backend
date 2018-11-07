@@ -70,7 +70,6 @@ def _parse_datetime(_datetime):
 @api.route('/api/maps/', methods=['POST'])
 @api.route('/api/maps', methods=['POST'])
 def maps_new():
-    print(request.json)
     if ('name' not in request.json):
         abort(400)
 
