@@ -11,7 +11,7 @@ except:
 import io
 import mimetypes
 
-from flask import Blueprint, send_file, current_app, jsonify
+from flask import Blueprint, send_file, current_app, jsonify, abort
 from models import db, Map
 from geojson import FeatureCollection, Feature, Point
 from hashlib import sha256
@@ -156,6 +156,10 @@ def render_map(_map, mimetype='application/pdf', scale=1):
 
 def send_map(map_id, extension, scale=1, suffix=None):
     m = Map.get(map_id)
+
+    if (not m.grid or not m.features):
+        abort(404)
+
     dirname = sha256(map_id.encode()).hexdigest()
     mimetype = mimetypes.types_map['.' + extension]
 
