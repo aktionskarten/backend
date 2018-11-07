@@ -3,13 +3,15 @@
       <Rule>
           <Filter>[mapnik::geometry_type]=polygon and not ([fillColor] = null)</Filter>
           <PolygonSymbolizer fill="[fillColor]" fill-opacity="[fillOpacity]" />
-          <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />
+          <!--<LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />-->
       </Rule>
+      <!--
       <Rule>
           <Filter>[mapnik::geometry_type]=polygon</Filter>
           <PolygonSymbolizer fill="[color]" fill-opacity="[fillOpacity]" />
           <LineSymbolizer stroke="[color]" stroke-width="15" stroke-opacity="[opacity]" />
       </Rule>
+      -->
       <Rule>
           <Filter>[mapnik::geometry_type]=linestring and ([color] = null)</Filter>
           <LineSymbolizer stroke="#3388ff" stroke-width="15" stroke-opacity="1" />
@@ -26,17 +28,19 @@
           <LinePatternSymbolizer type="png" file="../markers/arrow.png" />
       -->
       </Rule>
+      <!--
       <Rule>
           <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
           <MarkersSymbolizer fill="[color]" fill-opacity="[fillOpacity]" width="[radius]" height="[radius]" stroke="[color]" stroke-width="[weight]" stroke-opacity="[opacity]" placement="point" marker-type="ellipse" allow-overlap="true" />
       </Rule>
+      -->
       <Rule>
           <Filter>[mapnik::geometry_type]=point</Filter>
-          <PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" />
+          <PointSymbolizer transform="scale([scale],[scale])" file="../markers/[iconColor]/[icon].png" allow-overlap="yes"/>
           <!--<PointSymbolizer transform="scale(0.2,0.2)" file="../markers/[iconColor]/[icon].png" />-->
       </Rule>
       <Rule>
-          <Filter>([mapnik::geometry_type]=point and [radius] = null) and not ([label] = null)</Filter>
+          <Filter>[mapnik::geometry_type]=point and not ([label] = null)</Filter>
           <TextSymbolizer vertical-alignment="bottom" dy="20" placement="point" size="32" fill="[iconColor]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
               [label]
           </TextSymbolizer>
@@ -48,8 +52,8 @@
           </TextSymbolizer>
       </Rule>
       <Rule>
-          <Filter>([mapnik::geometry_type]=polygon or ([mapnik::geometry_type]=point and not([radius] = null))) and not ([label] = null)</Filter>
-          <TextSymbolizer placement="interior" size="32" fill="[color]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
+          <Filter>[mapnik::geometry_type]=polygon and not ([label] = null)</Filter>
+          <TextSymbolizer placement="interior" size="32" fill="[fillColor]" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="yes">
               [label]
           </TextSymbolizer>
       </Rule>
