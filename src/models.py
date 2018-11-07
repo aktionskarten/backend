@@ -65,18 +65,14 @@ class Map(db.Model):
                                     .all()
 
     @classmethod
-    def get(cls, slug):
+    def get(cls, name_or_slug):
+        slug = slugify(name_or_slug)
         return db.session.query(Map).filter(Map.slug == slug).first()
 
     @classmethod
     def delete(cls, slug):
         db.session.delete(cls.get(slug))
         db.session.commit()
-
-    @classmethod
-    def exists(cls, name_or_slug):
-        slug = slugify(name_or_slug)
-        return db.session.query(Map).filter(Map.slug == slug).first()
 
     @property
     def grid(self):
