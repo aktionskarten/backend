@@ -102,8 +102,9 @@ def render_map(_map, mimetype='application/pdf', scale=1):
     xml_str = get_xml("maps-xml/grid.xml").format(json.dumps(data)).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
-    # add all features
-    getter = lambda x: x.geometry.type
+    # add all features (as features are rendered on top of each other in the
+    # order we provide it to mapnik, make sure markers are on top)
+    getter = lambda x: ['Polygon', 'LineString', 'Point'].index(x.geometry.type)
     features = sorted([strip(f.to_dict()) for f in _map.features], key=getter)
     collection = json.dumps(FeatureCollection(features))
     xml_str = get_xml("maps-xml/features.xml").format(collection).encode()
