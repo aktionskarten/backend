@@ -60,7 +60,7 @@ class Map(db.Model):
 
     @classmethod
     def all(cls):
-        return db.session.query(Map).filter(Map._bbox.isnot(None)) \
+        return db.session.query(Map).filter(Map._bbox.isnot(None), Map.features.any()) \
                                     .order_by(desc(Map.datetime)) \
                                     .all()
 
