@@ -1,7 +1,5 @@
-from models import Feature
+from models import Map, Feature
 from flask_socketio import SocketIO, join_room, leave_room, send
-from models import Map
-
 
 socketio = SocketIO()
 
@@ -19,20 +17,34 @@ def on_leave(map_id):
     leave_room(m.slug)
     send('user left', room=m.slug)
 
+@Map.on_updated.connect
+def map_on_updated(data):
+    socketio.emit('map-updated', data['new'], room=data['new']['id'])
+
+    # if we have old data, post as well in old room
+    try:
+        socketio.emit('map-updated', data['new'], room=data['old']['slug'])
+    except KeyError:
+        pass
+
+    print("update event", data)
 
 @Feature.on_created.connect
-def model_on_created(data):
-    socketio.emit('created', data, room=data['properties']['map_id'])
+def feature_on_created(data):
+    room = data['new']['properties']['map_id']
+    socketio.emit('feature-created', data['new'], room=room)
     print("create event", data)
 
 
 @Feature.on_updated.connect
-def model_on_updated(data):
-    socketio.emit('updated', data, room=data['properties']['map_id'])
+def feature_on_updated(data):
+    room = data['new']['properties']['map_id']
+    socketio.emit('feature-updated', data['new'], room=room)
     print("update event", data)
 
 
 @Feature.on_deleted.connect
-def model_on_deleted(data):
-    socketio.emit('deleted', data, room=data['properties']['map_id'])
+def feature_on_deleted(data):
+    room = data['new']['properties']['map_id']
+    socketio.emit('feature-deleted', data['new'], room=room)
     print("delete event", data)
