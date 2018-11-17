@@ -9,7 +9,7 @@ import random
 from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
-from sqlalchemy import desc
+from sqlalchemy import desc, inspect
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
 from shapely.geometry import shape, mapping, box
@@ -226,9 +226,20 @@ def receive_before_flush(session, flush_context, instances):
                                 session.is_modified(obj, False)]
 
 
+def _get_history(obj):
+    hist = {}
+    for attr in inspect(obj).attrs:
+        if attr.history.has_changes():
+            try:
+                hist[attr.key] = attr.history.deleted[-1]
+            except IndexError:
+                pass
+    return hist
+
 @event.listens_for(db.session, 'after_flush')
 def receive_after_flush(session, flush_context):
     for action in ['created', 'updated', 'deleted']:
         if action in session.info:
-            session.info[action] = [(obj.__class__, obj.to_dict())
-                                    for obj in session.info[action]]
+            session.info[action] = [(obj.__class__, {
+                'new': obj.to_dict(), 'old': _get_history(obj)
+                }) for obj in session.info[action]]
