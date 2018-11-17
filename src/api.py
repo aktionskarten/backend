@@ -67,6 +67,8 @@ def _parse_datetime(_datetime):
     if 'datetime' in request.json:
         _datetime = datetime.strptime(request.json['datetime'], '%Y-%m-%d %H:%M')
 
+    return _datetime
+
 @api.route('/api/maps/', methods=['POST'])
 @api.route('/api/maps', methods=['POST'])
 def maps_new():
@@ -84,7 +86,7 @@ def maps_new():
         if key in request.json and request.json[key]:
             setattr(m, key, request.json[key])
 
-    _parse_datetime(m.datetime)
+    m.datetime = _parse_datetime(m.datetime)
 
     db.session.add(m)
     db.session.commit()
