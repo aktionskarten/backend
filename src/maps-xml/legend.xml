@@ -8,11 +8,14 @@
       </Rule>
       <Rule>
           <Filter>not ([name] = null)</Filter>
-          <TextSymbolizer dx="35" dy="30" wrap-width="1500" placement="point" vertical-alignment="bottom" horizontal-alignment="right" size="60" fill="red" halo-fill="black" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
-            [name] + "\n"
-            <Format size="24" line-spacing="20">[date]</Format>
-            <Format size="24" line-spacing="20">" @ "</Format>
-            <Format size="24" line-spacing="20">[place]</Format>
+          <TextSymbolizer dx="35" dy="40" wrap-width="1500" placement="point" vertical-alignment="bottom" horizontal-alignment="right" size="60" fill="black" halo-fill="white" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+            [name]
+          </TextSymbolizer>
+      </Rule>
+      <Rule>
+          <Filter>not ([date] = null) and not ([place] = null)</Filter>
+          <TextSymbolizer dx="35" dy="110" wrap-width="1500" placement="point" vertical-alignment="bottom" horizontal-alignment="right" size="24" fill="black" halo-fill="white" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
+            [date]+ " @ " + [place]
           </TextSymbolizer>
       </Rule>
       <Rule>
