@@ -55,7 +55,7 @@ class Map(db.Model):
     def serializer(self):
         if not hasattr(self, '_serializer'):
             self._serializer = TimedJSONWebSignatureSerializer(self.secret,
-                                                               expires_in=600)
+                                                               expires_in=60*60*2)
         return self._serializer
 
     @classmethod
