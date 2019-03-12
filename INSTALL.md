@@ -97,7 +97,7 @@ yourself:
 
 ### ArchLinux
 
-(go for python2 because py3cairo.h is missing otherwise)
+(go for python3 because python2-cairocffi is missing otherwise)
 
 Add user and initialize postgres database.
 ```
@@ -145,9 +145,9 @@ Install carto to generate mapnik osm xml style:
   carto project.mml > osm.xml
 ```
 
-Create virtualenv for python2
+Create virtualenv for python
 ```
-  virtualenv2 --system-site-packages env
+  virtualenv --system-site-packages env
   echo 'export FLASK_APP=src/app.py' >> env/bin/activate
   echo 'export FLASK_DEBUG=1' >> env/bin/activate
   . env/bin/activate
@@ -155,11 +155,11 @@ Create virtualenv for python2
 
 Compile python-mapnik
 ```
-  pacman -S python2-cairocffi python2-cairo
+  pacman -S python-cairocffi python-cairo
   git clone https://github.com/mapnik/python-mapnik.git
   cd python-mapnik
   git checkout v3.0.x
-  ln -s /usr/include/pycairo ../aktionskarten-backend/env/include/pycairo
+  ln -s /usr/include/pycairo ../backend/env/include/pycairo
   PYCAIRO=true python setup.py develop
   python setup.py install
 ```
