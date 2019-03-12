@@ -132,6 +132,10 @@ Create postgres user and database (enable postgis and hstore extensions)
 ```
 
 Install carto to generate mapnik osm xml style:
+
+Set the postgres user and password of the user in `project.mml`.
+Default for both user and password is "gis".
+
 ```
   pacman -S npm
   npm install -g carto
