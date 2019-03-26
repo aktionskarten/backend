@@ -2,7 +2,7 @@
 
 ### Ubuntu
 
-You need to use 17.04 (if you don't want to compile some stuff on your own)
+You need to use 18.04 (if you don't want to compile some stuff on your own)
 because 16.04 is missing cairo support and 17.10 contains non-working
 python-mapnik.
 
@@ -16,12 +16,12 @@ You can either run the backend with python or python3:
 
 Install packages (python2)
 ```
-  apt install python-virtualenv python-wheel python-cairocffi python-mapnik pyhton-shapely python-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts imagemagick
+  apt install python-virtualenv python-wheel python-cairocffi python-mapnik pyhton-shapely python-numpy git wget bzip2 osm2pgsql postgresql postgresql-10-postgis-scripts imagemagick
 ```
 
 Install packages (python3)
 ```
-  apt install python3-wheel python3-cairocffi python3-mapnik python3-venv python3-shapely python3-numpy git wget bzip2 osm2pgsql postgresql postgresql-9.6-postgis-scripts imagemagick
+  apt install python3-wheel python3-cairocffi python3-mapnik python3-venv python3-shapely python3-numpy git wget bzip2 osm2pgsql postgresql postgresql-10-postgis-scripts imagemagick
 ```
 
 Start postgres
@@ -53,9 +53,8 @@ Import osm data
 
 Clone source
 ```
-  git clone https://github.com/KartographischeAktion/aktionskarten-backend.git
-  cd aktionskarten-backend
-  git checkout rewrite-flask_mapnik
+  git clone https://github.com/aktionskarten/backend.git
+  cd backend
 ```
 
 Setup virtualenv
@@ -78,11 +77,12 @@ Install dependencies and start app
 ```
   pip install -r requirements.txt
   markers/generate_markers.sh
+  cd src
   flask run
 ```
 
 
-If you're not able to use Ubuntu 17.04, you need to build python-mapnik by
+If you're not able to use Ubuntu 18.04, you need to build python-mapnik by
 yourself:
 
 ```
@@ -131,6 +131,14 @@ Create postgres user and database (enable postgis and hstore extensions)
   sudo -u postgres psql -d maps -c 'CREATE EXTENSION postgis'
 ```
 
+To allow password auth for user `gis` from localhost in
+`/etc/postgresql/10/main/pg_hba.conf` add method `trust` to IPv4 local
+connections:
+```
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            trust
+```
+
 Install carto to generate mapnik osm xml style:
 
 Set the postgres user and password of the user in `project.mml`.
@@ -170,9 +178,18 @@ Compile python-mapnik
 
 Install backend
 ```
-  git clone https://github.com/KartographischeAktion/aktionskarten-backend.git
-  cd aktionskarten-backend
+  git clone https://github.com/aktionskarten/backend.git
+  cd backend
   pip install -r requirements.txt
   markers/generate_markers.sh
   flask run
+```
+
+On Ubuntu, you should manually add gis user and password to `style.xml` config.
+You can also copy it to the project folder and update `src/settings.py` to tell
+it where `style.xml` is.
+```
+cp /usr/share/openstreetmap-carto/style.xml .
+sed -i  '/<Parameter name="dbname"><!\[CDATA\[gis\]\]><\/Parameter>/a <Parameter name="user"><!\[CDATA\[gis\]\]><\/Parameter>\n<Parameter name="password"><!\[CDATA\[gis\]\]><\/Parameter>' style.xml
+
 ```
