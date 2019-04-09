@@ -2,21 +2,19 @@
 
 ### Ubuntu
 
+Clone source
+```
+  git clone https://github.com/aktionskarten/backend.git
+  cd backend
+```
+
 You need to use 18.04 (if you don't want to compile some stuff on your own)
 because 16.04 is missing cairo support and 17.10 contains non-working
 python-mapnik.
 
-Add user and set locale to utf-8 (needed for postgres template)
+Set locale to utf-8 (needed for postgres template)
 ```
   update-locale LANG=en_US.UTF-8
-  adduser gis
-```
-
-You can either run the backend with python or python3:
-
-Install packages (python2)
-```
-  apt install python-virtualenv python-wheel python-cairocffi python-mapnik pyhton-shapely python-numpy git wget bzip2 osm2pgsql postgresql postgresql-10-postgis-scripts imagemagick
 ```
 
 Install packages (python3)
@@ -44,17 +42,32 @@ Install osm style (style can be found in `/usr/share/openstreetmap-carto/style.x
   apt install openstreetmap-carto
 ```
 
+You should manually add gis user and password to `style.xml` config.
+Copy `style.xml` to the project folder and update `src/settings.py` to tell
+it where it should look for the `style.xml`.
+```
+cp /usr/share/openstreetmap-carto/style.xml .
+```
+
+Add gis user credentials to `style.xml`
+```
+sed -i  '/<Parameter name="dbname"><!\[CDATA\[gis\]\]><\/Parameter>/a <Parameter name="host"><!\[CDATA\[127.0.0.1\]\]><\/Parameter>\n<Parameter name="user"><!\[CDATA\[gis\]\]><\/Parameter>\n<Parameter name="password"><!\[CDATA\[gis\]\]><\/Parameter>' style.xml
+
+```
+
+To allow password auth for user `gis` from localhost in
+`/etc/postgresql/10/main/pg_hba.conf` add method `trust` to IPv4 local
+connections (you need to be root in order to edit this file):
+```
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            trust
+```
+
 Import osm data
 ```
   wget http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2
   bzip2 -d berlin-latest.osm.bz2
   osm2pgsql -U gis -W -d gis berlin-latest.osm
-```
-
-Clone source
-```
-  git clone https://github.com/aktionskarten/backend.git
-  cd backend
 ```
 
 Setup virtualenv
@@ -63,14 +76,6 @@ python3
 ```
   python3 -m venv --system-site-packages env
   . env/bin/activate
-```
-
-python2
-```
-  virtual--system-site-packages env2
-  echo 'export FLASK_APP=src/app.py' >> env/bin/activate
-  echo 'export FLASK_DEBUG=1' >> env/bin/activate
-  . env2/bin/activate
 ```
 
 Install dependencies and start app
@@ -96,8 +101,6 @@ yourself:
 ```
 
 ### ArchLinux
-
-(go for python3 because python2-cairocffi is missing otherwise)
 
 Add user and initialize postgres database.
 ```
@@ -185,11 +188,3 @@ Install backend
   flask run
 ```
 
-On Ubuntu, you should manually add gis user and password to `style.xml` config.
-You can also copy it to the project folder and update `src/settings.py` to tell
-it where `style.xml` is.
-```
-cp /usr/share/openstreetmap-carto/style.xml .
-sed -i  '/<Parameter name="dbname"><!\[CDATA\[gis\]\]><\/Parameter>/a <Parameter name="user"><!\[CDATA\[gis\]\]><\/Parameter>\n<Parameter name="password"><!\[CDATA\[gis\]\]><\/Parameter>' style.xml
-
-```
