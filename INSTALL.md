@@ -42,25 +42,37 @@ Install osm style (style can be found in `/usr/share/openstreetmap-carto/style.x
   apt install openstreetmap-carto
 ```
 
-You should manually add gis user and password to `style.xml` config.
-Copy `style.xml` to the project folder and update `src/settings.py` to tell
-it where it should look for the `style.xml`.
-```
-cp /usr/share/openstreetmap-carto/style.xml .
-```
-
-Add gis user credentials to `style.xml`
-```
-sed -i  '/<Parameter name="dbname"><!\[CDATA\[gis\]\]><\/Parameter>/a <Parameter name="host"><!\[CDATA\[127.0.0.1\]\]><\/Parameter>\n<Parameter name="user"><!\[CDATA\[gis\]\]><\/Parameter>\n<Parameter name="password"><!\[CDATA\[gis\]\]><\/Parameter>' style.xml
-
-```
-
-To allow password auth for user `gis` from localhost in
+To allow password auth for user `gis` from localhost, in
 `/etc/postgresql/10/main/pg_hba.conf` add method `trust` to IPv4 local
 connections (you need to be root in order to edit this file):
 ```
 # IPv4 local connections:
 host    all             all             127.0.0.1/32            trust
+```
+
+Since we created our own gis DB with new credentials, we need to locally update
+the osm configs. First, create a local copy of the config and symlink the data:
+```
+mkdir openstreetmap-carto
+cd openstreetmap-carto
+cp /usr/share/openstreetmap-carto/style.xml .
+ln -s /usr/share/openstreetmap-carto/symbols
+ln -s /usr/share/openstreetmap-carto/data
+```
+
+Add gis user credentials to `style.xml`
+```
+sed -i  '/<Parameter name="dbname"><!\[CDATA\[gis\]\]><\/Parameter>/a <Parameter name="host"><!\[CDATA\[127.0.0.1\]\]><\/Parameter>\n<Parameter name="user"><!\[CDATA\[gis\]\]><\/Parameter>\n<Parameter name="password"><!\[CDATA\[gis\]\]><\/Parameter>' style.xml
+```
+
+Create a local `src/settings.py` and add following line to it:
+```
+MAPNIK_OSM_XML = "../openstreetmap-carto/style.xml"
+```
+
+Finally, export the local settings in your shell:
+```
+export SETTINGS=settings.py
 ```
 
 Import osm data
@@ -71,8 +83,6 @@ Import osm data
 ```
 
 Setup virtualenv
-
-python3
 ```
   python3 -m venv --system-site-packages env
   . env/bin/activate
