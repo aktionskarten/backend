@@ -1,46 +1,26 @@
-aktionskarten-backend
-=====================
+backend
+=======
 
-This repo contains the actual backend for aktionskarten-frontend. It's purpose
-is to provide a datastore for GeoJSON data (for maps and geo features). Moreover
-you can render map as PDF, SVG or PNG documents. It's written in python with
+The purpose of this repo
+is to provide a datastore for GeoJSON data (for maps and geo features).
+Moreover, you can export maps as PDF, SVG or PNG documents. The project is written in python with
 Flask and uses PostgreSQL+Postgis as database (through SQLAlchemy + GeoAlchemy),
 mapnik for rendering and open street map data.
 
 ## Install
 
-### Dev
 For installation see [INSTALL](INSTALL.md).
-
-### Docker
-Currently the dockerfile / scripts in ./docker are the living documentation what
-steps are needed to set up this application.  If you are fine with docker just
-run `docker-compose up`.  The application will be running but we are still
-lacking of the GIS data. So run this command to initialize:
-
-```
-docker-compose run -e PBF_URL=http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf web /source/docker/initdb.sh
-```
-
-It will load the berlin osm map in to your db instance. You could do it with
-germany or even planet, but keep in mind that this will take a loooong time.
-
-Now you can start through the backend following command
-
-```
-docker-compose run web
-```
 
 
 ## API
 
-aktionskarten-backend provides a RESTful API for storing the data related to the
-maps created with aktionskarten-frontend. The following endpoints are
+aktionskarten/backend provides a RESTful API for storing the data related to the
+maps created with aktionskarten/frontend. The following endpoints are
 implemented:
 
-* `/api/maps` - list of the public maps
-* `/api/maps/<map_id>` - bounding box and properties
-* `/api/maps/<map_id>/features` - features (circles, lines, markers, ...) of a map
+* `/api/maps` - list of public maps
+* `/api/maps/<map_id>` - map details
+* `/api/maps/<map_id>/features` - features (lines, polygons and markers) of a map
 * `/api/maps/<map_id>/grid` - grid in size of bbox of map
 
 The backend furthermore supports rendering of maps with grid and features. You
@@ -58,6 +38,7 @@ $ curl -i -d '{
     "name":"ouchiii",
     "bbox": [13.419885635375975, 52.4833029277260650, 13.436880111694336, 52.48994074915979]
 }' -H "Content-Type: application/json" -H "Accept: application/json" -X POST http://localhost:5000/api/maps
+
 HTTP/1.0 200 OK
 Content-Type: application/json
 Access-Control-Allow-Origin: *
@@ -116,6 +97,7 @@ $ curl -i -d '{
 >       ]
 >     ]
 >   }' -H "Content-Type: application/json" -H "Accept: application/json" -X POST http://localhost:5000/api/maps/1/features
+
 HTTP/1.0 200 OK
 Content-Type: application/json
 Access-Control-Allow-Origin: *
@@ -167,13 +149,3 @@ Date: Thu, 02 Nov 2017 11:08:01 GMT
   "type": "Feature"
 }
 ```
-
-## Tests
-
-You can run some tests with pytest, though PYTHONPATH and correct settings have to be configured.
-
-```
-SETTINGS=config/testing.py PYTHONPATH=src pytest
-```
-
-Note that you need a postgres database like configured in testing.py
