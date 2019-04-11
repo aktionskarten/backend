@@ -3,7 +3,7 @@ import os
 import mimetypes
 
 from flask import Blueprint, request, jsonify, send_file, current_app
-from render import render_map
+from render import MapRenderer
 from utils import InvalidUsage
 from hashlib import sha256
 
@@ -63,7 +63,8 @@ def send_map(content, extension, scale=1, suffix=None):
         if not os.path.exists(basename):
             os.makedirs(basename)
         with open(path, 'wb') as f:
-            f.write(render_map(content, mimetype, scale).read())
+            m = MapRenderer(content)
+            f.write(m.render(mimetype, scale).read())
 
     return send_file(path,
                      attachment_filename=filename,
@@ -80,5 +81,7 @@ def render():
         elif size == 'small':
             scale = 0.5
 
+        return send_map(content, file_type, scale, size)
+
     print("file_type", file_type)
-    return send_map(content, file_type, scale, size)
+    return send_map(content, file_type)
