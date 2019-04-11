@@ -1,0 +1,5 @@
+sh
+pycairo
+pyyaml
+click
+rq
