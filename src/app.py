@@ -1,7 +1,7 @@
 from flask import Flask
 from os import environ
 
-from routes import render
+from routes import renderer
 
 
 def create_app():
@@ -11,7 +11,7 @@ def create_app():
     if 'SETTINGS' in environ:
         app.config.from_envvar('SETTINGS')
 
-    for blueprint in [render]:
+    for blueprint in [renderer]:
         app.register_blueprint(blueprint)
 
     return app

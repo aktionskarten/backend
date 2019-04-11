@@ -1,14 +1,11 @@
-import os
 import mapnik
 import json
 import cairo
 import io
-import mimetypes
 
-from flask import send_file, current_app
+from flask import current_app
 from geojson import FeatureCollection, Feature, Point
-from hashlib import sha256
-from utils import InvalidUsage, get_xml, strip
+from utils import get_xml, strip
 
 
 def add_legend(mapnik_map, _map):
@@ -43,6 +40,7 @@ def add_legend(mapnik_map, _map):
     point = Point((box.maxx, box.miny))
     features.append(Feature(geometry=point, properties=properties))
 
+    # render them
     collection = json.dumps(FeatureCollection(features))
     xml_str = get_xml("styles/legend.xml").format(collection).encode()
     mapnik.load_map_from_string(mapnik_map, xml_str)
@@ -123,37 +121,5 @@ def render_map(_map, mimetype='application/pdf', scale=1):
         surface.finish()
 
     f.seek(0)
+
     return f
-
-
-def send_map(content, extension, scale=1, suffix=None):
-    if ('grid' not in content or 'features' not in content):
-        raise InvalidUsage('invalid data')
-
-    dirname = sha256(content['name'].encode()).hexdigest()
-    mimetype = mimetypes.types_map['.' + extension]
-
-    raw = json.dumps(content, separators=(',', ':'), sort_keys=True)
-    map_id = sha256(raw.encode()).hexdigest()
-
-    if suffix:
-        filename = '{}_{}.{}'.format(map_id, suffix, extension)
-    else:
-        filename = '{}.{}'.format(map_id, extension)
-
-    static_path = current_app.static_folder
-    path = os.path.join(static_path, 'maps', dirname, filename)
-
-    # for development you can disable render caching of maps
-    config = current_app.config
-    if ('NO_MAP_CACHE' in config and config['NO_MAP_CACHE']) or \
-       not os.path.exists(path):
-        basename = os.path.dirname(path)
-        if not os.path.exists(basename):
-            os.makedirs(basename)
-        with open(path, 'wb') as f:
-            f.write(render_map(content, mimetype, scale).read())
-
-    return send_file(path,
-                     attachment_filename=filename,
-                     mimetype=mimetype, cache_timeout=0)
