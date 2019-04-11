@@ -46,6 +46,23 @@ def add_legend(mapnik_map, _map):
     mapnik.load_map_from_string(mapnik_map, xml_str)
 
 
+def add_features(mapnik_map, _map):
+    # add all features (as features are rendered on top of each other in the
+    # order we provide it to mapnik, make sure markers are on top)
+    types = ['Polygon', 'LineString', 'Point']
+    getter = lambda x: types.index(x['geometry']['type'])
+    features = sorted([strip(f) for f in _map['features']], key=getter)
+    collection = json.dumps(FeatureCollection(features))
+    xml_str = get_xml("styles/features.xml").format(collection).encode()
+    mapnik.load_map_from_string(mapnik_map, xml_str)
+
+
+def add_grid(mapnik_map, _map):
+    data = _map['grid']
+    xml_str = get_xml("styles/grid.xml").format(json.dumps(data)).encode()
+    mapnik.load_map_from_string(mapnik_map, xml_str)
+
+
 def render_map(_map, mimetype='application/pdf', scale=1):
     merc = mapnik.Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 \
                               +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m \
@@ -65,21 +82,9 @@ def render_map(_map, mimetype='application/pdf', scale=1):
     # add osm data
     mapnik.load_map(mapnik_map, current_app.config['MAPNIK_OSM_XML'])
 
-    # add grid
-    data = _map['grid']
-    xml_str = get_xml("styles/grid.xml").format(json.dumps(data)).encode()
-    mapnik.load_map_from_string(mapnik_map, xml_str)
-
-    # add all features (as features are rendered on top of each other in the
-    # order we provide it to mapnik, make sure markers are on top)
-    types = ['Polygon', 'LineString', 'Point']
-    getter = lambda x: types.index(x['geometry']['type'])
-    features = sorted([strip(f) for f in _map['features']], key=getter)
-    collection = json.dumps(FeatureCollection(features))
-    xml_str = get_xml("styles/features.xml").format(collection).encode()
-    mapnik.load_map_from_string(mapnik_map, xml_str)
-
-    # add legend
+    # add map data
+    add_grid(mapnik_map, _map)
+    add_features(mapnik_map, _map)
     add_legend(mapnik_map, _map)
 
     # export as in-memory file
