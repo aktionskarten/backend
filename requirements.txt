@@ -3,3 +3,5 @@ pycairo
 pyyaml
 click
 rq
+python-dotenv
+flask

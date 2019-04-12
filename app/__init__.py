@@ -1,18 +1,22 @@
 from flask import Flask
 from os import environ
+from app.routes import renderer
 
-from routes import renderer
+import rq
+from redis import Redis
 
 
 def create_app():
     app = Flask(__name__)
 
-    app.config.from_object('settings_default')
+    app.config.from_object('app.settings_default')
     if 'SETTINGS' in environ:
         app.config.from_envvar('SETTINGS')
 
     for blueprint in [renderer]:
         app.register_blueprint(blueprint)
+
+    app.task_queue = rq.Queue('tasks', connection=Redis())
 
     return app
 

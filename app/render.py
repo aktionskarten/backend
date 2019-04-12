@@ -6,13 +6,13 @@ from mapnik import Map, Projection, ProjTransform, Box2d, load_map, \
                    load_map_from_string, render
 from flask import current_app
 from geojson import FeatureCollection, Feature, Point
-from utils import get_xml, strip
 from timeit import default_timer as timer
+from app.utils import get_xml, strip
 
 
 class MapRenderer:
     def __init__(self, content):
-        # Mapnik uses mercator as internal projection. Our data is encoded in in
+        # Mapnik uses mercator as internal projection. Our data is encoded in
         # latlon. Therefor we need a transformer for coordindates from longlat
         # to mercator
         proj_merc = Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0\
