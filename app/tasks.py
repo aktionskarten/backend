@@ -17,7 +17,7 @@ def _get_img_type(file_type):
         elif size == 'small':
             scale = 0.5
         return (img_type, scale, size)
-    return file_type
+    return (file_type,)
 
 
 def get_file_info(map_id, version, file_type):
