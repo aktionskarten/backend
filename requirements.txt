@@ -5,3 +5,4 @@ click
 rq
 python-dotenv
 flask
+pytest
