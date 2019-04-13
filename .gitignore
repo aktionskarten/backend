@@ -1,5 +1,5 @@
 *.pyc
 
 env
-src/static/maps
+app/static/maps
 styles/markers/#*
