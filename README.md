@@ -6,6 +6,9 @@ file formats like PDF, PNG or SVG. It's written in python with help of flask,
 mapnik and openstreetmap-carto. Rendereing is time and ressource intensive and
 therefor it's not done in the webapp itself but through a task queue.
 
+The renderer itself is not supposed to run publicly because it's missing
+authentication functionality.
+
 Install
 -------
 
