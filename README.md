@@ -12,20 +12,25 @@ authentication functionality.
 Install
 -------
 
-At least postgres, postgis, mapnik and redis need to be installed. Do this
+## Dependencies
+At least postgres, postgis, mapnik, osm2pgsql and redis need to be installed. Do this
 through your os package manager:
 
-Ubuntu
+### Ubuntu
 
 ```
 $ apt install XXX
 ```
 
-ArchLinux
+### ArchLinux
+
+You need to install osm2pgsql through AUR.
 
 ```
 $ pacman -S postgresql postgis redis mapnik
 ```
+
+## Renderer
 
 ```
 $ git clone --recursive aktionskarten
