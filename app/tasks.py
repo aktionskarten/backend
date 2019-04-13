@@ -7,6 +7,8 @@ from flask import current_app, has_app_context
 from app.render import MapRenderer
 from app.utils import InvalidUsage
 
+class UnsupportedFileType(Exception):
+    pass
 
 def _get_img_type(file_type):
     if ':' in file_type:
@@ -32,7 +34,11 @@ def get_file_info(map_id, version, file_type):
 
     extension, *args = _get_img_type(file_type)
     file_info['extension'] = extension
-    file_info['mimetype'] = mimetypes.types_map['.' + extension]
+
+    try:
+        file_info['mimetype'] = mimetypes.types_map['.' + extension]
+    except KeyError:
+        raise UnsupportedFileType
 
     suffix = ''
     if len(args) > 0:
