@@ -1,16 +1,21 @@
+import xml.etree.cElementTree as et
+import imghdr
+
 from time import sleep
+from PyPDF2 import PdfFileReader
+from io import BytesIO
 from tests.fixtures import *
 from tests.utils import post, get, wait_until_finished, reset_map_folder
 
 
-VERSION = 'f3daf2d7b36a019ad80faa5e01833647d906c9e0c3d1acfc46a6b062a03fe982'
+VERSION = 'c8bbde29fa1cfd1109fae1835fcc1ea1f92f4e31292c1b3d338c782f18333605'
 
 
 def setup_function(function):
     reset_map_folder()
 
 
-def test_png(client, sample):
+def tast_png(client, sample):
     job_id = None
 
     # Request rendering of a png
@@ -32,7 +37,7 @@ def test_png(client, sample):
 
     assert wait_until_finished(client, job_id)
 
-    # Retry - Check if finished (and is reuses old job -n ot enqeueud as new
+    # Retry - Check if finished (and is reuses old job - not enqeueud as new
     # job)
     with post(client, '/render/png:small', sample) as (resp, json):
         assert 'job_id' in json
@@ -47,6 +52,8 @@ def test_png(client, sample):
     # Download latest (without version)
     with get(client, '/download/test123.png:small') as (resp, data):
         assert resp.status_code == 200
+        assert len(data) > 0
+        assert imghdr.what(None, data) == 'png'
 
 
 def test_pdf(client, sample):
@@ -61,11 +68,14 @@ def test_pdf(client, sample):
 
     # Download with version
     url = '/download/test123_{}.pdf'.format(VERSION)
-    with get(client, url) as (resp, sample):
+    with get(client, url) as (resp, data):
         assert resp.status_code == 200
+        assert len(data) > 0
+        with BytesIO(data) as f:
+            PdfFileReader(f)
 
 
-def test_svg(client, sample):
+def tast_svg(client, sample):
     job_id = None
 
     # Request rendering of a svg
@@ -78,10 +88,14 @@ def test_svg(client, sample):
     # Download with version
     url = '/download/test123_{}.svg'.format(VERSION)
     with get(client, url) as (resp, data):
+        with open('/tmp/foo.svg', 'wb') as f:
+            f.write(data)
+        assert et.fromstring(data).tag == '{http://www.w3.org/2000/svg}svg'
+        assert len(data) > 0
         assert resp.status_code == 200
 
 
-def test_status(client, sample):
+def tast_status(client, sample):
     job_id = None
 
     # Request rendering of a svg
@@ -105,18 +119,18 @@ def test_status(client, sample):
         assert resp.status_code == 200
 
 
-def test_invalid_download(client):
+def tast_invalid_download(client):
     with get(client, '/download/INVALID.png:small') as (resp, data):
         assert resp.status_code == 404
 
 
-def test_invalid_status_by_job(client):
+def tast_invalid_status_by_job(client):
     # status_by_job
     with get(client, '/status/INVALID') as (resp, data):
         assert resp.status_code == 404
 
 
-def test_invalid_status_by_map(client, sample):
+def tast_invalid_status_by_map(client, sample):
     # status_by_map - invalid file_type
     url = '/status/INVALID_MAP_NAME/INVALID_VERSION/INVALID_FILE_TYPE'
     with get(client, url) as (resp, data):

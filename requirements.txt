@@ -6,3 +6,4 @@ rq
 python-dotenv
 flask
 pytest
+pypdf2
