@@ -1,6 +1,7 @@
 import yaml
 import click
 
+from shutil import rmtree
 from sh import wget, bzip2, osm2pgsql, npm, carto, createdb, psql, dropuser,\
                dropdb, python, ln
 from os import environ, makedirs, path
@@ -153,6 +154,11 @@ def deletedb():
 
     click.echo("Dropping user")
     dropuser(DB_USER)
+
+@cli.command(help="clear map directory")
+def clearmaps():
+    from app import app
+    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
 
 
 @cli.command(help="Install and configures everything")
