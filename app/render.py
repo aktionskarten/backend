@@ -104,6 +104,11 @@ class MapRenderer:
         # create corresponding surface for mimetype
         if mimetype == 'image/svg+xml':
             surface = cairo.SVGSurface(f, self._map.width, self._map.height)
+            # limit svg version to at least 1.2 otherwise we end up with an
+            # embedded image instead of vector data. See as well:
+            # * github.com/mapnik/mapnik/pull/4029
+            # * github.com/mapnik/mapnik/issues/3749
+            surface.restrict_to_version(cairo.SVGVersion.VERSION_1_2)
         elif mimetype == 'image/png':
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self._map.width,
                                          self._map.height)
