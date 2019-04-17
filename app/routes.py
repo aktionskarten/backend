@@ -125,7 +125,7 @@ def status_by_map(map_id, version, file_type):
         'map_id': map_id,
         'file_type': file_type,
         'version': version,
-        'state': 'finished',
+        'status': 'finished',
         'url': url_for('static', filename=file_info['path'], _external=True)
     }
     return jsonify(**data)
