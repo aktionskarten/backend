@@ -2,6 +2,7 @@ import json
 import os
 import mimetypes
 
+from tempfile import NamedTemporaryFile
 from hashlib import sha256
 from flask import current_app, has_app_context
 from app.render import MapRenderer
@@ -85,11 +86,15 @@ def render_map(data, file_type, force=False):
     if not os.path.exists(map_dir):
         os.makedirs(map_dir)
 
-    # render map and save as file
+    # render map as in-memory file
+    m = MapRenderer(data)
+    f = m.render(file_info['mimetype'])
+
+    # write file atomically (otherwise we end up in serving incomplete files)
     path = os.path.join(static_dir, file_info['path'])
-    with open(path, 'wb') as f:
-        m = MapRenderer(data)
-        f.write(m.render(file_info['mimetype']).read())
+    with NamedTemporaryFile(dir=os.path.dirname(path), delete=False) as tmp_f:
+        tmp_f.write(f.read())
+        os.replace(tmp_f.name, path)
 
     # update latest symlink to this
     symlink_name = 'LATEST'+file_info['suffix']
