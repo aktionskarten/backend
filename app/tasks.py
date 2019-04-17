@@ -72,7 +72,7 @@ def render_map(data, file_type, force=False):
     if ('grid' not in data or 'features' not in data):
         raise InvalidUsage('invalid data')
 
-    map_id = data['map_id']
+    map_id = data['id']
     version = get_version(data)
     file_info = get_file_info(map_id, version, file_type)
 

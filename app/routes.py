@@ -134,7 +134,7 @@ def status_by_map(map_id, version, file_type):
 @renderer.route('/render/<string:file_type>', methods=['POST'])
 def render(file_type):
     data = request.get_json()
-    map_id = data['map_id']
+    map_id = data['id']
     version = get_version(data)
 
     args = (data, file_type)
