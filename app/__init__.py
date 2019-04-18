@@ -16,7 +16,7 @@ def create_app():
     for blueprint in [renderer]:
         app.register_blueprint(blueprint)
 
-    app.task_queue = rq.Queue('tasks', connection=Redis())
+    app.task_queue = rq.Queue(connection=Redis())
 
     return app
 
