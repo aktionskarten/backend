@@ -100,7 +100,7 @@ def status_by_job_id(job_id):
         abort(404)
 
 
-def find_in_registry(registry, map_id, version, file_type):
+def _find_in_registry(registry, map_id, version, file_type):
     for job_id in reversed(registry.get_job_ids()):
         job = Job.fetch(job_id, connection=registry.connection)
         if job.meta['map_id'] == map_id and\
@@ -134,7 +134,7 @@ def status_by_map(map_id, version, file_type):
 
     # check if it is currently rendering
     started = StartedJobRegistry(queue=queue)
-    job = find_in_registry(started, map_id, version, file_type)
+    job = _find_in_registry(started, map_id, version, file_type)
     if job:
         return status_by_job(job)
 
@@ -148,7 +148,7 @@ def status_by_map(map_id, version, file_type):
 
     # enhance output with job_id if it is recently rendered
     finished = FinishedJobRegistry(queue=queue)
-    job = find_in_registry(finished, map_id, version, file_type)
+    job = _find_in_registry(finished, map_id, version, file_type)
     if job:
         return status_by_job(job)
 
