@@ -14,7 +14,19 @@ register_fonts('/usr/share/fonts')
 
 
 class MapRenderer:
+    """ Class for rendering maps through mapnik """
     def __init__(self, content):
+        """ With MapRenderer you can render an aktionskarten map in different
+            file formats like pdf, svg or png.
+
+            Internally it uses mapnik and cairo to archieve this. A valid style
+            has to be defined through `MAPNIK_OSM_XML`. Normally this a carto
+            derived `style.xml`. In this file your datasource is specified. This
+            can be for instance a postgres+postgis database with imported osm
+            data.
+
+            :param content: dict of map content
+        """
         # Mapnik uses mercator as internal projection. Our data is encoded in
         # latlon. Therefor we need a transformer for coordindates from longlat
         # to mercator
@@ -99,6 +111,32 @@ class MapRenderer:
         load_map_from_string(self._map, xml_str)
 
     def render(self, mimetype='application/pdf', scale=1):
+        """
+            Renders a map through mapnik and in cases uses cairo to export in
+            different file types. By default as a single paged `pdf` but you can
+            pick as well other mimetypes.
+
+            Maps are rendered and returned as in-memory file :class:`io.ByteIO`.
+
+            Depending on the bounding box of your map, this is a ressouce and
+            time consuming process. For web applications you should outsource it
+            for instance in a task queue.
+
+            Through scale you can alter the size of the rendered output.
+            Currently only `image/png` supports this parameter. Normally this is
+            a value between 0 and 1. For instance for aktionskarten the
+            following sizings are used:
+
+            small
+                0.5
+            medium
+                0.75
+            large
+                1
+
+            :param mimetype: `image/svg+xml`, `image/png` or `image/pdf`
+            :param scale: scale factor  for sizing
+        """
         start = timer()
 
         # export is done as in-memory file
