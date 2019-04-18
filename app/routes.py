@@ -28,6 +28,17 @@ def handle_invalid_usage(error):
 @renderer.route('/download/<string:map_id>_<string:version>.<string:file_type>')
 @renderer.route('/download/<string:map_id>.<string:file_type>')
 def download(map_id, file_type, version=None):
+    """ Download a map identified by map_id, file_type and optional version.
+
+    Only already rendered maps can be downloaded. Each file format has to be
+    rendered separately. If a map is not found you will get an 404 error
+    statuscode.
+
+    :param map_id: id of map
+    :param file_type: `svg`, `pdf` or `png[:small|medium|large]`
+    :status 200: sends content of map
+    :status 404: map, version or file_type not found
+    """
     dirname = sha256(map_id.encode()).hexdigest()
     extension, *args = file_type.split(':')
     mimetype = mimetypes.types_map['.' + extension]
@@ -72,6 +83,15 @@ def status_by_job(job):
 
 @renderer.route('/status/<string:job_id>')
 def status_by_job_id(job_id):
+    """ Retrieve status of a render job by its job id
+
+    To get informations if a job is still running or finished you may use
+    `status_by_job`.
+
+    :param job_id: id of job
+    :status 200: informations about current job
+    :status 404: map, version or file_type not found
+    """
     queue = current_app.task_queue
     try:
         job = Job.fetch(job_id, connection=queue.connection)
@@ -92,6 +112,17 @@ def find_in_registry(registry, map_id, version, file_type):
 #   * Add support for status without version (read version from LATEST symlink)
 @renderer.route('/status/<string:map_id>/<string:version>/<string:file_type>')
 def status_by_map(map_id, version, file_type):
+    """ Retrieve status of a render job by it `map_id`, `verison` and
+    `file_type`
+
+
+    :param map_id: map id
+    :param version: version
+    :param file_type: filetype
+    :status 200: informations about current job
+    :status 400: invalid file type
+    :status 404: map and or version of map not found
+    """
     queue = current_app.task_queue
 
     # check if it is queued to be rendered
@@ -133,6 +164,31 @@ def status_by_map(map_id, version, file_type):
 
 @renderer.route('/render/<string:file_type>', methods=['POST'])
 def render(file_type):
+    """Renders a map
+
+        **Example request**:
+
+        .. sourcecode:: bash
+
+          $ curl -i -X POST -H "Content-Type: application/json" -d @tests/data/test_map.json http://localhost:5000/render/png
+
+        **Example response**:
+
+        .. sourcecode:: http
+
+          HTTP/1.1 202 Accepted
+          Content-Type: application/json
+
+          {
+            "file_type": "png",
+            "job_id": "fce3b682-feaa-48b7-b945-ad243ce62df4",
+            "map_id": "test123",
+            "status": "queued",
+            "version": "c8bbde29fa1cfd1109fae1835fcc1ea1f92f4e31292c1b3d338c782f18333605"
+          }
+
+        :param file_type: file type of rendered map. Either `pdf`, `svg` or `png:<size>` with size `small`, `medium` or `large`
+        """
     data = request.get_json()
     map_id = data['id']
     version = get_version(data)
