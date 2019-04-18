@@ -8,7 +8,6 @@ psycopg2-binary
 numpy
 geojson
 shapely
-cairocffi
 blinker
 pytest
 awesome-slugify

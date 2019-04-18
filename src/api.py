@@ -1,7 +1,9 @@
 import re
+import requests
 
 from functools import wraps
-from flask import Blueprint, request, jsonify, abort, redirect, url_for, make_response
+from flask import Blueprint, request, jsonify, abort, redirect, url_for,\
+                  make_response, Response, current_app, render_template
 from flask_cors import CORS
 from werkzeug.security import safe_str_cmp
 from models import db, Map, Feature
@@ -221,3 +223,71 @@ def map_get_grid(map_id):
     if not m:
         abort(404)
     return jsonify(m.grid)
+
+
+@api.route('/api/maps/<string:map_id>/geojson')
+def map_export_geojson(map_id):
+    m = Map.get(map_id)
+    features = [f.to_dict() for f in m.features]
+    return jsonify(FeatureCollection(features, properties=m.to_dict(False)))
+
+
+def _render(_map, file_type):
+    payload = _map.to_dict(False, grid_included=True, features_included=True)
+    url = current_app.config['RENDERER_URL'] + '/render/' + file_type
+    return requests.post(url, json=payload).json()
+
+
+@api.route('/api/maps/<string:map_id>/render/thumbnail')
+def map_render_thumbnail(map_id):
+    return map_render(map_id, 'png:small')
+
+@api.route('/api/maps/<string:map_id>/render/<string:file_type>')
+def map_render(map_id, file_type):
+    _map = Map.get(map_id)
+    if not _map:
+        abort(404)
+
+    json = _render(_map, file_type)
+    finished = 'status' in json and json['status'] == 'finished'
+    print(json, finished)
+    return jsonify(**json), 200 if finished else 202
+
+
+@api.route('/maps/<string:map_id>.<string:file_type>/status')
+@api.route('/maps/<string:map_id>.<string:file_type>/<string:version>/status')
+def map_wait_until_finished(map_id, file_type, version=None):
+    m = Map.get(map_id)
+    if not m:
+        abort(404)
+    return render_template('rendering.html', m=m, file_type=file_type)
+
+
+@api.route('/maps/<string:map_id>.<string:file_type>')
+@api.route('/maps/<string:map_id>.<string:file_type>/<string:version>')
+def map_download(map_id, file_type, version=None):
+    m = Map.get(map_id)
+    if not m:
+        abort(404)
+
+    if not version:
+        version = m.version
+
+    base_url = current_app.config['RENDERER_URL']
+    url = base_url + '/download/{}_{}.{}'.format(m.slug, version, file_type)
+    resp_download = requests.get(url)
+    print("map download", resp_download.status_code, m.slug,version, file_type, url)
+    if resp_download.status_code == 200:
+        resp = Response(resp_download.content,
+                        mimetype=resp_download.headers['content-type'])
+        resp.cache_control.no_cache = True
+        return resp
+
+    # we can only render current content
+    if m.version != version:
+        abort(404)
+
+    _render(m, file_type)
+
+    args = {'map_id': map_id, 'file_type': file_type, 'version': version}
+    return redirect(url_for('API.map_wait_until_finished', **args))
