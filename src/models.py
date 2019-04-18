@@ -81,9 +81,8 @@ class Map(db.Model):
         return None
 
     @property
-    def hash(self):
-        data = self.to_dict(False)
-        data['features'] = [f.to_dict() for f in self.features]
+    def version(self):
+        data = self.to_dict(False, grid_included=True, features_included=True)
         raw = json.dumps(data, separators=(',', ':'), sort_keys=True)
         return sha256(raw.encode()).hexdigest()
 
@@ -121,7 +120,7 @@ class Map(db.Model):
     def bbox(self, value):
         self._bbox = from_shape(box(*value))
 
-    def to_dict(self, hash_included=True, secret_included=False):
+    def to_dict(self, version_included=True, secret_included=False, grid_included=False, features_included=False):
         data = {
             'id': self.slug,
             'name': self.name,
@@ -130,19 +129,20 @@ class Map(db.Model):
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
-            'thumbnail': url_for('Render.map_export_png', map_id=self.slug, size='small', _external=True),
-            'exports': {
-                'pdf': url_for('Render.map_export_pdf', map_id=self.slug, _external=True),
-                'svg': url_for('Render.map_export_svg', map_id=self.slug, _external=True),
-                'png': url_for('Render.map_export_png', map_id=self.slug, _external=True)
-            }
+            'thumbnail': url_for('API.map_download', map_id=self.slug, file_type='png:small', _external=True),
         }
 
-        if hash_included:
-            data['hash'] = self.hash
+        if version_included:
+            data['version'] = self.version
 
         if secret_included:
             data['secret'] = self.secret
+
+        if grid_included:
+            data['grid'] = self.grid
+
+        if features_included:
+            data['features'] = [f.to_dict() for f in self.features]
 
         return data
 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rendering {{m.name}}...</title>
+    <script>
+      function check() {
+        fetch('{{url_for('API.map_render', map_id=m.slug, file_type=file_type)}}', {method: 'HEAD'}).then(response => {
+          if (response.status == 200) {
+            window.location = '{{url_for('API.map_download', map_id=m.slug, file_type=file_type)}}'
+          } else {
+            setTimeout(()=>check(), 1000);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body onload="check()">
+    <h1>Map {{m.name}} is rendering</h1>
+    <p>
+      You should be redirected as soon as the map is rendered. It may take some
+      time. Otherwise check <a href="{{url_for('API.map_download',
+        map_id=m.slug, file_type=file_type)}}">here</a>.
+    </p>
+  </body>
+</html>
