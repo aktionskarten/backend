@@ -161,4 +161,4 @@ def render(file_type):
     }
     job = queue.enqueue("app.tasks.render_map", *args, meta=meta)
 
-    return status_by_job(job)
+    return status_by_job(job), 202
