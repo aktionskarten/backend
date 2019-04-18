@@ -38,9 +38,9 @@ class MapRenderer:
 
         mid = timer()
 
-        self.add_grid(content['grid'])
-        self.add_features(content['features'])
-        self.add_legend(content['name'], content['place'], content['datetime'],
+        self._add_grid(content['grid'])
+        self._add_features(content['features'])
+        self._add_legend(content['name'], content['place'], content['datetime'],
                         content['attributes'])
 
         end = timer()
@@ -48,7 +48,7 @@ class MapRenderer:
         print("Map.init - Map: ", end - mid)
         print("Map.init - Total: ", end - start)
 
-    def add_legend(self, name, place, datetime, attributes):
+    def _add_legend(self, name, place, datetime, attributes):
         features = []
         box = self._map.envelope()
 
@@ -84,7 +84,7 @@ class MapRenderer:
         xml_str = get_xml("styles/legend.xml").format(collection).encode()
         load_map_from_string(self._map, xml_str)
 
-    def add_features(self, features):
+    def _add_features(self, features):
         # add all features (as features are rendered on top of each other in the
         # order we provide it to mapnik, make sure markers are on top)
         types = ['Polygon', 'LineString', 'Point']
@@ -94,7 +94,7 @@ class MapRenderer:
         xml_str = get_xml("styles/features.xml").format(collection).encode()
         load_map_from_string(self._map, xml_str)
 
-    def add_grid(self, grid):
+    def _add_grid(self, grid):
         xml_str = get_xml("styles/grid.xml").format(json.dumps(grid)).encode()
         load_map_from_string(self._map, xml_str)
 
