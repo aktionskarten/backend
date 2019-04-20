@@ -1,6 +1,0 @@
-[submodule "libs/python-mapnik"]
-	path = libs/python-mapnik
-	url = git@github.com:mapnik/python-mapnik.git
-[submodule "libs/openstreetmap-carto"]
-	path = libs/openstreetmap-carto
-	url = https://github.com/gravitystorm/openstreetmap-carto.git

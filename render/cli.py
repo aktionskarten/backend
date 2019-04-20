@@ -9,7 +9,6 @@ from os.path import abspath, join as pjoin
 from path import Path
 from distutils.core import run_setup
 
-
 DB_HOST = '127.0.0.1'
 DB_USER = 'gis'
 DB_PASS = 'gis'
@@ -71,7 +70,7 @@ def osm():
 @osm.command()
 def generate_style():
     with Path("libs/openstreetmap-carto"):
-        click.echo("Installing carto")
+        click.echo("Installing carto through npm")
         npm('install', 'carto')
 
         click.echo("Updating credentials in project.mml")

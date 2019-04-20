@@ -15,3 +15,11 @@ factory-boy
 faker
 pylint
 eventlet
+sh
+pycairo
+pyyaml
+click
+rq
+python-dotenv
+pypdf2
+path.py

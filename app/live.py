@@ -1,4 +1,4 @@
-from models import Map, Feature
+from app.models import Map, Feature
 from flask_socketio import SocketIO, join_room, leave_room, send
 
 socketio = SocketIO()

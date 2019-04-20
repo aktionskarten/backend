@@ -11,7 +11,7 @@ class InvalidUsage(Exception):
 
 
 def get_xml(filename):
-    path_abs = path.join(path.dirname(__file__), "..", filename)
+    path_abs = path.join(path.dirname(__file__), filename)
     with open(path_abs, 'r') as f:
         return f.read()
 

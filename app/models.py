@@ -19,8 +19,8 @@ from geoalchemy2 import Geometry
 from blinker import Namespace
 from sqlalchemy import event
 from slugify import slugify
-from grid import Grid
 from flask import url_for
+from app.grid import Grid
 
 
 db = flask_sqlalchemy.SQLAlchemy()
@@ -68,6 +68,11 @@ class Map(db.Model):
     def get(cls, name_or_slug):
         slug = slugify(name_or_slug)
         return db.session.query(Map).filter(Map.slug == slug).first()
+
+    @classmethod
+    def exists(cls, name_or_slug):
+        slug = slugify(name_or_slug)
+        return db.session.query(db.exists().where(Map.slug == slug)).scalar()
 
     @classmethod
     def delete(cls, slug):
@@ -129,7 +134,7 @@ class Map(db.Model):
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
-            'thumbnail': url_for('API.map_download', map_id=self.slug, file_type='png:small', _external=True),
+            #'thumbnail': url_for('Renderer.map_download', map_id=self.slug, file_type='png:small', _external=True),
         }
 
         if version_included:

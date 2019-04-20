@@ -7,7 +7,7 @@ from mapnik import Map, Projection, ProjTransform, Box2d, load_map, \
 from flask import current_app
 from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
-from app.utils import get_xml, strip
+from render.utils import get_xml, strip
 
 
 register_fonts('/usr/share/fonts')

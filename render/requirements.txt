@@ -1,9 +1,0 @@
-sh
-pycairo
-pyyaml
-click
-rq
-python-dotenv
-flask
-pytest
-pypdf2

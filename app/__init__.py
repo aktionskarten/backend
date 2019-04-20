@@ -4,10 +4,10 @@ from os import environ
 import rq
 from redis import Redis
 
-#from live import socketio
+from app.live import socketio
 from app.api import api
-from render import render
-from models import db
+from app.models import db
+from render import renderer, renderer_cli
 
 
 def create_app():
@@ -18,21 +18,23 @@ def create_app():
         app.config.from_envvar('SETTINGS')
 
     db.init_app(app)
-    #socketio.init_app(app)
+    socketio.init_app(app)
 
     app.task_queue = rq.Queue(connection=Redis())
 
-    for blueprint in [render, api]:
+    for blueprint in [renderer, api]:
         app.register_blueprint(blueprint)
+
+    app.cli.add_command(renderer_cli)
 
     return app
 
 
-app = create_app()
-
-with app.app_context():
-    db.create_all()
+#app = create_app()
+#
+#with app.app_context():
+#    db.create_all()
 
 if __name__ == "__main__":
-    app.run()
-    #socketio.run(app)
+    #app.run()
+    socketio.run(app)

@@ -5,8 +5,9 @@ import mimetypes
 from tempfile import NamedTemporaryFile
 from hashlib import sha256
 from flask import current_app, has_app_context
-from app.render import MapRenderer
-from app.utils import InvalidUsage
+from werkzeug.exceptions import NotFound
+from render.mapnik import MapRenderer
+from render.utils import InvalidUsage
 
 class UnsupportedFileType(Exception):
     pass
@@ -65,16 +66,19 @@ def get_version(data):
     return sha256(raw.encode()).hexdigest()
 
 
-def render_map(data, file_type, force=False):
+def render_map(map_id, file_type, force=False):
     if not has_app_context():
-        from app import app
+        from app import create_app
+        app = create_app()
         app.app_context().push()
 
-    if ('grid' not in data or 'features' not in data):
-        raise InvalidUsage('invalid data')
+    from app.models import Map
+    _map = Map.get(map_id)
+    if not _map:
+        raise NotFound
 
-    map_id = data['id']
-    version = get_version(data)
+    data = _map.to_dict(False, grid_included=True, features_included=True)
+    version = _map.version
     file_info = get_file_info(map_id, version, file_type)
 
     # if map already is rendered, do nothing

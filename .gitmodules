@@ -1,3 +1,9 @@
 [submodule "deploy/ansible/roles/ansible-role-nginx-letsencrypt"]
 	path = deploy/ansible/roles/ansible-role-nginx-letsencrypt
 	url = https://github.com/aktionskarten/ansible-role-nginx-letsencrypt.git
+[submodule "libs/python-mapnik"]
+	path = libs/python-mapnik
+	url = git@github.com:mapnik/python-mapnik.git
+[submodule "libs/openstreetmap-carto"]
+	path = libs/openstreetmap-carto
+	url = https://github.com/gravitystorm/openstreetmap-carto.git
