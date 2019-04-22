@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Aktionskarten Backend &#8212; backend  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="aktionskarten-backend">
+<h1>Aktionskarten Backend<a class="headerlink" href="#aktionskarten-backend" title="Permalink to this headline">¶</a></h1>
+<p>Purpose of <em>aktionkskarten/backend</em> is to persistently store spatial data and
+visualize it. For that it provides a <em>ReST API</em> and relies on openstreetmap
+data. A client can create, edit and delete new maps. Moreover these maps can
+be visualized as raster maps in file formats like PDF, PNG or SVG.</p>
+<p>The backend itself is written in python with help of flask, postgres, mapnik
+and openstreetmap-carto. As rendereing is time and ressource intensive and
+therefor it’s not done in the webapp itself but through a task queue. We use
+<em>redis queue</em> for that. So as summary the following dependencies exist:</p>
+<dl class="simple">
+<dt>Databases</dt><dd><ul class="simple">
+<li><p>postgres</p></li>
+<li><p>redis</p></li>
+</ul>
+</dd>
+<dt>Libraries</dt><dd><ul class="simple">
+<li><p>flask</p></li>
+<li><p>sqlalchemy + geoalchemy2</p></li>
+<li><p>mapnik</p></li>
+<li><p>cairo</p></li>
+</ul>
+</dd>
+<dt>Tools</dt><dd><ul class="simple">
+<li><p>osm2pgsql</p></li>
+<li><p>carto</p></li>
+</ul>
+</dd>
+</dl>
+<p>We try to aggregate as little data as possible. This results that there is
+no user management. Each map has a security token. Only with this secret
+you’re able to edit a map.</p>
+<p>You can find more informations about the API itself or classes here:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Classes</a></li>
+</ul>
+</div>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p>At least postgres, postgis, mapnik, cairo and redis need to be installed. Do
+this through your os package manager:</p>
+<p>Ubuntu</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
+</pre></div>
+</div>
+<p>ArchLinux</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pacman -S postgresql postgis redis cairo mapnik
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/aktionskarten/backend
+$ python -m venv env
+$ . env/bin/activate
+$ pip instal -r requirements.txt
+$ flask mapnik install    <span class="c1"># install custom python mapnik package</span>
+$ flask db init           <span class="c1"># create app database</span>
+$ flask osm init          <span class="c1"># download osm dump and create db for it</span>
+$ rq worker               <span class="c1"># start task queue worker</span>
+$ flask run --with-threads --no-reload <span class="c1"># start backend</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>Tests are written with pytest. To run them do the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -m pytest -s tests/
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">backend</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Classes</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="api.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, aktionskarten.de.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

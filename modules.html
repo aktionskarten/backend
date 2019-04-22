@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Classes &#8212; backend  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API" href="api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="classes">
+<h1>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="app.mapnik.MapRenderer">
+<em class="property">class </em><code class="descclassname">app.mapnik.</code><code class="descname">MapRenderer</code><span class="sig-paren">(</span><em>content</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for rendering maps through mapnik</p>
+<p>With MapRenderer you can render an aktionskarten map in different
+file formats like pdf, svg or png.</p>
+<p>Internally it uses mapnik and cairo to archieve this. A valid style
+has to be defined through <cite>MAPNIK_OSM_XML</cite>. Normally this a carto
+derived <cite>style.xml</cite>. In this file your datasource is specified. This
+can be for instance a postgres+postgis database with imported osm
+data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>content</strong> – dict of map content</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="app.mapnik.MapRenderer.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>mimetype='application/pdf'</em>, <em>scale=1</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders a map through mapnik and in cases uses cairo to export in
+different file types. By default as a single paged <cite>pdf</cite> but you can
+pick as well other mimetypes.</p>
+<p>Maps are rendered and returned as in-memory file <code class="xref py py-class docutils literal notranslate"><span class="pre">io.ByteIO</span></code>.</p>
+<p>Depending on the bounding box of your map, this is a ressouce and
+time consuming process. For web applications you should outsource it
+for instance in a task queue.</p>
+<p>Through scale you can alter the size of the rendered output.
+Currently only <cite>image/png</cite> supports this parameter. Normally this is
+a value between 0 and 1. For instance for aktionskarten the
+following sizings are used:</p>
+<dl class="simple">
+<dt>small</dt><dd><p>0.5</p>
+</dd>
+<dt>medium</dt><dd><p>0.75</p>
+</dd>
+<dt>large</dt><dd><p>1</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mimetype</strong> – <cite>image/svg+xml</cite>, <cite>image/png</cite> or <cite>image/pdf</cite></p></li>
+<li><p><strong>scale</strong> – scale factor  for sizing</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">backend</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Classes</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, aktionskarten.de.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

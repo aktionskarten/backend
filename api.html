@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>API &#8212; backend  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Classes" href="modules.html" />
+    <link rel="prev" title="Aktionskarten Backend" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<dl class="get">
+<dt id="get--api-maps">
+<code class="descname">GET </code><code class="descname">/api/maps</code><a class="headerlink" href="#get--api-maps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><a class="headerlink" href="#get--api-maps-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="post">
+<dt id="post--api-maps">
+<code class="descname">POST </code><code class="descname">/api/maps</code><a class="headerlink" href="#post--api-maps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="post">
+<dt id="post--api-maps-">
+<code class="descname">POST </code><code class="descname">/api/maps/</code><a class="headerlink" href="#post--api-maps-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id).(string-file_type)-(string-version)-status">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><code class="descname">/</code><span class="sig-paren">(</span><em class="property">string: </em><em>version</em><span class="sig-paren">)</span><code class="descname">/status</code><a class="headerlink" href="#get--api-maps-(string-map_id).(string-file_type)-(string-version)-status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id).(string-file_type)-status">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><code class="descname">/status</code><a class="headerlink" href="#get--api-maps-(string-map_id).(string-file_type)-status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve status of a render job by it <cite>map_id</cite>, <cite>verison</cite> and
+<cite>file_type</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>map_id</strong> – map id</p></li>
+<li><p><strong>version</strong> – version</p></li>
+<li><p><strong>file_type</strong> – filetype</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – informations about current job</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – invalid file type</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – map and or version of map not found</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--maps-(string-map_id).(string-file_type)-(string-version)-status">
+<code class="descname">GET </code><code class="descname">/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><code class="descname">/</code><span class="sig-paren">(</span><em class="property">string: </em><em>version</em><span class="sig-paren">)</span><code class="descname">/status</code><a class="headerlink" href="#get--maps-(string-map_id).(string-file_type)-(string-version)-status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--maps-(string-map_id).(string-file_type)-status">
+<code class="descname">GET </code><code class="descname">/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><code class="descname">/status</code><a class="headerlink" href="#get--maps-(string-map_id).(string-file_type)-status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-maps-(string-map_id)-features-(int-feature_id)">
+<code class="descname">DELETE </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/features/</code><span class="sig-paren">(</span><em class="property">int: </em><em>feature_id</em><span class="sig-paren">)</span><a class="headerlink" href="#delete--api-maps-(string-map_id)-features-(int-feature_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="patch">
+<dt id="patch--api-maps-(string-map_id)-features-(int-feature_id)">
+<code class="descname">PATCH </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/features/</code><span class="sig-paren">(</span><em class="property">int: </em><em>feature_id</em><span class="sig-paren">)</span><a class="headerlink" href="#patch--api-maps-(string-map_id)-features-(int-feature_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="put">
+<dt id="put--api-maps-(string-map_id)-features-(int-feature_id)">
+<code class="descname">PUT </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/features/</code><span class="sig-paren">(</span><em class="property">int: </em><em>feature_id</em><span class="sig-paren">)</span><a class="headerlink" href="#put--api-maps-(string-map_id)-features-(int-feature_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-features">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/features</code><a class="headerlink" href="#get--api-maps-(string-map_id)-features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="post">
+<dt id="post--api-maps-(string-map_id)-features">
+<code class="descname">POST </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/features</code><a class="headerlink" href="#post--api-maps-(string-map_id)-features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-geojson">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/geojson</code><a class="headerlink" href="#get--api-maps-(string-map_id)-geojson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-render-(string-file_type)">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/render/</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><a class="headerlink" href="#get--api-maps-(string-map_id)-render-(string-file_type)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders a map</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -i -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -d @tests/data/test_map.json http://localhost:5000/render/png
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">202</span> <span class="ne">Accepted</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;file_type&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;fce3b682-feaa-48b7-b945-ad243ce62df4&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;map_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test123&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;queued&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;c8bbde29fa1cfd1109fae1835fcc1ea1f92f4e31292c1b3d338c782f18333605&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_type</strong> – file type of rendered map. Either <cite>pdf</cite>, <cite>svg</cite> or <cite>png:&lt;size&gt;</cite> with size <cite>small</cite>, <cite>medium</cite> or <cite>large</cite></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-auth">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/auth</code><a class="headerlink" href="#get--api-maps-(string-map_id)-auth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-grid">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/grid</code><a class="headerlink" href="#get--api-maps-(string-map_id)-grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--maps-(string-map_id).(string-file_type)-(string-version)">
+<code class="descname">GET </code><code class="descname">/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><code class="descname">/</code><span class="sig-paren">(</span><em class="property">string: </em><em>version</em><span class="sig-paren">)</span><a class="headerlink" href="#get--maps-(string-map_id).(string-file_type)-(string-version)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--maps-(string-map_id).(string-file_type)">
+<code class="descname">GET </code><code class="descname">/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">.</code><span class="sig-paren">(</span><em class="property">string: </em><em>file_type</em><span class="sig-paren">)</span><a class="headerlink" href="#get--maps-(string-map_id).(string-file_type)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a map identified by map_id, file_type and optional version.</p>
+<p>Only already rendered maps can be downloaded. Each file format has to be
+rendered separately. If a map is not found you will get an 404 error
+statuscode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>map_id</strong> – id of map</p></li>
+<li><p><strong>file_type</strong> – <cite>svg</cite>, <cite>pdf</cite> or <cite>png[:small|medium|large]</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – sends content of map</p></li>
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – map, version or file_type not found</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><a class="headerlink" href="#get--api-maps-(string-map_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-maps-(string-map_id)-">
+<code class="descname">GET </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/</code><a class="headerlink" href="#get--api-maps-(string-map_id)-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="patch">
+<dt id="patch--api-maps-(string-map_id)">
+<code class="descname">PATCH </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><a class="headerlink" href="#patch--api-maps-(string-map_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="patch">
+<dt id="patch--api-maps-(string-map_id)-">
+<code class="descname">PATCH </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/</code><a class="headerlink" href="#patch--api-maps-(string-map_id)-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-maps-(string-map_id)">
+<code class="descname">DELETE </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><a class="headerlink" href="#delete--api-maps-(string-map_id)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-maps-(string-map_id)-">
+<code class="descname">DELETE </code><code class="descname">/api/maps/</code><span class="sig-paren">(</span><em class="property">string: </em><em>map_id</em><span class="sig-paren">)</span><code class="descname">/</code><a class="headerlink" href="#delete--api-maps-(string-map_id)-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="get">
+<dt id="get--api-grid-(string-bbox)">
+<code class="descname">GET </code><code class="descname">/api/grid/</code><span class="sig-paren">(</span><em class="property">string: </em><em>bbox</em><span class="sig-paren">)</span><a class="headerlink" href="#get--api-grid-(string-bbox)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">backend</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Classes</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Aktionskarten Backend</a></li>
+      <li>Next: <a href="modules.html" title="next chapter">Classes</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, aktionskarten.de.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
