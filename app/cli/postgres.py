@@ -26,8 +26,9 @@ def dropuser():
     pgdropuser(current_app.config['DB_USER'])
 
 @postgres.command(help="Creates database and extensions for app")
+@click.pass_context
 @with_appcontext
-def initdb():
+def initdb(ctx):
     click.echo("Creating database")
     owner = current_app.config['DB_USER']
     name = current_app.config['DB_NAME']
@@ -35,6 +36,15 @@ def initdb():
 
     click.echo("Creating extensions")
     psql("-d"+name, "-c CREATE EXTENSION postgis")
+
+    ctx.invoke(createbles)
+
+
+@postgres.command(help="Creates tables")
+@with_appcontext
+def createtables():
+    from app.models import db
+    db.create_all()
 
 @postgres.command(help="Deletes database")
 @with_appcontext
