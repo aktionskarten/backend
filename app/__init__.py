@@ -7,7 +7,8 @@ from redis import Redis
 from app.live import socketio
 from app.api import api
 from app.models import db
-from render import renderer, renderer_cli
+from app.render import renderer
+from app.cli import cli
 
 
 def create_app():
@@ -25,7 +26,7 @@ def create_app():
     for blueprint in [renderer, api]:
         app.register_blueprint(blueprint)
 
-    app.cli.add_command(renderer_cli)
+    app.cli.add_command(cli)
 
     return app
 

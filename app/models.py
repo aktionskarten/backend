@@ -87,7 +87,7 @@ class Map(db.Model):
 
     @property
     def version(self):
-        data = self.to_dict(False, grid_included=True, features_included=True)
+        data = self.to_dict(False, features_included=True)
         raw = json.dumps(data, separators=(',', ':'), sort_keys=True)
         return sha256(raw.encode()).hexdigest()
 

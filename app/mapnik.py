@@ -7,7 +7,7 @@ from mapnik import Map, Projection, ProjTransform, Box2d, load_map, \
 from flask import current_app
 from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
-from render.utils import get_xml, strip
+from app.utils import get_xml, strip
 
 
 register_fonts('/usr/share/fonts')
@@ -15,6 +15,7 @@ register_fonts('/usr/share/fonts')
 
 class MapRenderer:
     """ Class for rendering maps through mapnik """
+
     def __init__(self, content):
         """ With MapRenderer you can render an aktionskarten map in different
             file formats like pdf, svg or png.
@@ -56,6 +57,7 @@ class MapRenderer:
                         content['attributes'])
 
         end = timer()
+
         print("Map.init - OSM: ", mid - start)
         print("Map.init - Map: ", end - mid)
         print("Map.init - Total: ", end - start)

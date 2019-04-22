@@ -1,9 +1,8 @@
 import os
 import mimetypes
-import requests
 
 from flask import Blueprint, request, jsonify, current_app, abort, url_for,\
-                  request, Response, redirect, render_template
+                  Response, redirect, render_template
 from werkzeug.exceptions import NotFound
 from flask_cors import CORS
 from hashlib import sha256
@@ -11,15 +10,12 @@ from flask import send_file
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
 from rq.registry import StartedJobRegistry, FinishedJobRegistry
-from render.tasks import get_file_info, file_exists, get_version,\
-                      UnsupportedFileType
-from render.utils import InvalidUsage
-from render.cli import cli as renderer_cli
-
 
 renderer = Blueprint('Renderer', __name__)
 CORS(renderer)
 
+from app.tasks import get_file_info, file_exists
+from app.utils import InvalidUsage, UnsupportedFileType
 from app.models import Map
 
 @renderer.errorhandler(InvalidUsage)
@@ -75,7 +71,7 @@ def map_download(map_id, file_type, version=None):
     static_path = current_app.static_folder
     path = os.path.join(static_path, 'maps', dirname, filename)
 
-    # map is rendered
+    # map is already rendered
     if os.path.exists(path):
         return send_file(path,
                          attachment_filename=filename,
@@ -83,13 +79,6 @@ def map_download(map_id, file_type, version=None):
 
     # map is not yet rendered
     return map_render(map_id, file_type)
-
-    ## return job information if it's a json request
-    #if request.headers.get('Accept') == 'application/json':
-    #    return resp
-
-    #args = {'map_id': map_id, 'file_type': file_type, 'version': version}
-    #return redirect(url_for('Renderer.map_wait_until_finished', **args))
 
 
 def status_by_job(job):
@@ -108,7 +97,7 @@ def status_by_job(job):
         data['url'] = url_for('static', filename=file_info['path'],
                               _external=True)
 
-    print(request.headers)
+    # if request is from a user (no client api user)., then display waiting page
     if request.headers.get('Accept') != 'application/json':
         return redirect(url_for('Renderer.map_wait_until_finished', **job.meta))
 
@@ -118,7 +107,6 @@ def status_by_job(job):
 def _find_in_registry(registry, map_id, version, file_type):
     for job_id in reversed(registry.get_job_ids()):
         job = Job.fetch(job_id, connection=registry.connection)
-        print(job.meta)
         if job.meta['map_id'] == map_id and\
            job.meta['version'] == version and\
            job.meta['file_type'] == file_type:
@@ -128,7 +116,7 @@ def _find_in_registry(registry, map_id, version, file_type):
 #   * Add support for status without version (read version from LATEST symlink)
 @renderer.route('/api/maps/<string:map_id>.<string:file_type>/status')
 @renderer.route('/api/maps/<string:map_id>.<string:file_type>/<string:version>/status')
-def status_by_map(map_id, file_type, version=None):
+def status_by_map(map_id, file_type, version):
     """ Retrieve status of a render job by it `map_id`, `verison` and
     `file_type`
 
@@ -140,13 +128,9 @@ def status_by_map(map_id, file_type, version=None):
     :status 400: invalid file type
     :status 404: map and or version of map not found
     """
-    queue = current_app.task_queue
-
-    if not version:
-        m = Map.get(map_id)
-        version = m.version
 
     # check if it is queued to be rendered
+    queue = current_app.task_queue
     for job in queue.get_jobs():
         if job.meta['map_id'] == map_id and\
            job.meta['version'] == version and\
@@ -160,12 +144,9 @@ def status_by_map(map_id, file_type, version=None):
         return status_by_job(job)
 
     # it it's not queued or rendering, it needs to be already rendered
-    try:
-        file_info = get_file_info(map_id, version, file_type)
-        if not file_exists(file_info):
-            abort(404)
-    except UnsupportedFileType:
-        abort(400)
+    file_info = get_file_info(map_id, version, file_type)
+    if not file_exists(file_info):
+        abort(404)
 
     # enhance output with job_id if it is recently rendered
     finished = FinishedJobRegistry(queue=queue)
@@ -183,7 +164,6 @@ def status_by_map(map_id, file_type, version=None):
     return jsonify(**data)
 
 
-# TODO: support version
 @renderer.route('/api/maps/<string:map_id>/render/<string:file_type>')
 def map_render(map_id, file_type):
     """Renders a map
@@ -212,7 +192,8 @@ def map_render(map_id, file_type):
         :param file_type: file type of rendered map. Either `pdf`, `svg` or `png:<size>` with size `small`, `medium` or `large`
         """
 
-    if not Map.exists(map_id):
+    _map = Map.get(map_id)
+    if not _map:
         abort(404)
 
     # TODO: merge with file_info exception UnsupportedFileType
@@ -221,20 +202,22 @@ def map_render(map_id, file_type):
         abort(400)
 
     # if already rendered or enqueued, don't enqueue again
+    version = _map.version
     force = request.args.get('force', default=False, type=bool)
     try:
         if not force:
-            return status_by_map(map_id, file_type)
+            return status_by_map(map_id, file_type, version)
     except NotFound:
         pass
 
-    args = (map_id, file_type, force)
+    data = _map.to_dict(grid_included=True, features_included=True)
+    args = (data, file_type, force)
     queue = current_app.task_queue
     meta = {
         'map_id': map_id,
-        'version': Map.get(map_id).version,
+        'version': version,
         'file_type': file_type,
     }
-    job = queue.enqueue("render.tasks.render_map", *args, meta=meta)
+    job = queue.enqueue("app.tasks.render_map", *args, meta=meta)
 
     return status_by_job(job)
