@@ -1,7 +1,15 @@
 SECRET_KEY = "GENERATE SUPER SECRET KEY"
 DEBUG = False
-SQLALCHEMY_DATABASE_URI = "postgresql://gis:gis@localhost/maps"
+DB_HOST = 'localhost'
+DB_USER = 'maps'
+DB_PASS = 'maps'
+DB_NAME = 'maps'
+SQLALCHEMY_DATABASE_URI = "postgresql://maps:mpas@localhost/maps"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 #RENDERER_URL = 'http://127.0.0.1:5001'
 SECRET_KEY = "GENERATE SUPER SECRET KEY"
 MAPNIK_OSM_XML = "libs/openstreetmap-carto/style.xml"
+OSM_DB_HOST = DB_HOST
+OSM_DB_USER = DB_USER
+OSM_DB_PASS = DB_PASS
+OSM_DB_NAME = 'osm'
