@@ -23,3 +23,4 @@ rq
 python-dotenv
 pypdf2
 path.py
+sphinxcontrib-httpdomain
