@@ -31,6 +31,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.httpdomain',
     'sphinxcontrib.autohttp.flask',
+    'sphinx.ext.githubpages'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
