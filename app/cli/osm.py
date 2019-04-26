@@ -55,14 +55,6 @@ def dropdb():
 @with_appcontext
 def generate_style():
     with Path("libs/openstreetmap-carto"):
-        try:
-            from sh import npx
-            # check if npx is present
-        except ImportError:
-            click.echo("Please install npx")
-            return -1
-
-
         click.echo("Updating credentials in project.mml")
         credentials = {
             'host': current_app.config['OSM_DB_HOST'],
@@ -80,9 +72,18 @@ def generate_style():
         click.echo("Downloading shapefiles")
         python("scripts/get-shapefiles.py", "-s", _fg=True)
 
-        from sh import npx
         click.echo("Generating style")
-        npx("carto", "project.mml", "-f", OSM_CARTO_STYLE_FILE)
+        try:
+            # check if carto is already installed
+            from sh import carto
+            carto("project.mml", "-f", OSM_CARTO_STYLE_FILE)
+        except ImportError:
+            try:
+                # if not try to install through npm/npx
+                from sh import npx
+                npx("carto", "project.mml", "-f", OSM_CARTO_STYLE_FILE)
+            except ImportError:
+                click.echo("Please install npx")
 
 
 @osm.command()
