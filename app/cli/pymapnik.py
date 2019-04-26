@@ -33,9 +33,13 @@ def install():
 
     environ['PYCAIRO'] = "true"
     with Path("libs/python-mapnik"):
-        dist = run_setup('setup.py')
-        dist.run_command('clean')
-        dist.run_command('install')
+        import subprocess
+        subprocess.call(['python', 'setup.py', 'clean'])
+        subprocess.call(['python', 'setup.py', 'install'])
+        # following seems not to work in debian 9
+        #dist = run_setup('setup.py')
+        #dist.run_command('clean')
+        #dist.run_command('install')
     del environ['PYCAIRO']
 
     click.secho("Mapnik installed successfully!", fg='green')
