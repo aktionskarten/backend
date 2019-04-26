@@ -68,8 +68,10 @@ Setup
   $ git clone --recursive https://github.com/aktionskarten/backend
   $ python -m venv env
   $ . env/bin/activate
-  $ pip instal -r requirements.txt
-  $ flask mapnik install    # install custom python mapnik package
+  $ pip install -r requirements.txt
+  $ python app/cli/mapnik.py install # install custom python mapnik package
+                                     # can call through flask cli because it
+                                     # is essential to instantiate the app
   $ flask db init           # create app database
   $ flask osm init          # download osm dump and create db for it
   $ rq worker               # start task queue worker

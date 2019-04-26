@@ -90,8 +90,10 @@ this through your os package manager:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone --recursive https://github.com/aktionskarten/backend
 $ python -m venv env
 $ . env/bin/activate
-$ pip instal -r requirements.txt
-$ flask mapnik install    <span class="c1"># install custom python mapnik package</span>
+$ pip install -r requirements.txt
+$ python app/cli/mapnik.py install <span class="c1"># install custom python mapnik package</span>
+                                   <span class="c1"># can call through flask cli because it</span>
+                                   <span class="c1"># is essential to instantiate the app</span>
 $ flask db init           <span class="c1"># create app database</span>
 $ flask osm init          <span class="c1"># download osm dump and create db for it</span>
 $ rq worker               <span class="c1"># start task queue worker</span>
