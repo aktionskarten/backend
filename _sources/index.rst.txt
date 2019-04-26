@@ -74,6 +74,7 @@ Setup
                                      # is essential to instantiate the app
   $ flask db init           # create app database
   $ flask osm init          # download osm dump and create db for it
+  $ flask gen_marker        # generate markers
   $ rq worker               # start task queue worker
   $ flask run --with-threads --no-reload # start backend
 
