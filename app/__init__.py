@@ -8,7 +8,8 @@ from app.live import socketio
 from app.api import api
 from app.models import db
 from app.render import renderer
-from app.cli import pymapnik_cli, osm_cli, postgres_cli, clearmaps as clearmaps_cmd
+from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
+                    gen_markers
 
 
 def create_app():
@@ -26,7 +27,8 @@ def create_app():
     for blueprint in [renderer, api]:
         app.register_blueprint(blueprint)
 
-    for command in [pymapnik_cli, osm_cli, postgres_cli, clearmaps_cmd]:
+    cmds = [clear_maps, gen_markers]
+    for command in [pymapnik_cli, osm_cli, postgres_cli] + cmds:
         app.cli.add_command(command)
 
     return app
