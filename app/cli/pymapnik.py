@@ -1,10 +1,11 @@
 import click
 
 from distutils.core import run_setup
-
+from os import environ
+from path import Path
 
 @click.group(help="mapnik related commands")
-def mapnik():
+def pymapnik():
     pass
 
 
@@ -16,7 +17,7 @@ def _mapnik_is_installed():
         return False
 
 
-@mapnik.command()
+@pymapnik.command()
 def is_installed():
     if _mapnik_is_installed():
         click.secho("Mapnik is installed and works!", fg='green')
@@ -25,7 +26,7 @@ def is_installed():
         click.echo("Run 'mapnik install' do fix this")
 
 
-@mapnik.command()
+@pymapnik.command()
 def install():
     if _mapnik_is_installed():
         return
@@ -38,3 +39,7 @@ def install():
     del environ['PYCAIRO']
 
     click.secho("Mapnik installed successfully!", fg='green')
+
+
+if __name__ == '__main__':
+    pymapnik()
