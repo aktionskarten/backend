@@ -3,7 +3,7 @@ import click
 
 from flask import current_app
 from flask.cli import with_appcontext
-from sh import wget, bzip2, osm2pgsql, npm, carto, createdb, psql,\
+from sh import wget, bzip2, osm2pgsql, createdb, psql,\
                dropuser as pgdropuser, dropdb as pgdropdb, python, ln,\
                ErrorReturnCode_1
 from os import environ, makedirs, path
@@ -55,8 +55,13 @@ def dropdb():
 @with_appcontext
 def generate_style():
     with Path("libs/openstreetmap-carto"):
-        click.echo("Installing carto through npm")
-        npm('install', 'carto')
+        try:
+            from sh import npx
+            # check if npx is present
+        except ImportError:
+            click.echo("Please install npx")
+            return -1
+
 
         click.echo("Updating credentials in project.mml")
         credentials = {
@@ -75,8 +80,9 @@ def generate_style():
         click.echo("Downloading shapefiles")
         python("scripts/get-shapefiles.py", "-s", _fg=True)
 
+        from sh import npx
         click.echo("Generating style")
-        carto("project.mml", "-f", OSM_CARTO_STYLE_FILE)
+        npx("carto", "project.mml", "-f", OSM_CARTO_STYLE_FILE)
 
 
 @osm.command()
