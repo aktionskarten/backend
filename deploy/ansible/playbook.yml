@@ -4,16 +4,16 @@
   become: true
 
   vars:
-    OSM_USER: gis
-    PSQL_USER: gis
-    PSQL_PASS: gis
-    PSQL_DB_OSM: gis
-    PSQL_DB_MAP: maps
-    GEOFABRIK_URL: http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2
-    GIT_REPO_URL: https://github.com/aktionskarten/backend.git
-    DEST_DIR: /var/www/backend
+    GIT_FRONTEND_URL: https://github.com/aktionskarten/frontend.git
+    GIT_BACKEND_URL: https://github.com/aktionskarten/backend.git
+    HOME_DIR: /var/www
+    FRONTEND_DIR: "{{HOME_DIR}}/frontend"
+    BACKEND_DIR: "{{HOME_DIR}}/backend"
+    VENV_DIR: "{{BACKEND_DIR}}/env"
     SERVER_NAME: staging.aktionskarten.org
     letsencrypt_fqdn: ["{{SERVER_NAME}}"]
+    APP_PYTHON_RUN: ". env/bin/activate && python"
+    APP_FLASK_RUN: ". env/bin/activate && flask"
 
   roles:
     - ansible-role-nginx-letsencrypt
@@ -38,92 +38,113 @@
         - dpkg-reconfigure locales -f noninteractive
 
     - name: Install packages
-      apt: name={{item}} state=present
-      with_items:
-        - python3-wheel
-        - python3-cairocffi
-        - python3-mapnik
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - libmapnik3.0
+        - libmapnik-dev
+        - redis-server
         - python3-venv
-        - python3-shapely
-        - python3-numpy
-        - python3-virtualenv
-        - python3-psycopg2
         - python3-dev
-        - python3-gunicorn
-        - python3-eventlet
-        - gunicorn3
+        - libcairo2
+        - libcairo2-dev
+        - libboost-all-dev
         - nginx
-        - libffi-dev
         - git
         - wget
         - bzip2
-        - osm2pgsql
-        - postgresql-9.6
-        - postgresql-9.6-postgis-2.3-scripts
+        - postgresql
+        - postgresql-10-postgis-2.4
+        - postgresql-10-postgis-2.4-scripts
+        - postgresql-contrib
+        - postgis
         - imagemagick
-        - openstreetmap-carto
+        - osm2pgsql
+        - npm
         - sudo
         - build-essential
 
+          # debian
+          #- postgresql-9.6-postgis-2.3
+          #- postgresql-9.6-postgis-2.3-scripts
+
+    #
+    # Postgresql + postgis
+    #
+    - name: "Set auth for postgres to trust for unix domain sockets"
+      lineinfile:
+        path: /etc/postgresql/10/main/pg_hba.conf
+        regexp: 'local\s+all\s+postgres\s+peer'
+        line: 'local all postgres trust'
+
     - name: Start postgresql as a service
-      service: name=postgresql state=started enabled=true
+      service: name=postgresql state=restarted enabled=true
       tags:
         postgres
 
-    - name: Create postgres user
-      postgresql_user: name={{PSQL_USER}} password={{PSQL_PASS}}
-      become: true
-      become_user: postgres
-      tags:
-        postgres
-
-    - name: Create postgres databases
-      postgresql_db: name={{item}} owner={{PSQL_USER}} encoding=utf-8
-      with_items: ['{{PSQL_DB_OSM}}', '{{PSQL_DB_MAP}}']
-      become: true
-      become_user: postgres
-      tags:
-        postgres
-
-    - name: Enable postgis extension for dbs
-      postgresql_ext: name=postgis db={{item}}
-      with_items: ['{{PSQL_DB_OSM}}', '{{PSQL_DB_MAP}}']
-      become: true
-      become_user: postgres
-      tags:
-        postgres
-
-    - name: Enable hstore extension for db
-      postgresql_ext: name=hstore db={{PSQL_DB_OSM}}
-      become: true
-      become_user: postgres
-      tags:
-        postgres
-
-    - name: Create osm user
-      user: name={{OSM_USER}}
-      tags:
-        osm
-
-    - name: Download osm data
-      get_url: url={{GEOFABRIK_URL}} dest='~/latest.osm.bz2'
-      become: true
-      become_user: '{{OSM_USER}}'
-      tags:
-        osm
-
-    - name: Import osm data into postgresql
-      command: osm2pgsql -U gis -d {{PSQL_DB_OSM}} ~/latest.osm.bz2
-      become: true
-      become_user: '{{OSM_USER}}'
-      environment:
-        - PGPASSWORD: '{{ PSQL_PASS }}'
-      tags:
-        osm
-
-    - name: Creates directory
+    #
+    # Frontend
+    #
+    - name: Create frontend source directory
       file:
-        path: '{{DEST_DIR}}'
+        path: '{{FRONTEND_DIR}}'
+        state: directory
+        owner: www-data
+        group: www-data
+      tags:
+        - frontend
+
+    - name: Checkout aktionskarten frontend source
+      git: repo={{GIT_FRONTEND_URL}} dest={{FRONTEND_DIR}}
+      become: yes
+      become_user: www-data
+      tags:
+        - frontend
+
+    - name: Create npm directory in home
+      file:
+        path: "{{HOME_DIR}}/.npm"
+        state: directory
+        owner: www-data
+        group: www-data
+      tags:
+        - frontend
+
+    - name: Install frontend dependencies
+      npm:
+        path: "{{FRONTEND_DIR}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - frontend
+
+    - name: Create config for frontend
+      template:
+        src: templates/frontend.j2
+        dest: "{{FRONTEND_DIR}}/.env"
+        owner: www-data
+        group: www-data
+      tags:
+        - frontend
+
+    - name: Build frontend
+      shell: "npm run build"
+      args:
+        chdir: "{{FRONTEND_DIR}}"
+      environment:
+        API_ENDPOINT: "https://{{SERVER_NAME}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - frontend
+
+    #
+    # Backend
+    #
+    - name: Create source directory
+      file:
+        path: '{{BACKEND_DIR}}'
         state: directory
         owner: www-data
         group: www-data
@@ -131,7 +152,7 @@
         - backend
 
     - name: Checkout aktionskarten-backend source
-      git: repo={{GIT_REPO_URL}} dest={{DEST_DIR}}
+      git: repo={{GIT_BACKEND_URL}} dest={{BACKEND_DIR}}
       become: yes
       become_user: www-data
       tags:
@@ -139,16 +160,63 @@
 
     - name: Install python packages
       pip:
-        requirements: '{{DEST_DIR}}/requirements.txt'
-        virtualenv: '{{DEST_DIR}}/env'
-        virtualenv_command: /usr/bin/python3 -m venv --system-site-packages
+        requirements: '{{BACKEND_DIR}}/requirements.txt'
+        virtualenv: '{{VENV_DIR}}'
+        virtualenv_command: /usr/bin/python3 -m venv env
       become: yes
       become_user: www-data
       tags:
-        - backend
+        - deps
+
+    - name: Install npx
+      npm:
+        name: npx
+        path: "{{BACKEND_DIR}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - deps
+
+    - name: Install python-mapnik
+      shell: "{{APP_PYTHON_RUN}} app/cli/pymapnik.py install"
+      args:
+        chdir: "{{BACKEND_DIR}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - configure
+
+    - name: Init DB
+      shell: "{{APP_FLASK_RUN}} postgres init"
+      args:
+        chdir: "{{BACKEND_DIR}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - configure
+
+    - name: Download and import openstreetmap  data
+      shell: "{{APP_FLASK_RUN}} osm init"
+      args:
+        chdir: "{{BACKEND_DIR}}"
+      environment:
+        PATH: "{{ ansible_env.PATH }}:{{BACKEND_DIR}}/node_modules/.bin"
+      become: yes
+      become_user: www-data
+      tags:
+        - configure
+
+    - name: Generate markers
+      shell: "{{APP_FLASK_RUN}} gen-markers"
+      args:
+        chdir: "{{BACKEND_DIR}}"
+      become: yes
+      become_user: www-data
+      tags:
+        - configure
 
     #
-    # UWSGI
+    # UWSGI - we use gunicorn because of socket.io
     #
     #- name: "Copying uwsgi config"
     #  template:
@@ -190,6 +258,28 @@
         gunicorn
 
     #
+    # Redis queue worker
+    #
+    - name: Redis is enabled and started on boot
+      service: name=redis state=started enabled=yes
+      tags:
+        rqworker
+
+    - name: Ensure redis queue worker systemd unit is present
+      template:
+        src: templates/rqworker.j2
+        dest: /etc/systemd/system/rqworker.service
+        owner: www-data
+        group: www-data
+      tags:
+        rqworker
+
+    - name: Redis queue worker  is enabled and started on boot
+      service: name=rqworker state=started enabled=yes
+      tags:
+        rqworker
+
+    #
     # NGINX
     #
     - name: Remove default nginx page
@@ -206,11 +296,11 @@
       tags:
         nginx
 
-    - name: "Generating safe diffie hellman params"
-      shell: openssl dhparam -out dhparam.pem 4096
-        args:
-          chdir: /etc/ssl/
-          creates: dhparam.pem
+    #- name: "Generating safe diffie hellman params"
+    #  shell: openssl dhparam -out dhparam.pem 4096
+    #  args:
+    #    chdir: "/etc/ssl/"
+    #    creates: dhparam.pem
 
     - name: "Enabling nginx site"
       file:

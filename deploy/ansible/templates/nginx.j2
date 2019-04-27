@@ -5,11 +5,11 @@ server {
     charset utf-8;
 
     ssl on;
-    ssl_certificate /etc/ssl/letsencrypt/{{SERVER_NAME}}.crt;
+    ssl_certificate /etc/ssl/letsencrypt/{{SERVER_NAME}}.pem;
     ssl_certificate_key /etc/ssl/letsencrypt/{{SERVER_NAME}}.key;
     ssl_session_timeout 5m;
-    ssl_dhparam /etc/ssl/dhparam.pem;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    # ssl_dhparam /etc/ssl/dhparam.pem;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_prefer_server_ciphers on;
     ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
     ssl_ecdh_curve secp384r1;         # Requires nginx >= 1.1.0
@@ -29,6 +29,12 @@ server {
     add_header X-Robots-Tag none;
 
     location / {
+        root /var/www/frontend/dist;
+        gzip_static on;
+        try_files $uri $uri/ @backend;
+    }
+
+    location @backend {
         include proxy_params;
         proxy_pass http://127.0.0.1:8000;
     }

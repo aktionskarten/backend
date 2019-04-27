@@ -1,13 +1,12 @@
 [Unit]
-Description=Aktionskaten backend gunicorn daemon
+Description=Aktionskaten renderer worker
 After=network.target
 
 [Service]
-PIDFile=/run/gunicorn/pid
 User=www-data
 Group=www-data
 WorkingDirectory={{BACKEND_DIR}}
-ExecStart={{VENV_DIR}}/bin/gunicorn "app:create_app()"
+ExecStart={{VENV_DIR}}/bin/
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true
