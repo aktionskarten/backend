@@ -79,7 +79,7 @@ def maps_new():
     json = request.json
     name = json['name']
 
-    if (Map.get(json['name'])):
+    if (Map.find(json['name'])):
         return make_response(jsonify(name='Map already exists. Use another name!'), 400)
 
     m = Map(name)
@@ -116,8 +116,8 @@ def map_edit(map_id):
 
     json = request.json
     if 'name' in json:
-        m_for_name = Map.get(json['name'])
-        if (m_for_name and m.id != m_for_name.id):
+        m_for_name = Map.find(json['name'])
+        if (m_for_name and m.uuid != m_for_name.uuid):
             error = 'Map already exists. Use another name!'
             return make_response(jsonify(name=error), 400)
 

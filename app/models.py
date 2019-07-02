@@ -9,9 +9,10 @@ import random
 from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
-from sqlalchemy import desc, inspect
+from sqlalchemy import desc, inspect, text
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
@@ -33,7 +34,7 @@ def _gen_secret(length=24):
 
 
 class Map(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     slug = db.Column(db.Unicode)
     secret = db.Column(db.Unicode, default=_gen_secret)
     name = db.Column(db.Unicode)
@@ -69,9 +70,12 @@ class Map(db.Model):
                                     .all()
 
     @classmethod
-    def get(cls, name_or_slug):
-        slug = slugify(name_or_slug)
-        return db.session.query(Map).filter(Map.slug == slug).first()
+    def get(cls, uuid):
+        return db.session.query(Map).filter(Map.uuid == uuid).first()
+
+    @classmethod
+    def find(cls, name):
+        return db.session.query(Map).filter(Map.name == name).first()
 
     @classmethod
     def exists(cls, name_or_slug):
@@ -163,7 +167,7 @@ class Map(db.Model):
         return data
 
     def gen_token(self):
-        return self.serializer.dumps(self.id).decode('utf-8')
+        return self.serializer.dumps(self.uuid.hex).decode('utf-8')
 
     def check_token(self, token):
         try:
@@ -189,7 +193,7 @@ def generate_slug(target, value, oldvalue, initiator):
 
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
+    map_uuid = db.Column(UUID(as_uuid=True), db.ForeignKey('map.uuid'), nullable=False)
     _geo = db.Column(Geometry())
     style = db.Column(JSONB)
 
@@ -224,7 +228,7 @@ class Feature(db.Model):
         properties = self.style.copy() if self.style else {}
 
         properties['id'] = self.id
-        properties['map_id'] = self.map.slug
+        properties['map_id'] = self.map.uuid.hex
 
         return geojson.Feature(geometry=self.geo, properties=properties)
 
