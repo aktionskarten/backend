@@ -122,7 +122,7 @@ def map_edit(map_id):
             return make_response(jsonify(name=error), 400)
 
 
-    for key in ['name', 'bbox', 'description', 'place', 'attributes']:
+    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'lifespan', 'published']:
         if key in json and json[key]:
                 setattr(m, key, json[key])
 

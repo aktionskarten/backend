@@ -43,6 +43,8 @@ class Map(db.Model):
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
+    published = db.Column(db.Boolean, default=False)
+    lifespan = db.Column(db.Integer, default=30)
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
@@ -60,8 +62,10 @@ class Map(db.Model):
 
     @classmethod
     def all(cls):
-        return db.session.query(Map).filter(Map._bbox.isnot(None), Map.features.any()) \
-                                    .order_by(desc(Map.datetime)) \
+        return db.session.query(Map).filter(Map._bbox.isnot(None),
+                                            Map.published.is_(True),
+                                            Map.features.any())    \
+                                    .order_by(desc(Map.datetime))  \
                                     .all()
 
     @classmethod
@@ -78,6 +82,11 @@ class Map(db.Model):
     def delete(cls, slug):
         db.session.delete(cls.get(slug))
         db.session.commit()
+
+    @property
+    def outdated(self):
+        now = datetime.datetime.utcnow()
+        return (datetime + datetime.timedelta(days=self.lifespan)) < now
 
     @property
     def grid(self):
@@ -127,13 +136,15 @@ class Map(db.Model):
 
     def to_dict(self, version_included=True, secret_included=False, grid_included=False, features_included=False):
         data = {
-            'id': self.slug,
+            'id': self.uuid.hex,
             'name': self.name,
             'description': self.description,
             'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
+            'lifespan': self.lifespan,
+            'published': self.published,
             #'thumbnail': url_for('Renderer.map_download', map_id=self.slug, file_type='png:small', _external=True),
         }
 
@@ -163,6 +174,11 @@ class Map(db.Model):
             return False  # invalid token
 
         return True
+
+    def publish(self):
+        self.publish = True
+        db.session.add(self)
+        db.session.commit()
 
 
 @event.listens_for(Map.name, 'set')

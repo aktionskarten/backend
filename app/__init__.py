@@ -1,6 +1,6 @@
 from flask import Flask
 from os import environ
-
+from flask_migrate import Migrate
 import rq
 from redis import Redis
 
@@ -20,6 +20,7 @@ def create_app():
         app.config.from_envvar('SETTINGS')
 
     db.init_app(app)
+    Migrate(app, db)
     socketio.init_app(app)
 
     app.task_queue = rq.Queue(connection=Redis())
