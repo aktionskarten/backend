@@ -35,7 +35,6 @@ t_features = sa.Table(
     )
 
 def upgrade():
-    #bind = op.get_bind()
     conn = op.get_bind()
     session = Session(bind=conn)
 
@@ -54,23 +53,19 @@ def upgrade():
     # add uuid to each feature
     op.add_column('feature', sa.Column('map_uuid', postgresql.UUID(as_uuid=True)))
     results = conn.execute(sa.select([
-        t_features.c.id,
-        t_features.c.map_uuid,
+        t_maps.c.id,
         t_maps.c.uuid,
-        t_maps.c.name
-        ])
-        .select_from(
-            t_features.outerjoin(t_maps, t_features.c.map_id == t_maps.c.id))
-        ).fetchall()
-    for id_, map_uuid, uuid, name in results:
-        conn.execute(t_features.update().where(t_features.c.id == id_).values(
+        t_maps.c.name,
+        ])).fetchall()
+    for id_, uuid, name in results:
+        conn.execute(t_features.update().where(t_features.c.map_id == id_).values(
             map_uuid=uuid
             ))
 
     # add uuid as new primary key for maps
-    #op.execute('ALTER TABLE map DROP CONSTRAINT map_pkey CASCADE')
+    op.drop_constraint('feature_map_id_fkey', 'feature')
+    op.drop_constraint('map_pkey', 'map', type_='primary')
     op.create_primary_key('map_pkey', 'map', ['uuid'])
-    op.drop_constraint('feature_map_id_fkey', 'feature', type_='foreignkey')
     op.create_foreign_key('feature_map_uuid_fkey', 'feature', 'map', ['map_uuid'], ['uuid'], ondelete='CASCADE')
     op.create_unique_constraint('map_uuid', 'map', ['uuid'])
 
@@ -101,9 +96,11 @@ def upgrade():
 
 
 def downgrade():
-    op.execute('ALTER TABLE map DROP CONSTRAINT map_pkey CASCADE')
+    op.drop_constraint('feature_map_uuid_fkey', 'feature')
+    op.drop_constraint('map_pkey', 'map', type_='primary')
     op.add_column('map', sa.Column('id', sa.Integer(), primary_key=True))
-    op.create_unique_constraint('map_id', 'map', ['id'])
+    op.create_primary_key('map_pkey', 'map', ['id'])
+    op.add_column('feature', sa.Column('map_id', sa.Integer()))
 
     conn = op.get_bind()
     results = conn.execute(sa.select([
@@ -112,7 +109,10 @@ def downgrade():
         t_maps.c.name,
         ])).fetchall()
     for id_, uuid, name in results:
-        print('DOWNGRADE', id_, uuid, name)
+        print("DOWNGRADE", name)
+        conn.execute(t_features.update().where(t_features.c.map_uuid == uuid).values(
+            map_id=id_
+            ))
 
     op.create_foreign_key('feature_map_id_fkey', 'feature', 'map', ['map_id'], ['id'], ondelete='CASCADE')
     op.drop_column('map', 'uuid')
