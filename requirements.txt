@@ -25,3 +25,4 @@ pypdf2
 path.py
 sphinxcontrib-httpdomain
 gunicorn
+Flask-Migrate
