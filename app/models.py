@@ -9,9 +9,10 @@ import random
 from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
-from sqlalchemy import desc, inspect
+from sqlalchemy import desc, inspect, text
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
@@ -33,7 +34,7 @@ def _gen_secret(length=24):
 
 
 class Map(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     slug = db.Column(db.Unicode)
     secret = db.Column(db.Unicode, default=_gen_secret)
     name = db.Column(db.Unicode)
@@ -43,6 +44,8 @@ class Map(db.Model):
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
+    published = db.Column(db.Boolean, default=False)
+    lifespan = db.Column(db.Integer, default=30)
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
@@ -60,14 +63,19 @@ class Map(db.Model):
 
     @classmethod
     def all(cls):
-        return db.session.query(Map).filter(Map._bbox.isnot(None), Map.features.any()) \
-                                    .order_by(desc(Map.datetime)) \
+        return db.session.query(Map).filter(Map._bbox.isnot(None),
+                                            Map.published.is_(True),
+                                            Map.features.any())    \
+                                    .order_by(desc(Map.datetime))  \
                                     .all()
 
     @classmethod
-    def get(cls, name_or_slug):
-        slug = slugify(name_or_slug)
-        return db.session.query(Map).filter(Map.slug == slug).first()
+    def get(cls, uuid):
+        return db.session.query(Map).filter(Map.uuid == uuid).first()
+
+    @classmethod
+    def find(cls, name):
+        return db.session.query(Map).filter(Map.name == name).first()
 
     @classmethod
     def exists(cls, name_or_slug):
@@ -78,6 +86,11 @@ class Map(db.Model):
     def delete(cls, slug):
         db.session.delete(cls.get(slug))
         db.session.commit()
+
+    @property
+    def outdated(self):
+        now = datetime.datetime.utcnow()
+        return (datetime + datetime.timedelta(days=self.lifespan)) < now
 
     @property
     def grid(self):
@@ -127,13 +140,15 @@ class Map(db.Model):
 
     def to_dict(self, version_included=True, secret_included=False, grid_included=False, features_included=False):
         data = {
-            'id': self.slug,
+            'id': self.uuid.hex,
             'name': self.name,
             'description': self.description,
             'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
+            'lifespan': self.lifespan,
+            'published': self.published,
             #'thumbnail': url_for('Renderer.map_download', map_id=self.slug, file_type='png:small', _external=True),
         }
 
@@ -152,7 +167,7 @@ class Map(db.Model):
         return data
 
     def gen_token(self):
-        return self.serializer.dumps(self.id).decode('utf-8')
+        return self.serializer.dumps(self.uuid.hex).decode('utf-8')
 
     def check_token(self, token):
         try:
@@ -164,6 +179,11 @@ class Map(db.Model):
 
         return True
 
+    def publish(self):
+        self.published = True
+        db.session.add(self)
+        db.session.commit()
+
 
 @event.listens_for(Map.name, 'set')
 def generate_slug(target, value, oldvalue, initiator):
@@ -173,7 +193,7 @@ def generate_slug(target, value, oldvalue, initiator):
 
 class Feature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    map_id = db.Column(db.Integer, db.ForeignKey('map.id'), nullable=False)
+    map_uuid = db.Column(UUID(as_uuid=True), db.ForeignKey('map.uuid'), nullable=False)
     _geo = db.Column(Geometry())
     style = db.Column(JSONB)
 
@@ -208,7 +228,7 @@ class Feature(db.Model):
         properties = self.style.copy() if self.style else {}
 
         properties['id'] = self.id
-        properties['map_id'] = self.map.slug
+        properties['map_id'] = self.map.uuid.hex
 
         return geojson.Feature(geometry=self.geo, properties=properties)
 

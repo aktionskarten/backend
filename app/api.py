@@ -15,20 +15,22 @@ api = Blueprint('API', __name__)
 CORS(api)
 
 
+def auth():
+    map_id = request.headers.get('X-Map')
+    token = request.headers.get('X-Token')
+
+    if not map_id or not token:
+        return False
+
+    obj = Map.get(map_id)
+    if not obj or not obj.check_token(token):
+        return False
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'X-Map' not in request.headers or 'X-Token' not in request.headers:
-            abort(401)
-
-        map_id = request.headers.get('X-Map')
-        token = request.headers.get('X-Token')
-
-        if not map_id or not token:
-            abort(400)
-
-        obj = Map.get(map_id)
-        if not obj or not obj.check_token(token):
+        if not auth():
             abort(401)
 
         return f(*args, **kwargs)
@@ -37,7 +39,7 @@ def login_required(f):
 
 
 @api.route('/api/maps/<string:map_id>/auth')
-def auth(map_id):
+def gen_auth_token(map_id):
     secret = request.headers.get('X-Secret', '')
     obj = Map.get(map_id)
 
@@ -79,7 +81,7 @@ def maps_new():
     json = request.json
     name = json['name']
 
-    if (Map.get(json['name'])):
+    if (Map.find(json['name'])):
         return make_response(jsonify(name='Map already exists. Use another name!'), 400)
 
     m = Map(name)
@@ -100,7 +102,7 @@ def maps_new():
 @api.route('/api/maps/<string:map_id>')
 def map_get(map_id):
     m = Map.get(map_id)
-    if not m:
+    if not m or not (m.published or auth()):
         abort(404)
     return jsonify(m.to_dict())
 
@@ -116,13 +118,13 @@ def map_edit(map_id):
 
     json = request.json
     if 'name' in json:
-        m_for_name = Map.get(json['name'])
-        if (m_for_name and m.id != m_for_name.id):
+        m_for_name = Map.find(json['name'])
+        if (m_for_name and m.uuid != m_for_name.uuid):
             error = 'Map already exists. Use another name!'
             return make_response(jsonify(name=error), 400)
 
 
-    for key in ['name', 'bbox', 'description', 'place', 'attributes']:
+    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'lifespan', 'published']:
         if key in json and json[key]:
                 setattr(m, key, json[key])
 
@@ -147,7 +149,7 @@ def map_delete(map_id):
 def map_features(map_id):
     m = Map.get(map_id)
 
-    if not m:
+    if not m or not (m.published or auth()):
         abort(404)
 
     features = [f.to_dict() for f in m.features]
@@ -225,7 +227,7 @@ def grid_get(bbox):
 @api.route('/api/maps/<string:map_id>/grid')
 def map_get_grid(map_id):
     m = Map.get(map_id)
-    if not m:
+    if not m or not (m.published or auth()):
         abort(404)
     return jsonify(m.grid)
 
@@ -233,5 +235,7 @@ def map_get_grid(map_id):
 @api.route('/api/maps/<string:map_id>/geojson')
 def map_export_geojson(map_id):
     m = Map.get(map_id)
+    if not m or not (m.published or auth()):
+        abort(404)
     features = [f.to_dict() for f in m.features]
     return jsonify(FeatureCollection(features, properties=m.to_dict(False)))
