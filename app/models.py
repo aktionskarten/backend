@@ -180,7 +180,7 @@ class Map(db.Model):
         return True
 
     def publish(self):
-        self.publish = True
+        self.published = True
         db.session.add(self)
         db.session.commit()
 
