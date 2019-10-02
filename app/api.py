@@ -1,8 +1,8 @@
 import re
 
 from functools import wraps
-from flask import Blueprint, request, jsonify, abort, redirect, url_for,\
-                  make_response, Response, current_app, render_template
+from flask import Blueprint, request, jsonify as _jsonify, abort, redirect,\
+                  url_for, make_response, Response, current_app, render_template
 from flask_cors import CORS
 from werkzeug.security import safe_str_cmp
 from geojson import Feature, FeatureCollection
@@ -15,6 +15,19 @@ api = Blueprint('API', __name__)
 CORS(api)
 
 
+def jsonify(*args, **kwargs):
+    size = len(args)
+    if  size == 1 and isinstance(args[0], dict):
+        kwargs.update(args[0])
+    elif size > 0:
+        return _jsonify(*args)
+
+    token = request.headers.get('X-Token')
+    if token:
+        kwargs['token'] = token
+    return _jsonify(**kwargs)
+
+
 def auth():
     map_id = request.headers.get('X-Map')
     token = request.headers.get('X-Token')
@@ -25,6 +38,8 @@ def auth():
     obj = Map.get(map_id)
     if not obj or not obj.check_token(token):
         return False
+
+    return True
 
 
 def login_required(f):
@@ -82,7 +97,8 @@ def maps_new():
     name = json['name']
 
     if (Map.find(json['name'])):
-        return make_response(jsonify(name='Map already exists. Use another name!'), 400)
+        error = 'Map already exists. Use another name!'
+        return make_response(jsonify(name=error), 400)
 
     m = Map(name)
     for key in ['name', 'bbox', 'description', 'place', 'attributes']:
@@ -98,10 +114,10 @@ def maps_new():
     return make_response(jsonify(m.to_dict(secret_included=True)), 201)
 
 
-@api.route('/api/maps/<string:map_id>/')
-@api.route('/api/maps/<string:map_id>')
+@api.route('/api/maps/<uuid:map_id>/')
+@api.route('/api/maps/<uuid:map_id>')
 def map_get(map_id):
-    m = Map.get(map_id)
+    m = Map.get(map_id.hex)
     if not m or not (m.published or auth()):
         abort(404)
     return jsonify(m.to_dict())
@@ -123,10 +139,9 @@ def map_edit(map_id):
             error = 'Map already exists. Use another name!'
             return make_response(jsonify(name=error), 400)
 
-
     for key in ['name', 'bbox', 'description', 'place', 'attributes', 'lifespan', 'published']:
         if key in json and json[key]:
-                setattr(m, key, json[key])
+            setattr(m, key, json[key])
 
     if 'datetime' in json:
         m.datetime = _parse_datetime(m.datetime)
