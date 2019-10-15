@@ -11,6 +11,13 @@ from app.render import renderer
 from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
                     gen_markers
 
+from uuid import UUID
+from werkzeug.routing import BaseConverter
+class UUIDConverter(BaseConverter):
+    def to_python(self, value):
+        return UUID(value)
+    def to_url(self, uuid):
+        return uuid.hex
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +31,7 @@ def create_app():
     socketio.init_app(app)
 
     app.task_queue = rq.Queue(connection=Redis())
+    app.url_map.converters['uuid'] = UUIDConverter
 
     for blueprint in [renderer, api]:
         app.register_blueprint(blueprint)
