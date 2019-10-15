@@ -123,7 +123,7 @@ def map_edit(map_id):
         m.datetime = datetime.fromisoformat(request.json['datetime'])
 
     if 'lifespan' in json:
-        m.lifespan = timedelta(days=request.json['lifspan'])
+        m.lifespan = timedelta(days=request.json['lifespan'])
 
     db.session.add(m)
     db.session.commit()
