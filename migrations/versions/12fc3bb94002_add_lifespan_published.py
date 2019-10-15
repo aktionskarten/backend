@@ -1,4 +1,4 @@
-"""empty message
+"""add lifespan published
 
 Revision ID: 12fc3bb94002
 Revises: 

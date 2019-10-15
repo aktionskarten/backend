@@ -27,7 +27,7 @@ def create_app():
         app.config.from_envvar('SETTINGS')
 
     db.init_app(app)
-    Migrate(app, db)
+    Migrate(app, db, compare_type=True)
     socketio.init_app(app)
 
     with app.app_context():
