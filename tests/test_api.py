@@ -1,7 +1,7 @@
 import os
 import datetime
 from tests.fixtures import *
-from tests.utils import post, get, wait_until_finished, reset_map_folder
+from tests.utils import post, get, wait_until_finished
 from json import dumps as json_dump
 from geojson import Feature as GeoFeature, Point as GeoPoint
 from app.models import Map, Feature, db as _db
