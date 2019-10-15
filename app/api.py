@@ -1,31 +1,18 @@
 import re
 
 from functools import wraps
-from flask import Blueprint, request, jsonify as _jsonify, abort, redirect,\
+from flask import Blueprint, request, jsonify, abort, redirect,\
                   url_for, make_response, Response, current_app, render_template
 from flask_cors import CORS
 from werkzeug.security import safe_str_cmp
 from geojson import Feature, FeatureCollection
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.models import db, Map, Feature as MapFeature
 from app.grid import Grid
 
 
 api = Blueprint('API', __name__)
 CORS(api)
-
-
-def jsonify(*args, **kwargs):
-    size = len(args)
-    if  size == 1 and isinstance(args[0], dict):
-        kwargs.update(args[0])
-    elif size > 0:
-        return _jsonify(*args)
-
-    token = request.headers.get('X-Token')
-    if token:
-        kwargs['token'] = token
-    return _jsonify(**kwargs)
 
 
 def auth():
@@ -73,8 +60,6 @@ def maps():
     return jsonify([m.to_dict() for m in Map.all()])
 
 
-
-
 @api.route('/api/maps/', methods=['POST'])
 @api.route('/api/maps', methods=['POST'])
 def maps_new():
@@ -89,12 +74,15 @@ def maps_new():
         return make_response(jsonify(name=error), 400)
 
     m = Map(name)
-    for key in ['name', 'bbox', 'description', 'place', 'attributes']:
+    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
         if key in json and json[key]:
             setattr(m, key, json[key])
 
     if 'datetime' in json:
         m.datetime = datetime.fromisoformat(request.json['datetime'])
+
+    if 'lifespan' in json:
+        m.lifespan = timedelta(days=request.json['lifspan'])
 
     db.session.add(m)
     db.session.commit()
@@ -106,7 +94,7 @@ def maps_new():
 @api.route('/api/maps/<uuid:map_id>')
 def map_get(map_id):
     m = Map.get(map_id.hex)
-    if not m or not (m.published or auth()):
+    if not m or not (auth() or m.published) or m.outdated:
         abort(404)
     return jsonify(m.to_dict())
 
@@ -127,12 +115,15 @@ def map_edit(map_id):
             error = 'Map already exists. Use another name!'
             return make_response(jsonify(name=error), 400)
 
-    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'lifespan', 'published']:
+    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
         if key in json and json[key]:
             setattr(m, key, json[key])
 
     if 'datetime' in json:
         m.datetime = datetime.fromisoformat(request.json['datetime'])
+
+    if 'lifespan' in json:
+        m.lifespan = timedelta(days=request.json['lifespan'])
 
     db.session.add(m)
     db.session.commit()

@@ -1,7 +1,7 @@
 import time
 
 from shutil import rmtree
-from app import app
+#from app import app
 from os import path
 from contextlib import contextmanager
 from timeit import default_timer as timer
@@ -43,5 +43,5 @@ def wait_until_finished(client, job_id):
     return False
 
 
-def reset_map_folder():
-    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
+#def reset_map_folder():
+#    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)

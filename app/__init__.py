@@ -30,6 +30,9 @@ def create_app():
     Migrate(app, db)
     socketio.init_app(app)
 
+    with app.app_context():
+        db.create_all()
+
     app.task_queue = rq.Queue(connection=Redis())
     app.url_map.converters['uuid'] = UUIDConverter
 
