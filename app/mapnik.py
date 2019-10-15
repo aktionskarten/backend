@@ -8,6 +8,7 @@ from flask import current_app
 from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
 from app.utils import get_xml, strip
+from datetime import datetime, timezone
 
 
 register_fonts('/usr/share/fonts')
@@ -62,16 +63,17 @@ class MapRenderer:
         print("Map.init - Map: ", end - mid)
         print("Map.init - Total: ", end - start)
 
-    def _add_legend(self, name, place, datetime, attributes):
+    def _add_legend(self, name, place, date, attributes):
         features = []
         box = self._map.envelope()
 
         # add name, place and date
         point = Point((box.minx, box.maxy))
+        _date = datetime.fromisoformat(date)
         features.append(Feature(geometry=point, properties={
             'name': name,
             'place': place,
-            'date': datetime#strftime('%d.%m.%Y %H:%M')
+            'date': _date.strftime('%d.%m.%Y %H:%M')
             }))
 
         # add properties

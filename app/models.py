@@ -143,7 +143,7 @@ class Map(db.Model):
             'id': self.uuid.hex,
             'name': self.name,
             'description': self.description,
-            'datetime': self.datetime.strftime('%Y-%m-%d %H:%M'),
+            'datetime': self.datetime.astimezone().isoformat(),
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
