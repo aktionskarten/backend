@@ -4,6 +4,13 @@ from os import path
 from flask import current_app
 from hashlib import sha256
 
+from datetime import datetime
+try:
+    from backports.datetime_fromisoformat import MonkeyPatch
+    MonkeyPatch.patch_fromisoformat()
+except ImportError:
+    pass
+
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -84,3 +91,6 @@ def get_file_info(map_id, version, file_type):
 
     return file_info
 
+
+def datetime_fromisoformat(isoformat):
+    return datetime.fromisoformat(isoformat)
