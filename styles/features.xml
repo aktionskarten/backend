@@ -42,7 +42,7 @@
       <Rule>
           <Filter>[mapnik::geometry_type]=point and not ([label] = null)</Filter>
           <TextSymbolizer vertical-alignment="bottom" dy="[scale]*32*3" placement="point" size="[scale]*16*3" fill="black" halo-fill="white" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
-              [scale]
+              [label]
           </TextSymbolizer>
       </Rule>
       <Rule>
