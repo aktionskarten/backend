@@ -1,25 +1,25 @@
+import os
 import flask_sqlalchemy
 import geojson
-import os
 import json
-import datetime
+import datetime as _datetime
 import string
 import random
 
 from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
-from sqlalchemy import desc, inspect, text
+from sqlalchemy import desc, inspect, text, func
+from sqlalchemy.sql.functions import concat
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID, INTERVAL
 from shapely.geometry import shape, mapping, box
 from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature,\
                          SignatureExpired
 from geoalchemy2 import Geometry
 from blinker import Namespace
 from sqlalchemy import event
-from slugify import slugify
 from flask import url_for
 from app.grid import Grid
 
@@ -35,24 +35,26 @@ def _gen_secret(length=24):
 
 class Map(db.Model):
     uuid = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    slug = db.Column(db.Unicode)
     secret = db.Column(db.Unicode, default=_gen_secret)
     name = db.Column(db.Unicode)
     description = db.Column(db.Unicode)
     place = db.Column(db.Unicode)
-    datetime = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    datetime = db.Column(db.DateTime, default=_datetime.datetime.utcnow)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
     published = db.Column(db.Boolean, default=False)
-    lifespan = db.Column(db.Integer, default=30)
+    lifespan = db.Column(db.Interval, default=_datetime.timedelta(days=30))
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
     on_deleted = db_signals.signal('map-deleted')
 
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         self.name = name
+
+        for k,v in kwargs.items():
+            setattr(self, k,v)
 
     @property
     def serializer(self):
@@ -64,9 +66,9 @@ class Map(db.Model):
     @classmethod
     def all(cls):
         return db.session.query(Map).filter(Map._bbox.isnot(None),
-                                            Map.published.is_(True),
-                                            Map.features.any())    \
-                                    .order_by(desc(Map.datetime))  \
+                                            Map.published.is_(True), \
+                                            Map.outdated.is_(False)) \
+                                    .order_by(desc(Map.datetime))    \
                                     .all()
 
     @classmethod
@@ -78,19 +80,18 @@ class Map(db.Model):
         return db.session.query(Map).filter(Map.name == name).first()
 
     @classmethod
-    def exists(cls, name_or_slug):
-        slug = slugify(name_or_slug)
-        return db.session.query(db.exists().where(Map.slug == slug)).scalar()
-
-    @classmethod
-    def delete(cls, slug):
-        db.session.delete(cls.get(slug))
+    def delete(cls, uuid):
+        db.session.delete(cls.get(uuid))
         db.session.commit()
 
-    @property
+    @hybrid_property
     def outdated(self):
-        now = datetime.datetime.utcnow()
-        return (datetime + datetime.timedelta(days=self.lifespan)) < now
+        now = _datetime.datetime.utcnow()
+        return self.datetime < (now - self.lifespan)
+
+    @outdated.expression
+    def outdated(cls):
+        return cls.datetime < (func.now()-cls.lifespan)
 
     @property
     def grid(self):
@@ -114,7 +115,7 @@ class Map(db.Model):
         if self.datetime:
             self.datetime.replace(**args)
         else:
-            self.datetime = datetime.datetime(**args)
+            self.datetime = _datetime.datetime(**args)
 
     @hybrid_property
     def date(self):
@@ -126,7 +127,7 @@ class Map(db.Model):
         if self.datetime:
             self.datetime.replace(*args)
         else:
-            self.datetime = datetime.datetime(*args)
+            self.datetime = _datetime.datetime(*args)
 
     @hybrid_property
     def bbox(self):
@@ -143,13 +144,12 @@ class Map(db.Model):
             'id': self.uuid.hex,
             'name': self.name,
             'description': self.description,
-            'datetime': self.datetime.astimezone().isoformat(),
+            'datetime': self.datetime.isoformat(),
             'attributes': self.attributes if self.attributes else [],
             'bbox': self.bbox,
             'place': self.place,
-            'lifespan': self.lifespan,
+            'lifespan': self.lifespan.days,
             'published': self.published,
-            #'thumbnail': url_for('Renderer.map_download', map_id=self.slug, file_type='png:small', _external=True),
         }
 
         if version_included:
@@ -183,12 +183,6 @@ class Map(db.Model):
         self.published = True
         db.session.add(self)
         db.session.commit()
-
-
-@event.listens_for(Map.name, 'set')
-def generate_slug(target, value, oldvalue, initiator):
-    if value and value != oldvalue:
-        target.slug = slugify(value)
 
 
 class Feature(db.Model):
