@@ -3,31 +3,27 @@ from flask_socketio import SocketIO, join_room, leave_room, send
 
 socketio = SocketIO()
 
-
 @socketio.on('join')
 def on_join(map_id):
-    m = Map.get(map_id)
-    join_room(m.slug)
-    send('user joined', room=m.slug)
+    #TODO: authenticated
+    if Map.get(map_id):
+        join_room(map_id)
+        send('user joined', room=map_id)
 
 
 @socketio.on('leave')
 def on_leave(map_id):
-    m = Map.get(map_id)
-    leave_room(m.slug)
-    send('user left', room=m.slug)
+    if Map.get(map_id):
+        leave_room(map_id)
+        send('user left', room=map_id)
 
 @Map.on_updated.connect
 def map_on_updated(data):
     socketio.emit('map-updated', data['new'], room=data['new']['id'])
 
-    # if we have old data, post as well in old room
-    try:
-        socketio.emit('map-updated', data['new'], room=data['old']['slug'])
-    except KeyError:
-        pass
-
-    print("update event", data)
+@Map.on_deleted.connect
+def map_on_deleted(data):
+    socketio.emit('map-deleted', data['new'], room=data['new']['id'])
 
 @Feature.on_created.connect
 def feature_on_created(data):
