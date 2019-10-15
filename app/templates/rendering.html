@@ -5,14 +5,14 @@
     <title>Rendering {{m.name}}...</title>
     <script>
       function check() {
-        fetch('{{url_for('Renderer.map_render', map_id=m.slug, file_type=file_type)}}', {
+        fetch('{{url_for('Renderer.map_render', map_id=m.uuid.hex, file_type=file_type)}}', {
           method: 'HEAD',
           headers: {
             "Accept": "application/json"
           }
         }).then(response => {
           if (response.status == 200) {
-            window.location = '{{url_for('Renderer.map_download', map_id=m.slug, file_type=file_type)}}'
+            window.location = '{{url_for('Renderer.map_download', map_id=m.uuid.hex, file_type=file_type)}}'
           } else {
             setTimeout(()=>check(), 1000);
           }
