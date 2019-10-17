@@ -182,8 +182,6 @@ def test_map_lifespan(app, db):
 
 
 def test_feature(app, db):
-    print("MAAPS", [m.name for m in  Map.all()])
-
     assert(_count_maps(app) == 0)
     name = 'foo'
     uuid, token = _create_map(app, {'name': name, 'bbox': [1,1,1,1]})
