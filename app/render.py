@@ -25,8 +25,8 @@ def handle_invalid_usage(error):
     return response
 
 
-@renderer.route('/maps/<string:map_id>.<string:file_type>/status')
-@renderer.route('/maps/<string:map_id>.<string:file_type>/<string:version>/status')
+@renderer.route('/maps/<string:map_id>/<string:file_type>/status')
+@renderer.route('/maps/<string:map_id>/<string:file_type>/<string:version>/status')
 def map_wait_until_finished(map_id, file_type, version=None):
     m = Map.get(map_id)
     if not m:
@@ -37,8 +37,8 @@ def map_wait_until_finished(map_id, file_type, version=None):
 # TODO:
 #  * custom converters - use file_type instead of string in route like:
 #       '/download/<string:map_id>.<file_type:file_type>'
-@renderer.route('/maps/<string:map_id>.<string:file_type>')
-@renderer.route('/maps/<string:map_id>.<string:file_type>/<string:version>')
+@renderer.route('/maps/<string:map_id>/<string:file_type>')
+@renderer.route('/maps/<string:map_id>/<string:file_type>/<string:version>')
 def map_download(map_id, file_type, version=None):
     """ Download a map identified by map_id, file_type and optional version.
 
@@ -114,8 +114,8 @@ def _find_in_registry(registry, map_id, version, file_type):
 
 # TODO:
 #   * Add support for status without version (read version from LATEST symlink)
-@renderer.route('/api/maps/<string:map_id>.<string:file_type>/status')
-@renderer.route('/api/maps/<string:map_id>.<string:file_type>/<string:version>/status')
+@renderer.route('/api/maps/<string:map_id>/<string:file_type>/status')
+@renderer.route('/api/maps/<string:map_id>/<string:file_type>/<string:version>/status')
 def status_by_map(map_id, file_type, version):
     """ Retrieve status of a render job by it `map_id`, `verison` and
     `file_type`

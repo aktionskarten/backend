@@ -24,7 +24,7 @@ def test_invalid_file_type(client, uuid):
 
 
 def test_invalid_status_by_job(client, uuid):
-    url = '/api/maps/{}.png:small/INVALID/status'.format(uuid)
+    url = '/api/maps/{}/png:small/INVALID/status'.format(uuid)
     resp = client.json_get(url)
     assert(resp.status_code == 404)
 
@@ -49,19 +49,19 @@ def test_png(client, uuid, worker):
     sleep(0.5)
 
     # check if finished
-    url = '/api/maps/{}.png:small/{}/status'.format(uuid, version)
+    url = '/api/maps/{}/png:small/{}/status'.format(uuid, version)
     resp = client.json_get(url)
     assert(resp.json['status'] == 'finished')
 
     # Download without version
-    url = '/maps/{}.png:small'.format(uuid)
+    url = '/maps/{}/png:small'.format(uuid)
     resp = client.get(url)
     assert resp.status_code == 200
     assert len(resp.data) > 0
     assert img_what(None, resp.data) == 'png'
 
     # Download with version
-    url = '/maps/{}.png:small/{}'.format(uuid, version)
+    url = '/maps/{}/png:small/{}'.format(uuid, version)
     resp = client.get(url)
     assert resp.status_code == 200
 
@@ -79,7 +79,7 @@ def test_pdf(client, uuid, worker):
     sleep(0.5)
 
     # Download without version
-    url = '/maps/{}.pdf'.format(uuid)
+    url = '/maps/{}/pdf'.format(uuid)
     resp = client.get(url)
     assert resp.status_code == 200
     assert len(resp.data) > 0
@@ -87,7 +87,7 @@ def test_pdf(client, uuid, worker):
         PdfFileReader(f)
 
     # Download with version
-    url = '/maps/{}.pdf/{}'.format(uuid, version)
+    url = '/maps/{}/pdf/{}'.format(uuid, version)
     resp = client.get(url)
     assert resp.status_code == 200
 
@@ -105,13 +105,13 @@ def test_svg(client, uuid, worker):
     sleep(0.5)
 
     # Download without version
-    url = '/maps/{}.svg'.format(uuid)
+    url = '/maps/{}/svg'.format(uuid)
     resp = client.get(url)
     assert resp.status_code == 200
     assert len(resp.data) > 0
     assert et.fromstring(resp.data).tag == '{http://www.w3.org/2000/svg}svg'
 
     # Download with version
-    url = '/maps/{}.svg/{}'.format(uuid, version)
+    url = '/maps/{}/svg/{}'.format(uuid, version)
     resp = client.get(url)
     assert resp.status_code == 200
