@@ -73,11 +73,19 @@ class Map(db.Model):
 
     @classmethod
     def get(cls, uuid):
-        return db.session.query(Map).filter(Map.uuid == uuid).first()
+        try:
+            return db.session.query(Map).filter(Map.uuid == uuid).first()
+        except:
+            pass
+        return None
 
     @classmethod
     def find(cls, name):
-        return db.session.query(Map).filter(Map.name == name).first()
+        try:
+            return db.session.query(Map).filter(Map.name == name).first()
+        except:
+            pass
+        return None
 
     @classmethod
     def delete(cls, uuid):
