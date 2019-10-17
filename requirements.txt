@@ -10,9 +10,6 @@ geojson
 shapely
 blinker
 pytest
-awesome-slugify
-factory-boy
-faker
 pylint
 eventlet
 sh
