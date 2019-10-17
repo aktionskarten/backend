@@ -5,6 +5,7 @@ python:
   - "3.7"
 services:
   - postgresql
+  - redis-server
 env:
   SETTINGS: ../tests/settings.py
 addons:
