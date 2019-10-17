@@ -12,25 +12,25 @@ def setup_function(function):
 
 def test_invalid_map(client):
     url = '/api/maps/INVALID/render/png'
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 404)
 
 
 def test_invalid_file_type(client, uuid):
     url = '/api/maps/{}/render/INVALID_FILE_TYPE'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 400)
 
 
 def test_invalid_status_by_job(client, uuid):
     url = '/api/maps/{}.png:small/INVALID/status'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 404)
 
 
 def test_png(client, uuid, worker):
     url = '/api/maps/{}/render/png:small'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 202)
     assert resp.json['status'] == 'queued'
     assert resp.json['file_type'] == 'png:small'
@@ -39,7 +39,7 @@ def test_png(client, uuid, worker):
 
     # Check if render of same data is not done twice (same job_id)
     url = '/api/maps/{}/render/png:small'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 202)
     assert(resp.json['job_id'] == job_id)
 
@@ -48,7 +48,7 @@ def test_png(client, uuid, worker):
 
     # check if finished
     url = '/api/maps/{}.png:small/{}/status'.format(uuid, version)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.json['status'] == 'finished')
 
     # Download without version
@@ -66,7 +66,7 @@ def test_png(client, uuid, worker):
 
 def test_pdf(client, uuid, worker):
     url = '/api/maps/{}/render/pdf'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 202)
     assert resp.json['status'] == 'queued'
     assert resp.json['file_type'] == 'pdf'
@@ -91,7 +91,7 @@ def test_pdf(client, uuid, worker):
 
 def test_svg(client, uuid, worker):
     url = '/api/maps/{}/render/svg'.format(uuid)
-    resp = client.get(url)
+    resp = client.json_get(url)
     assert(resp.status_code == 202)
     assert resp.json['status'] == 'queued'
     assert resp.json['file_type'] == 'svg'

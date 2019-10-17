@@ -44,16 +44,15 @@ def worker(app):
 @pytest.fixture(scope="function")
 def client(app):
     with app.test_client() as client:
-        _get = client.get
         # always add Accept header
-        def get(*args, **kwargs):
+        def json_get(*args, **kwargs):
             headers = {'headers': {'Accept': 'application/json'}}
             if kwargs:
                 kwargs.update(headers)
             else:
                 kwargs = headers
-            return _get(*args, **kwargs)
-        client.get = get
+            return client.get(*args, **kwargs)
+        client.json_get = json_get
         yield client
 
 
