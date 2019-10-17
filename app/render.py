@@ -37,8 +37,8 @@ def map_wait_until_finished(map_id, file_type, version=None):
 # TODO:
 #  * custom converters - use file_type instead of string in route like:
 #       '/download/<string:map_id>.<file_type:file_type>'
-@renderer.route('/maps/<string:map_id>.<string:file_type>')
-@renderer.route('/maps/<string:map_id>.<string:file_type>/<string:version>')
+@renderer.route('/maps/<uuid:map_id>.<string:file_type>')
+@renderer.route('/maps/<uuid:map_id>.<string:file_type>/<string:version>')
 def map_download(map_id, file_type, version=None):
     """ Download a map identified by map_id, file_type and optional version.
 
@@ -59,7 +59,7 @@ def map_download(map_id, file_type, version=None):
     if not version:
         version = m.version
 
-    dirname = sha256(map_id.encode()).hexdigest()
+    dirname = sha256(map_id.hex.encode()).hexdigest()
     extension, *args = file_type.split(':')
     mimetype = mimetypes.types_map['.' + extension]
 
