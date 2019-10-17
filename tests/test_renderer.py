@@ -5,14 +5,15 @@ from time import sleep
 from PyPDF2 import PdfFileReader
 from io import BytesIO
 from tests.fixtures import *
-from tests.utils import post, get, wait_until_finished, reset_map_folder
+from tests.utils import post, get, wait_until_finished
 
 
 VERSION = 'c8bbde29fa1cfd1109fae1835fcc1ea1f92f4e31292c1b3d338c782f18333605'
 
 
 def setup_function(function):
-    reset_map_folder()
+    pass
+#    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
 
 
 def tast_png(client, sample):
