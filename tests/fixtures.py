@@ -42,6 +42,22 @@ def worker(app):
 
 
 @pytest.fixture(scope="function")
+def client(app):
+    with app.test_client() as client:
+        _get = client.get
+        # always add Accept header
+        def get(*args, **kwargs):
+            headers = {'headers': {'Accept': 'application/json'}}
+            if kwargs:
+                kwargs.update(headers)
+            else:
+                kwargs = headers
+            return _get(*args, **kwargs)
+        client.get = get
+        yield client
+
+
+@pytest.fixture(scope="function")
 def uuid(app, db):
     m = Map('my-new-map', bbox=[1, 1, 1, 1])
     db.session.add(m)
