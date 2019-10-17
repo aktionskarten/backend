@@ -12,18 +12,16 @@ def postgres():
 @postgres.command(help="Creates postgres user")
 @with_appcontext
 def createuser():
-    environ['PGUSER'] = "postgres"
     click.echo("Creating user")
     user = current_app.config['DB_USER']
     pw = current_app.config['DB_PASS']
-    psql("-c CREATE USER {} WITH PASSWORD '{}';".format(user, pw))
+    psql('-Upostgres', "-c CREATE USER {} WITH PASSWORD '{}';".format(user, pw))
 
 @postgres.command(help=("Drops postgres user"))
 @with_appcontext
 def dropuser():
-    environ['PGUSER'] = "postgres"
     click.echo("Dropping user")
-    pgdropuser(current_app.config['DB_USER'])
+    pgdropuser('-Upostgres', current_app.config['DB_USER'])
 
 @postgres.command(help="Creates database and extensions for app")
 @click.pass_context
@@ -35,7 +33,7 @@ def initdb(ctx):
     pgcreatedb("-O"+owner, name, encoding='utf-8')
 
     click.echo("Creating extensions")
-    psql("-d"+name, "-c CREATE EXTENSION postgis")
+    psql('-Upostgres', "-d"+name, "-c CREATE EXTENSION postgis")
 
     ctx.invoke(createtables)
 
@@ -49,13 +47,12 @@ def createtables():
 @postgres.command(help="Deletes database")
 @with_appcontext
 def dropdb():
-    environ['PGUSER'] = "postgres"
-
     click.echo("Dropping database")
-    pgdropdb(current_app.config['DB_NAME'])
+    pgdropdb('-U postgres', current_app.config['DB_NAME'])
 
 @postgres.command(help="Creates user and database")
 @click.pass_context
 def init(ctx):
+    click.echo("init database")
     ctx.invoke(createuser)
     ctx.invoke(initdb)
