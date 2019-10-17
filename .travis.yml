@@ -29,6 +29,3 @@ before_script:
   - flask postgres init
 script:
   - python -m pytest -s tests/
-branches:
-  only:
-    - travis
