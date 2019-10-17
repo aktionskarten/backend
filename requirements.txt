@@ -26,3 +26,4 @@ path.py
 sphinxcontrib-httpdomain
 gunicorn
 Flask-Migrate
+backports-datetime-fromisoformat; python_version < '3.7'

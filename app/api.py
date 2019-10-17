@@ -9,7 +9,7 @@ from geojson import Feature, FeatureCollection
 from datetime import datetime, timedelta
 from app.models import db, Map, Feature as MapFeature
 from app.grid import Grid
-
+from app.utils import datetime_fromisoformat
 
 api = Blueprint('API', __name__)
 CORS(api)
@@ -79,7 +79,7 @@ def maps_new():
             setattr(m, key, json[key])
 
     if 'datetime' in json:
-        m.datetime = datetime.fromisoformat(request.json['datetime'])
+        m.datetime = datetime_fromisoformat(request.json['datetime'])
 
     if 'lifespan' in json:
         m.lifespan = timedelta(days=request.json['lifspan'])
@@ -120,7 +120,7 @@ def map_edit(map_id):
             setattr(m, key, json[key])
 
     if 'datetime' in json:
-        m.datetime = datetime.fromisoformat(request.json['datetime'])
+        m.datetime = datetime_fromisoformat(request.json['datetime'])
 
     if 'lifespan' in json:
         m.lifespan = timedelta(days=request.json['lifespan'])
