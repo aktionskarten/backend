@@ -1,157 +1,132 @@
-import xml.etree.cElementTree as et
-import imghdr
-
-from time import sleep
+from imghdr import what as img_what
 from PyPDF2 import PdfFileReader
 from io import BytesIO
+from xml.etree import cElementTree as et
 from tests.fixtures import *
-from tests.utils import post, get, wait_until_finished
-
-
-VERSION = 'c8bbde29fa1cfd1109fae1835fcc1ea1f92f4e31292c1b3d338c782f18333605'
+from tests.utils import db_reset
 
 
 def setup_function(function):
-    pass
-#    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
+    db_reset()
 
 
-def tast_png(client, sample):
-    job_id = None
+def test_invalid_map(app):
+    with app.test_client() as client:
+        url = '/api/maps/INVALID/render/png'
+        resp = client.get(url)
+        assert(resp.status_code == 404)
 
-    # Request rendering of a png
-    with post(client, '/render/png:small', sample) as (resp, json):
-        assert json['status'] == 'queued'
-        assert json['map_id'] == 'test123'
-        assert json['file_type'] == 'png:small'
-        assert json['version'] == VERSION
-        assert 'job_id' in json
-        job_id = json['job_id']
 
-    # seems we need to wait a bit so it has been queued
-    sleep(0.1)
+def test_invalid_file_type(app, uuid):
+    with app.test_client() as client:
+        url = '/api/maps/{}/render/INVALID_FILE_TYPE'.format(uuid)
+        resp = client.get(url)
+        assert(resp.status_code == 400)
 
-    # Check if render of same data is not done twice
-    with post(client, '/render/png:small', sample) as (resp, json):
-        assert 'job_id' in json
-        assert job_id == json['job_id']
 
-    assert wait_until_finished(client, job_id)
+def test_invalid_status_by_job(app, uuid):
+    with app.test_client() as client:
+        url = '/api/maps/{}.png:small/INVALID/status'.format(uuid)
+        resp = client.get(url)
+        assert(resp.status_code == 404)
 
-    # Retry - Check if finished (and is reuses old job - not enqeueud as new
-    # job)
-    with post(client, '/render/png:small', sample) as (resp, json):
-        assert 'job_id' in json
-        assert job_id == json['job_id']
-        assert json['status'] == 'finished'
+
+def test_png(app, uuid, worker):
+    with app.test_client() as client:
+        url = '/api/maps/{}/render/png:small'.format(uuid)
+        headers = {'Accept': 'application/json'}
+        resp = client.get(url, headers=headers)
+        assert(resp.status_code == 202)
+        assert resp.json['status'] == 'queued'
+        assert resp.json['file_type'] == 'png:small'
+        job_id = resp.json['job_id']
+        version = resp.json['version']
+
+    # Check if render of same data is not done twice (same job_id)
+    with app.test_client() as client:
+        url = '/api/maps/{}/render/png:small'.format(uuid)
+        headers = {'Accept': 'application/json'}
+        resp = client.get(url, headers=headers)
+        assert(resp.status_code == 202)
+        assert(resp.json['job_id'] == job_id)
+
+    # do work (as we don't have a worker process)
+    worker.work(burst=True)
+
+    # check if finished
+    with app.test_client() as client:
+        url = '/api/maps/{}.png:small/{}/status'.format(uuid, version)
+        headers = {'Accept': 'application/json'}
+        resp = client.get(url, headers=headers)
+        assert(resp.json['status'] == 'finished')
+
+    # Download without version
+    with app.test_client() as client:
+        url = '/maps/{}.png:small'.format(uuid)
+        resp = client.get(url)
+        assert resp.status_code == 200
+        assert len(resp.data) > 0
+        assert img_what(None, resp.data) == 'png'
 
     # Download with version
-    url = '/download/test123_{}.png:small'.format(VERSION)
-    with get(client, url) as (resp, data):
+    with app.test_client() as client:
+        url = '/maps/{}.png:small/{}'.format(uuid, version)
+        resp = client.get(url)
         assert resp.status_code == 200
 
-    # Download latest (without version)
-    with get(client, '/download/test123.png:small') as (resp, data):
+
+def test_pdf(app, uuid, worker):
+    with app.test_client() as client:
+        url = '/api/maps/{}/render/pdf'.format(uuid)
+        headers = {'Accept': 'application/json'}
+        resp = client.get(url, headers=headers)
+        assert(resp.status_code == 202)
+        assert resp.json['status'] == 'queued'
+        assert resp.json['file_type'] == 'pdf'
+        version = resp.json['version']
+
+    # do work (as we don't have a worker process)
+    worker.work(burst=True)
+
+    # Download without version
+    with app.test_client() as client:
+        url = '/maps/{}.pdf'.format(uuid)
+        resp = client.get(url)
         assert resp.status_code == 200
-        assert len(data) > 0
-        assert imghdr.what(None, data) == 'png'
-
-
-def test_pdf(client, sample):
-    job_id = None
-
-    # Request rendering of a pdf
-    with post(client, '/render/pdf', sample) as (resp, json):
-        assert json['status'] == 'queued'
-        job_id = json['job_id']
-
-    assert wait_until_finished(client, job_id)
-
-    # Download with version
-    url = '/download/test123_{}.pdf'.format(VERSION)
-    with get(client, url) as (resp, data):
-        assert resp.status_code == 200
-        assert len(data) > 0
-        with BytesIO(data) as f:
+        assert len(resp.data) > 0
+        with BytesIO(resp.data) as f:
             PdfFileReader(f)
 
+    # Download with version
+    with app.test_client() as client:
+        url = '/maps/{}.pdf/{}'.format(uuid, version)
+        resp = client.get(url)
+        assert resp.status_code == 200
 
-def tast_svg(client, sample):
-    job_id = None
 
-    # Request rendering of a svg
-    with post(client, '/render/svg', sample) as (resp, json):
-        assert json['status'] == 'queued'
-        job_id = json['job_id']
+def test_svg(app, uuid, worker):
+    with app.test_client() as client:
+        url = '/api/maps/{}/render/svg'.format(uuid)
+        headers = {'Accept': 'application/json'}
+        resp = client.get(url, headers=headers)
+        assert(resp.status_code == 202)
+        assert resp.json['status'] == 'queued'
+        assert resp.json['file_type'] == 'svg'
+        version = resp.json['version']
 
-    assert wait_until_finished(client, job_id)
+    # do work (as we don't have a worker process)
+    worker.work(burst=True)
+
+    # Download without version
+    with app.test_client() as client:
+        url = '/maps/{}.svg'.format(uuid)
+        resp = client.get(url)
+        assert resp.status_code == 200
+        assert len(resp.data) > 0
+        assert et.fromstring(resp.data).tag == '{http://www.w3.org/2000/svg}svg'
 
     # Download with version
-    url = '/download/test123_{}.svg'.format(VERSION)
-    with get(client, url) as (resp, data):
-        with open('/tmp/foo.svg', 'wb') as f:
-            f.write(data)
-        assert et.fromstring(data).tag == '{http://www.w3.org/2000/svg}svg'
-        assert len(data) > 0
+    with app.test_client() as client:
+        url = '/maps/{}.svg/{}'.format(uuid, version)
+        resp = client.get(url)
         assert resp.status_code == 200
-
-
-def tast_status(client, sample):
-    job_id = None
-
-    # Request rendering of a svg
-    with post(client, '/render/svg', sample) as (resp, json):
-        assert json['status'] == 'queued'
-        job_id = json['job_id']
-
-    # wait until job has been started
-    sleep(0.1)
-
-    # status_by_job
-    with get(client, '/status/'+job_id) as (resp, json):
-        assert json['status'] == 'started'
-        assert resp.status_code == 200
-
-    assert wait_until_finished(client, job_id)
-
-    # status_by_job
-    with get(client, '/status/'+job_id) as (resp, json):
-        assert json['status'] == 'finished'
-        assert resp.status_code == 200
-
-
-def tast_invalid_download(client):
-    with get(client, '/download/INVALID.png:small') as (resp, data):
-        assert resp.status_code == 404
-
-
-def tast_invalid_status_by_job(client):
-    # status_by_job
-    with get(client, '/status/INVALID') as (resp, data):
-        assert resp.status_code == 404
-
-
-def tast_invalid_status_by_map(client, sample):
-    # status_by_map - invalid file_type
-    url = '/status/INVALID_MAP_NAME/INVALID_VERSION/INVALID_FILE_TYPE'
-    with get(client, url) as (resp, data):
-        assert resp.status_code == 400  # unsupported file type
-
-    # status_by_map - invalid map
-    url = '/status/INVALID_MAP_NAME/INVALID_VERSION/pdf'
-    with get(client, url) as (resp, _):
-        assert resp.status_code == 404
-
-    # Request rendering of a pdf
-    job_id = None
-    with post(client, '/render/png:small', sample) as (resp, json):
-        assert resp.status_code == 200
-        assert json['status'] == 'queued'
-        job_id = json['job_id']
-
-    assert wait_until_finished(client, job_id)
-
-    # status_by_map - invalid version
-    url = '/status/test123/INVALID_VERSION/pdf'
-    with get(client, url) as (resp, _):
-        assert resp.status_code == 404
