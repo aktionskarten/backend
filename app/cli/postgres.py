@@ -35,9 +35,6 @@ def initdb(ctx):
     click.echo("Creating extensions")
     psql('-Upostgres', "-d"+name, "-c CREATE EXTENSION postgis")
 
-    ctx.invoke(createtables)
-
-
 @postgres.command(help="Creates tables")
 @with_appcontext
 def createtables():
