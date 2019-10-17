@@ -30,7 +30,7 @@ def initdb(ctx):
     click.echo("Creating database")
     owner = current_app.config['DB_USER']
     name = current_app.config['DB_NAME']
-    pgcreatedb("-O"+owner, name, encoding='utf-8')
+    pgcreatedb('-Upostgres', '-O'+owner, name, encoding='utf-8')
 
     click.echo("Creating extensions")
     psql('-Upostgres', "-d"+name, "-c CREATE EXTENSION postgis")
