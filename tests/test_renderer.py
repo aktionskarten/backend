@@ -1,3 +1,4 @@
+from time import sleep
 from imghdr import what as img_what
 from PyPDF2 import PdfFileReader
 from io import BytesIO
@@ -45,6 +46,7 @@ def test_png(client, uuid, worker):
 
     # do work (as we don't have a worker process)
     worker.work(burst=True)
+    sleep(0.5)
 
     # check if finished
     url = '/api/maps/{}.png:small/{}/status'.format(uuid, version)
@@ -74,6 +76,7 @@ def test_pdf(client, uuid, worker):
 
     # do work (as we don't have a worker process)
     worker.work(burst=True)
+    sleep(0.5)
 
     # Download without version
     url = '/maps/{}.pdf'.format(uuid)
@@ -99,6 +102,7 @@ def test_svg(client, uuid, worker):
 
     # do work (as we don't have a worker process)
     worker.work(burst=True)
+    sleep(0.5)
 
     # Download without version
     url = '/maps/{}.svg'.format(uuid)
