@@ -20,7 +20,6 @@ def _setup_app_context_for_test(request, app):
     app and request stack is not shared between tests.
     """
     ctx = app.app_context()
-    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
     ctx.push()
     yield  # tests will run here
     ctx.pop()
@@ -58,6 +57,7 @@ def client(app):
 
 @pytest.fixture(scope="function")
 def uuid(app, db):
+    rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
     m = Map('my-new-map', bbox=[1, 1, 1, 1])
     db.session.add(m)
     db.session.commit()
