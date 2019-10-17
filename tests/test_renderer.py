@@ -51,6 +51,7 @@ def test_png(client, uuid, worker):
     # check if finished
     url = '/api/maps/{}/png:small/{}/status'.format(uuid, version)
     resp = client.json_get(url)
+    assert(resp.status_code == 200)
     assert(resp.json['status'] == 'finished')
 
     # Download without version
