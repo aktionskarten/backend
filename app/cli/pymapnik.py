@@ -41,8 +41,9 @@ def install():
         if child != 0:
             sys.exit(-1)
 
+        import cairo
         include_path = '--include-dirs=' + cairo.get_include()
-        child = subprocess.call(['python', 'setup.py', 'build_ext', include_path])
+        child = subprocess.call([sys.executable, 'setup.py', 'build_ext', include_path])
         if child != 0:
             sys.exit(-1)
 
