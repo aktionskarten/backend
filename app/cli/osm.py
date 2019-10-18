@@ -12,10 +12,12 @@ from path import Path
 
 DATA_DIR = 'data'
 OSM_CARTO_STYLE_FILE = 'style.xml'
-OSM_DUMP_FILE = 'berlin-latest.osm.pbf'
-OSM_DUMP_PATH = abspath(pjoin(DATA_DIR, OSM_DUMP_FILE))
-OSM_DUMP_URL = 'http://download.geofabrik.de/europe/germany/'+OSM_DUMP_FILE
+OSM_DUMP_FILE = 'europe/germany/berlin-latest.osm.pbf'
+OSM_DUMP_URL = 'http://download.geofabrik.de/'
 
+def _get_osm_dump_path(dump_file):
+    filename = dump_file.split('/')[-1]
+    return abspath(pjoin(DATA_DIR, filename))
 
 @click.group(help="osm related commands")
 def osm():
@@ -87,34 +89,40 @@ def generate_style():
 
 
 @osm.command()
-def download_dump():
+@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
+def download_dump(osm_dump_file):
     makedirs(DATA_DIR, exist_ok=True)
 
-    if not path.isfile(OSM_DUMP_PATH):
+    osm_dump_path = _get_osm_dump_path(osm_dump_file)
+    if not path.isfile(osm_dump_path):
         click.echo("Downloading OSM dump")
-        wget('-nc', '-P'+DATA_DIR, OSM_DUMP_URL, _fg=True)
+        url = OSM_DUMP_URL + osm_dump_file
+        wget('-nc', '-P'+DATA_DIR, url, _fg=True)
 
-    click.secho("OSM dump: "+ OSM_DUMP_PATH, fg="green")
+    click.secho("OSM dump: " + osm_dump_path, fg="green")
 
 @osm.command()
 @with_appcontext
-def import_dump():
+@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
+def import_dump(osm_dump_file):
     with Path("libs/openstreetmap-carto"):
         environ['PGPASSWORD'] = current_app.config['OSM_DB_PASS']
         host = current_app.config['OSM_DB_HOST']
         user = current_app.config['OSM_DB_USER']
         name = current_app.config['OSM_DB_NAME']
-        osm2pgsql('-H'+host, '-U'+user, '-d'+name, '-G', '--hstore', OSM_DUMP_PATH,
+        osm2pgsql('--slim', '-H'+host, '-U'+user, '-d'+name, '-G', '--hstore',
+                  _get_osm_dump_path(osm_dump_file),
                   style='openstreetmap-carto.style',
                   tag_transform_script='openstreetmap-carto.lua',
                   _fg=True)
-    click.secho("Successfully imported : " + OSM_DUMP_FILE, fg="green")
+    click.secho("Successfully imported : " + osm_dump_file, fg="green")
 
 
 @osm.command(help="Creates and imports osm database")
+@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
 @click.pass_context
-def init(ctx):
+def init(ctx, osm_dump_file):
     ctx.invoke(initdb)
-    ctx.invoke(download_dump)
-    ctx.invoke(import_dump)
+    ctx.invoke(download_dump, osm_dump_file=osm_dump_file)
+    ctx.invoke(import_dump, osm_dump_file=osm_dump_file)
     ctx.invoke(generate_style)
