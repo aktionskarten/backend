@@ -3,6 +3,9 @@ language: python
 python:
   - "3.6"
   - "3.7"
+cache:
+  - pip: true
+  - directories: libs/python-mapnik/build
 services:
   - postgresql
   - redis-server
