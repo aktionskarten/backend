@@ -114,6 +114,21 @@ def test_maps_new_public(app, db):
     resp = _get_map(app, m.uuid, m.gen_token())
     assert(resp.status_code == 200)
 
+def test_maps_new_datetime(app, db):
+    name = 'foo-new-private'
+    now = datetime.datetime.utcnow()
+    uuid, token = _create_map(app, {'name': name, 'datetime': now.isoformat()})
+
+    m = Map.get(uuid)
+    assert(m)
+    assert(m.datetime == now)
+    assert(not m.outdated)
+
+    resp = _get_map(app, m.uuid, token)
+    assert(resp.status_code == 200)
+    assert(resp.json['datetime'] == now.isoformat())
+
+
 def test_map_delete_private(app, db):
     m = Map('foo', bbox=[1, 1, 1, 1])
     db.session.add(m)
@@ -165,8 +180,6 @@ def test_map_lifespan(app, db):
 
 
 def test_feature(app, db):
-    print("MAAPS", [m.name for m in  Map.all()])
-
     assert(_count_maps(app) == 0)
     name = 'foo'
     uuid, token = _create_map(app, {'name': name, 'bbox': [1,1,1,1]})
