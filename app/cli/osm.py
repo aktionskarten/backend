@@ -105,17 +105,18 @@ def download_dump(osm_dump_file):
 @with_appcontext
 @click.option('--osm_dump_file', default=OSM_DUMP_FILE)
 def import_dump(osm_dump_file):
+    osm_dump_path = _get_osm_dump_path(osm_dump_file)
     with Path("libs/openstreetmap-carto"):
         environ['PGPASSWORD'] = current_app.config['OSM_DB_PASS']
         host = current_app.config['OSM_DB_HOST']
         user = current_app.config['OSM_DB_USER']
         name = current_app.config['OSM_DB_NAME']
         osm2pgsql('--slim', '-H'+host, '-U'+user, '-d'+name, '-G', '--hstore',
-                  _get_osm_dump_path(osm_dump_file),
+                  osm_dump_path,
                   style='openstreetmap-carto.style',
                   tag_transform_script='openstreetmap-carto.lua',
                   _fg=True)
-    click.secho("Successfully imported : " + osm_dump_file, fg="green")
+    click.secho("Successfully imported : " + osm_dump_path, fg="green")
 
 
 @osm.command(help="Creates and imports osm database")
