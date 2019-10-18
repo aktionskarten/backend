@@ -2,7 +2,7 @@ import pytest
 from app import create_app
 from app.models import Map, db as _db
 from shutil import rmtree
-from rq import Worker
+from rq import SimpleWorker
 from os import path
 
 
@@ -37,7 +37,7 @@ def db(app, request):
 @pytest.fixture(scope="session")
 def worker(app):
     conn = app.task_queue.connection
-    yield Worker(app.task_queue, connection=conn)
+    yield SimpleWorker([app.task_queue], connection=conn)
 
 
 @pytest.fixture(scope="function")
