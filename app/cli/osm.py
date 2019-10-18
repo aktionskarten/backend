@@ -12,12 +12,14 @@ from path import Path
 
 DATA_DIR = 'data'
 OSM_CARTO_STYLE_FILE = 'style.xml'
-OSM_DUMP_FILE = 'europe/germany/berlin-latest.osm.pbf'
-OSM_DUMP_URL = 'http://download.geofabrik.de/'
+OSM_DUMP_URL_DEFAULT = 'http://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf'
+OSM_DUMP_FILE_DEFAULT = OSM_DUMP_URL_DEFAULT.split('/')[-1]
+
 
 def _get_osm_dump_path(dump_file):
     filename = dump_file.split('/')[-1]
     return abspath(pjoin(DATA_DIR, filename))
+
 
 @click.group(help="osm related commands")
 def osm():
@@ -89,29 +91,29 @@ def generate_style():
 
 
 @osm.command()
-@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
-def download_dump(osm_dump_file):
+@click.option('--url', default=OSM_DUMP_URL_DEFAULT)
+def download_dump(url):
     makedirs(DATA_DIR, exist_ok=True)
 
-    osm_dump_path = _get_osm_dump_path(osm_dump_file)
+    filename = url.split('/')[-1]
+    osm_dump_path = _get_osm_dump_path(filename)
     if not path.isfile(osm_dump_path):
         click.echo("Downloading OSM dump")
-        url = OSM_DUMP_URL + osm_dump_file
         wget('-nc', '-P'+DATA_DIR, url, _fg=True)
 
-    click.secho("OSM dump: " + osm_dump_path, fg="green")
+    click.secho("OSM dump: " + filename, fg="green")
 
 @osm.command()
 @with_appcontext
-@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
-def import_dump(osm_dump_file):
-    osm_dump_path = _get_osm_dump_path(osm_dump_file)
+@click.option('--path', default=OSM_DUMP_FILE_DEFAULT)
+def import_dump(path):
+    osm_dump_path = _get_osm_dump_path(path) if '/' not in path else path
     with Path("libs/openstreetmap-carto"):
         environ['PGPASSWORD'] = current_app.config['OSM_DB_PASS']
         host = current_app.config['OSM_DB_HOST']
         user = current_app.config['OSM_DB_USER']
         name = current_app.config['OSM_DB_NAME']
-        osm2pgsql('--slim', '-H'+host, '-U'+user, '-d'+name, '-G', '--hstore',
+        osm2pgsql('-H'+host, '-U'+user, '-d'+name, '-G', '--hstore',
                   osm_dump_path,
                   style='openstreetmap-carto.style',
                   tag_transform_script='openstreetmap-carto.lua',
@@ -120,10 +122,14 @@ def import_dump(osm_dump_file):
 
 
 @osm.command(help="Creates and imports osm database")
-@click.option('--osm_dump_file', default=OSM_DUMP_FILE)
+@click.option('--url', default=OSM_DUMP_URL_DEFAULT)
+@click.option('--path', default=None)
 @click.pass_context
-def init(ctx, osm_dump_file):
+def init(ctx, url, path):
     ctx.invoke(initdb)
-    ctx.invoke(download_dump, osm_dump_file=osm_dump_file)
-    ctx.invoke(import_dump, osm_dump_file=osm_dump_file)
+    if path:
+        ctx.invoke(import_dump, path=path)
+    else:
+        ctx.invoke(download_dump, url=url)
+        ctx.invoke(import_dump, path=url.split('/')[-1])
     ctx.invoke(generate_style)

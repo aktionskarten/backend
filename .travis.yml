@@ -33,6 +33,6 @@ install:
   - python app/cli/pymapnik.py install
 before_script:
   - flask postgres init
-  - flask osm init --osm_dump_file=europe/albania-latest.osm.pbf
+  - flask osm init --path=kotti-latest.osm.pbf
 script:
   - python -m pytest -s tests/
