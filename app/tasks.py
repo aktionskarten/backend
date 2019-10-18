@@ -29,10 +29,17 @@ def render_map(data, file_type, force=False):
 
     # write file atomically (otherwise we end up in serving incomplete files)
     path = os.path.join(static_dir, file_info['path'])
-    with NamedTemporaryFile(dir=os.path.dirname(path), delete=False) as tmp_f:
+    path_dir = os.path.dirname(path)
+    with NamedTemporaryFile(dir=path_dir, delete=False) as tmp_f:
         tmp_f.write(data)
         tmp_f.flush()
         os.replace(tmp_f.name, path)
+
+        # ensure persistency of replace
+        fd = os.open(path_dir, os.O_RDONLY | os.O_DIRECTORY)
+        os.fsync(fd)
+        os.close(fd)
+
 
     # update latest symlink to this
     symlink_name = 'LATEST'+file_info['suffix']
