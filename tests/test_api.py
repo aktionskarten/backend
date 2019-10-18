@@ -1,14 +1,12 @@
-import os
 import datetime
 from tests.fixtures import *
-from tests.utils import post, get, wait_until_finished #, reset_map_folder
+from tests.utils import db_reset
 from json import dumps as json_dump
 from geojson import Feature as GeoFeature, Point as GeoPoint
 from app.models import Map, Feature, db as _db
 
 def setup_function(function):
-    _db.session.execute(Feature.__table__.delete())
-    _db.session.execute(Map.__table__.delete())
+    db_reset()
 
 def _count_maps(app):
     with app.test_client() as client:
