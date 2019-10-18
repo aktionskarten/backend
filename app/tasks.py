@@ -40,6 +40,7 @@ def render_map(data, file_type, force=False):
         os.fsync(fd)
         os.close(fd)
 
+    print("PATH", path, path_dir)
 
     # update latest symlink to this
     symlink_name = 'LATEST'+file_info['suffix']
