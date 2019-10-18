@@ -31,5 +31,6 @@ install:
   - python app/cli/pymapnik.py install
 before_script:
   - flask postgres init
+  - flask osm init
 script:
   - python -m pytest -s tests/
