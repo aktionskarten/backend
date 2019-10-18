@@ -3,8 +3,14 @@ language: python
 python:
   - "3.6"
   - "3.7"
+cache:
+  - pip: true
+  - directories:
+    - data/
+    - libs/python-mapnik/build
 services:
   - postgresql
+  - redis-server
 env:
   SETTINGS: ../tests/settings.py
 addons:
@@ -27,5 +33,6 @@ install:
   - python app/cli/pymapnik.py install
 before_script:
   - flask postgres init
+  - flask osm init --path=kotti-latest.osm.pbf
 script:
   - python -m pytest -s tests/

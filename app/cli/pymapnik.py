@@ -36,10 +36,9 @@ def install():
     environ['PYCAIRO'] = "true"
     with Path("libs/python-mapnik"):
         import subprocess
-        import cairo
-        child = subprocess.call(['python', 'setup.py', 'clean'])
-        if child != 0:
-            sys.exit(-1)
+        #child = subprocess.call(['python', 'setup.py', 'clean'])
+        #if child != 0:
+        #    sys.exit(-1)
 
         import cairo
         include_path = '--include-dirs=' + cairo.get_include()

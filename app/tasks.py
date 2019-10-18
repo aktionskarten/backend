@@ -22,17 +22,16 @@ def render_map(data, file_type, force=False):
 
     static_dir = current_app.static_folder
     map_dir = os.path.join(static_dir, file_info['dir'])
-    if not os.path.exists(map_dir):
-        os.makedirs(map_dir)
+    os.makedirs(map_dir, exist_ok=True)
 
-    # render map as in-memory file
     m = MapRenderer(data)
-    f = m.render(file_info['mimetype'])
+    data = m.render(file_info['mimetype']).read()
 
     # write file atomically (otherwise we end up in serving incomplete files)
     path = os.path.join(static_dir, file_info['path'])
     with NamedTemporaryFile(dir=os.path.dirname(path), delete=False) as tmp_f:
-        tmp_f.write(f.read())
+        tmp_f.write(data)
+        tmp_f.flush()
         os.replace(tmp_f.name, path)
 
     # update latest symlink to this
