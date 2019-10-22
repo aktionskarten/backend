@@ -72,9 +72,9 @@ Setup
   $ python app/cli/mapnik.py install # install custom python mapnik package
                                      # can call through flask cli because it
                                      # is essential to instantiate the app
-  $ flask db init           # create app database
+  $ flask postgres init     # create app database
   $ flask osm init          # download osm dump and create db for it
-  $ flask gen_marker        # generate markers
+  $ flask gen-markers       # generate markers
   $ rq worker               # start task queue worker
   $ flask run --with-threads --no-reload # start backend
 
