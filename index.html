@@ -77,11 +77,16 @@ you’re able to edit a map.</p>
 <p>At least postgres, postgis, mapnik, cairo and redis need to be installed. Do
 this through your os package manager:</p>
 <p>Ubuntu</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
 </pre></div>
 </div>
 <p>ArchLinux</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pacman -S postgresql postgis redis cairo mapnik
+</pre></div>
+</div>
+<p>Start DBs</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo systemctl start postgresql
+$ sudo systemctl start redis
 </pre></div>
 </div>
 </div>
@@ -91,12 +96,12 @@ this through your os package manager:</p>
 $ python -m venv env
 $ . env/bin/activate
 $ pip install -r requirements.txt
-$ python app/cli/pymapnik.py install <span class="c1"># install custom python mapnik package</span>
+$ python app/cli/mapnik.py install <span class="c1"># install custom python mapnik package</span>
                                    <span class="c1"># can call through flask cli because it</span>
                                    <span class="c1"># is essential to instantiate the app</span>
-$ flask db init           <span class="c1"># create app database</span>
+$ flask postgres init     <span class="c1"># create app database</span>
 $ flask osm init          <span class="c1"># download osm dump and create db for it</span>
-$ flask gen_marker        <span class="c1"># generate markers</span>
+$ flask gen-markers       <span class="c1"># generate markers</span>
 $ rq worker               <span class="c1"># start task queue worker</span>
 $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
 </pre></div>
@@ -143,10 +148,10 @@ $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -168,7 +173,7 @@ $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
       &copy;2019, aktionskarten.de.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
