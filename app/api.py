@@ -1,7 +1,7 @@
 import re
 
 from functools import wraps
-from flask import Blueprint, request, jsonify, abort, redirect,\
+from flask import Blueprint, request, jsonify as _jsonify, abort, redirect,\
                   url_for, make_response, Response, current_app, render_template
 from flask_cors import CORS
 from werkzeug.security import safe_str_cmp
@@ -13,6 +13,18 @@ from app.utils import datetime_fromisoformat
 
 api = Blueprint('API', __name__)
 CORS(api)
+
+def jsonify(*args, **kwargs):
+    size = len(args)
+    if  size == 1 and isinstance(args[0], dict):
+        kwargs.update(args[0])
+    elif size > 0:
+        return _jsonify(*args)
+
+    token = request.headers.get('X-Token')
+    if token:
+        kwargs['token'] = token
+    return _jsonify(**kwargs)
 
 
 def auth():
