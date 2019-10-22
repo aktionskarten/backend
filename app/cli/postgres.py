@@ -45,7 +45,7 @@ def createtables():
 @with_appcontext
 def dropdb():
     click.echo("Dropping database")
-    pgdropdb('-U postgres', current_app.config['DB_NAME'])
+    pgdropdb('-Upostgres', current_app.config['DB_NAME'])
 
 @postgres.command(help="Creates user and database")
 @click.pass_context
