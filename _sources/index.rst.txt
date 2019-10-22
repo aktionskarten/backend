@@ -51,13 +51,20 @@ Ubuntu
 
 .. sourcecode:: bash
 
-  $ apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
+  $ sudo apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
 
 ArchLinux
 
 .. sourcecode:: bash
 
   $ pacman -S postgresql postgis redis cairo mapnik
+
+Start DBs
+
+.. sourcecode:: bash
+
+  $ sudo systemctl start postgresql
+  $ sudo systemctl start redis
 
 
 Setup
@@ -72,9 +79,9 @@ Setup
   $ python app/cli/mapnik.py install # install custom python mapnik package
                                      # can call through flask cli because it
                                      # is essential to instantiate the app
-  $ flask db init           # create app database
+  $ flask postgres init     # create app database
   $ flask osm init          # download osm dump and create db for it
-  $ flask gen_marker        # generate markers
+  $ flask gen-markers       # generate markers
   $ rq worker               # start task queue worker
   $ flask run --with-threads --no-reload # start backend
 

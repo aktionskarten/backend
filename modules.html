@@ -35,7 +35,7 @@
 <h1>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="app.mapnik.MapRenderer">
-<em class="property">class </em><code class="descclassname">app.mapnik.</code><code class="descname">MapRenderer</code><span class="sig-paren">(</span><em>content</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">app.mapnik.</code><code class="sig-name descname">MapRenderer</code><span class="sig-paren">(</span><em class="sig-param">content</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for rendering maps through mapnik</p>
 <p>With MapRenderer you can render an aktionskarten map in different
 file formats like pdf, svg or png.</p>
@@ -51,7 +51,7 @@ data.</p>
 </dl>
 <dl class="method">
 <dt id="app.mapnik.MapRenderer.render">
-<code class="descname">render</code><span class="sig-paren">(</span><em>mimetype='application/pdf'</em>, <em>scale=1</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer.render" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">mimetype='application/pdf'</em>, <em class="sig-param">scale=1</em><span class="sig-paren">)</span><a class="headerlink" href="#app.mapnik.MapRenderer.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders a map through mapnik and in cases uses cairo to export in
 different file types. By default as a single paged <cite>pdf</cite> but you can
 pick as well other mimetypes.</p>
@@ -116,10 +116,10 @@ following sizings are used:</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -141,7 +141,7 @@ following sizings are used:</p>
       &copy;2019, aktionskarten.de.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
