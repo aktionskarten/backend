@@ -51,13 +51,20 @@ Ubuntu
 
 .. sourcecode:: bash
 
-  $ apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
+  $ sudo apt install libmapnik3.0 libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
 
 ArchLinux
 
 .. sourcecode:: bash
 
   $ pacman -S postgresql postgis redis cairo mapnik
+
+Start DBs
+
+.. sourcecode:: bash
+
+  $ sudo systemctl start postgresql
+  $ sudo systemctl start redis
 
 
 Setup
