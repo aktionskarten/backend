@@ -6,6 +6,7 @@ from redis import Redis
 
 from app.live import socketio
 from app.api import api
+from app.test import test
 from app.models import db
 from app.render import renderer
 from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
@@ -37,7 +38,11 @@ def create_app():
     app.task_queue = rq.Queue(connection=Redis())
     app.url_map.converters['uuid'] = UUIDConverter
 
-    for blueprint in [renderer, api]:
+    blueprints = [renderer, api]
+    if app.config['TESTING']:
+        blueprints.append(test)
+
+    for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
     cmds = [clear_maps, gen_markers]
