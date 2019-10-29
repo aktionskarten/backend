@@ -12,10 +12,14 @@ from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
                     gen_markers
 
 from uuid import UUID
-from werkzeug.routing import BaseConverter
+from werkzeug.routing import BaseConverter, ValidationError
 class UUIDConverter(BaseConverter):
     def to_python(self, value):
-        return UUID(value)
+        try:
+            return UUID(value)
+        except:
+            raise ValidationError()
+
     def to_url(self, uuid):
         return uuid.hex
 
