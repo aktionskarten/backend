@@ -145,7 +145,8 @@ class Map(db.Model):
 
     @bbox.setter
     def bbox(self, value):
-        self._bbox = from_shape(box(*value))
+        if (value is not None):
+            self._bbox = from_shape(box(*value))
 
     def to_dict(self, version_included=True, secret_included=False, grid_included=False, features_included=False):
         data = {
@@ -216,8 +217,7 @@ class Feature(db.Model):
 
     @hybrid_property
     def geo(self):
-        data = mapping(to_shape(self._geo))
-        return data
+        return mapping(to_shape(self._geo))
 
     @geo.setter
     def geo(self, value):
