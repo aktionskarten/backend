@@ -1,44 +1,38 @@
-FROM ubuntu:17.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 RUN apt-get update && apt-get install -y \
     git \
-    libffi-dev \
+    libmapnik3.0 \
+    libmapnik-dev \
+    python3-virtualenv \
     python3 \
-    python3-setuptools \
-    python3-pip \
-    python3-mapnik \
-    python3-shapely \
-    python3-numpy \
-    python3-wheel \
-    python3-cairocffi \
-    python3-mapnik \
-    python3-shapely \
-    python3-numpy \
+    python3-dev \
+    libboost-python-dev \
+    libcairo2 \
+    libcairo2-dev \
     postgresql-client \
     osm2pgsql \
-    openstreetmap-carto \
-    wget \
-    unifont \
-    python-mapnik \
-    python \
-    sudo \
-    unzip \
-    imagemagick
+    wget
 
 RUN mkdir /source
 
 WORKDIR /source
 
-ADD requirements.txt /source
+ENV VIRTUAL_ENV=/source/venv
+RUN python3 -m virtualenv --python=/usr/bin/python3 $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip3 install -r /source/requirements.txt
+COPY requirements.txt /source
+RUN pip install -r /source/requirements.txt
 
-# load shapefiles for osm theme
-WORKDIR /usr/share/openstreetmap-carto-common
-RUN ./get-shapefiles.sh
+COPY . /source
+RUN python app/cli/pymapnik.py install
 
-ADD . /source
+COPY .flaskenv /source/
+RUN cd /source && flask gen-markers
 
-CMD /source/docker/docker-entrypoint.sh
+CMD /source/deploy/docker/docker-entrypoint.sh

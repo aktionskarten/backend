@@ -2,14 +2,12 @@ version: '3'
 
 services:
   web:
-    image: aktionskarten/backend:local
+    image: aktionskarten-backend-testing:0.1
     build: .
     command: /source/docker/docker-entrypoint.sh
     environment:
       - PGUSER=postgres
       - PGHOST=db
-      - PGDATABASE=gis
-      - SETTINGS=../docker/docker_settings.py
     ports:
       - '5000:5000'
     depends_on:
@@ -17,6 +15,6 @@ services:
     volumes:
       - .:/source
   db:
-    image: mdillon/postgis:9.6-alpine
+    image: mdillon/postgis:10-alpine
     environment:
       - POSTGRES_DB=gis
