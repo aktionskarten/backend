@@ -75,7 +75,7 @@ def maps_new():
 
     m = Map(name)
     for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
-        if key in json and json[key]:
+        if key in json:
             setattr(m, key, json[key])
 
     if 'datetime' in json:
@@ -116,7 +116,7 @@ def map_edit(map_id):
             return make_response(jsonify(name=error), 400)
 
     for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
-        if key in json and json[key]:
+        if key in json:
             setattr(m, key, json[key])
 
     if 'datetime' in json:

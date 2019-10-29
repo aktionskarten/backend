@@ -21,7 +21,7 @@ def upgrade():
                existing_type=sa.INTEGER(),
                type_=sa.Interval(),
                existing_nullable=True,
-               postgresql_using="lifespan || ' days')::interval"
+               postgresql_using="(lifespan || ' days')::interval"
                )
     op.drop_column('map', 'slug')
 
