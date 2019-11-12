@@ -9,7 +9,7 @@ from app.api import api
 from app.models import db
 from app.render import renderer
 from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
-                    gen_markers
+                    gen_markers, remove_outdated_maps
 
 from uuid import UUID
 from werkzeug.routing import BaseConverter
@@ -36,7 +36,7 @@ def create_app():
     for blueprint in [renderer, api]:
         app.register_blueprint(blueprint)
 
-    cmds = [clear_maps, gen_markers]
+    cmds = [clear_maps, gen_markers, remove_outdated_maps]
     for command in [pymapnik_cli, osm_cli, postgres_cli] + cmds:
         app.cli.add_command(command)
 
