@@ -3,8 +3,9 @@ version: '3'
 services:
   web:
     image: aktionskarten-backend-testing:0.1
-    build: .
-    command: /source/docker/docker-entrypoint.sh
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
     environment:
       - PGUSER=postgres
       - PGHOST=db
@@ -12,8 +13,6 @@ services:
       - '5000:5000'
     depends_on:
       - db
-    volumes:
-      - .:/source
   db:
     image: mdillon/postgis:10-alpine
     environment:
