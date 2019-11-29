@@ -1,19 +1,26 @@
 version: '3'
 
 services:
-  web:
-    image: aktionskarten-backend-testing:0.1
+  backend:
+    image: kombinat451/aktionskarten-backend-app:latest
     build:
       context: ../..
-      dockerfile: deploy/docker/Dockerfile
+      dockerfile: deploy/docker/app/Dockerfile
     environment:
-      - PGUSER=postgres
-      - PGHOST=db
+      - FLASK_ENV=testing
     ports:
       - '5000:5000'
     depends_on:
       - db
+      - redis
+
   db:
-    image: mdillon/postgis:10-alpine
-    environment:
-      - POSTGRES_DB=gis
+    image: kombinat451/aktionskarten-backend-db:latest
+    build:
+      context: ../..
+      dockerfile: deploy/docker/db/Dockerfile
+
+  redis:
+    image: redis
+    expose:
+      - 6379
