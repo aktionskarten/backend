@@ -3,12 +3,20 @@ import click
 
 from flask import current_app
 from flask.cli import with_appcontext
-from sh import wget, bzip2, osm2pgsql, createdb, psql,\
+from sh import wget, bzip2, osm2pgsql, psql,\
                dropuser as pgdropuser, dropdb as pgdropdb, python, ln,\
                ErrorReturnCode_1
 from os import environ, makedirs, path
 from os.path import abspath, join as pjoin
 from path import Path
+
+# support standalone and as flask cli
+try:
+    from app.cli.utils import default_option
+    from app.cli.postgres import create_user, create_db, drop_db
+except ImportError:
+    from utils import default_option
+    from postgres import create_user, create_db, drop_db
 
 DATA_DIR = 'data'
 OSM_CARTO_STYLE_FILE = 'style.xml'
@@ -27,51 +35,53 @@ def osm():
 
 
 @osm.command(help="Creates postgres database and extensions")
-@with_appcontext
-def initdb():
-    environ['PGUSER'] = "postgres"
+@click.option('--user', default=default_option('OSM_DB_USER'))
+@click.option('--password', default=default_option('OSM_DB_PASS'))
+@click.option('--name', default=default_option('OSM_DB_NAME'))
+def initdb(user, password, name):
+    create_user(user, password)
 
-    click.echo("Try creating user. Ignore if already exists")
-    try:
-        user = current_app.config['OSM_DB_USER']
-        pw = current_app.config['OSM_DB_PASS']
-        psql("-c CREATE USER {} WITH PASSWORD '{}';".format(user, pw))
-    except ErrorReturnCode_1:
-        pass
+    if not create_db(name, user):
+        return False
 
-    click.echo("Creating database")
-    db_name = current_app.config['OSM_DB_NAME']
-    createdb('-O'+user, db_name, encoding='utf-8')
+    psql('-Upostgres', "-d"+name, "-c CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS hstore;")
 
-    click.echo("Creating extensions")
-    psql("-d"+db_name, "-c CREATE EXTENSION postgis; CREATE EXTENSION hstore;")
+    return True
 
 
 @osm.command(help="Drop postgres database")
-@with_appcontext
-def dropdb():
-    environ['PGUSER'] = "postgres"
-    click.echo("Dropping databases")
-    pgdropdb(current_app.config['OSM_DB_NAME'])
+@click.argument('name', default=default_option('OSM_DB_NAME'))
+def dropdb(name):
+    click.echo("Dropping database: "+name)
+    drop_db(name)
 
 
 @osm.command()
-@with_appcontext
-def generate_style():
+@click.option('--host', default=default_option('OSM_DB_HOST'))
+@click.option('--user', default=default_option('OSM_DB_USER'))
+@click.option('--password', default=default_option('OSM_DB_PASS'))
+@click.option('--name', default=default_option('OSM_DB_NAME'))
+def generate_style(host, user, password, name):
     with Path("libs/openstreetmap-carto"):
         click.echo("Updating credentials in project.mml")
         credentials = {
-            'host': current_app.config['OSM_DB_HOST'],
-            'dbname': current_app.config['OSM_DB_NAME'],
-            'user': current_app.config['OSM_DB_USER'],
-            'password': current_app.config['OSM_DB_PASS']
+            'host': host,
+            'dbname': name,
+            'user': user,
+            'password': password
         }
+        project = {}
         with open("project.mml", "r+") as f:
             project = yaml.safe_load(f)
             for layer in project['Layer']:
-                layer['Datasource'].update(credentials)
+                try:
+                    if layer['Datasource']['type'] == 'postgis':
+                        layer['Datasource'].update(credentials)
+                except KeyError:
+                    pass
             f.seek(0)
             f.write(yaml.dump(project))
+            f.truncate()
 
         click.echo("Downloading shapefiles")
         python("scripts/get-shapefiles.py", "-s", _fg=True)
@@ -104,17 +114,22 @@ def download_dump(url):
     click.secho("OSM dump: " + filename, fg="green")
 
 @osm.command()
-@with_appcontext
-@click.option('--path', default=OSM_DUMP_FILE_DEFAULT)
-def import_dump(path):
+@click.argument('path', default=OSM_DUMP_FILE_DEFAULT)
+@click.option('--host', default=default_option('OSM_DB_HOST'))
+@click.option('--user', default=default_option('OSM_DB_USER'))
+@click.option('--password', default=default_option('OSM_DB_PASS'))
+@click.option('--name', default=default_option('OSM_DB_NAME'))
+def import_dump(path, host, user, password, name):
     osm_dump_path = _get_osm_dump_path(path) if '/' not in path else path
     with Path("libs/openstreetmap-carto"):
-        environ['PGPASSWORD'] = current_app.config['OSM_DB_PASS']
-        host = current_app.config['OSM_DB_HOST']
-        user = current_app.config['OSM_DB_USER']
-        name = current_app.config['OSM_DB_NAME']
-        osm2pgsql('-H'+host, '-U'+user, '-d'+name, '-G', '--hstore',
-                  osm_dump_path,
+        pgsql = ['-d'+name]
+        if host:
+            pgsql.append('-H'+host)
+        if user:
+            pgsql.append('-U'+user)
+        if password:
+            environ['PGPASSWORD'] = password
+        osm2pgsql('-G', '--hstore', osm_dump_path, *pgsql,
                   style='openstreetmap-carto.style',
                   tag_transform_script='openstreetmap-carto.lua',
                   _fg=True)
@@ -126,10 +141,15 @@ def import_dump(path):
 @click.option('--path', default=None)
 @click.pass_context
 def init(ctx, url, path):
-    ctx.invoke(initdb)
+    if not ctx.invoke(initdb):
+        click.echo("Already initialized")
+        return
     if path:
         ctx.invoke(import_dump, path=path)
     else:
         ctx.invoke(download_dump, url=url)
         ctx.invoke(import_dump, path=url.split('/')[-1])
     ctx.invoke(generate_style)
+
+if __name__ == '__main__':
+    osm()
