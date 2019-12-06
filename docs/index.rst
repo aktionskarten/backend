@@ -94,3 +94,19 @@ Tests are written with pytest. To run them do the following:
 .. sourcecode:: bash
 
   $ python -m pytest -s tests/
+
+
+Docker
+------
+
+There exists Dockerfiles for testing/development in the deploy/docker directory.
+Either you create them by hand in the following way:
+
+.. sourcecode:: bash
+
+  $ cd deploy/docker
+  $ docker-compose up --build
+
+Or you use the provided images of DockerHub. For this you need to remove the
+build entries in the docker-compose.yml file (see akionskarten.js for an
+example). These images are not meant for production deployment.
