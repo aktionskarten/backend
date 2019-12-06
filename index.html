@@ -96,12 +96,13 @@ $ sudo systemctl start redis
 $ python -m venv env
 $ . env/bin/activate
 $ pip install -r requirements.txt
-$ python app/cli/mapnik.py install <span class="c1"># install custom python mapnik package</span>
-                                   <span class="c1"># can call through flask cli because it</span>
-                                   <span class="c1"># is essential to instantiate the app</span>
+$ python app/cli/pymapnik.py install <span class="c1"># install custom python mapnik package</span>
+                                     <span class="c1"># can call through flask cli because it</span>
+                                     <span class="c1"># is essential to instantiate the app</span>
 $ flask postgres init     <span class="c1"># create app database</span>
 $ flask osm init          <span class="c1"># download osm dump and create db for it</span>
 $ flask gen-markers       <span class="c1"># generate markers</span>
+$ flask create-tables     <span class="c1"># create app sql tables</span>
 $ rq worker               <span class="c1"># start task queue worker</span>
 $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
 </pre></div>
@@ -114,6 +115,18 @@ $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -m pytest -s tests/
 </pre></div>
 </div>
+</div>
+<div class="section" id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h2>
+<p>There exists Dockerfiles for testing/development in the deploy/docker directory.
+Either you create them by hand in the following way:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> deploy/docker
+$ docker-compose up --build
+</pre></div>
+</div>
+<p>Or you use the provided images of DockerHub. For this you need to remove the
+build entries in the docker-compose.yml file (see akionskarten.js for an
+example). These images are not meant for production deployment.</p>
 </div>
 </div>
 
@@ -173,7 +186,7 @@ $ flask run --with-threads --no-reload <span class="c1"># start backend</span>
       &copy;2019, aktionskarten.de.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
