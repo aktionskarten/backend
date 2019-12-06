@@ -8,6 +8,7 @@ cache:
   - directories:
     - data/
     - libs/python-mapnik/build
+    - libs/openstreetmap-carto/data
 services:
   - postgresql
   - redis-server
