@@ -8,6 +8,7 @@ from shutil import rmtree
 from app.cli.pymapnik import pymapnik as pymapnik_cli
 from app.cli.osm import osm as osm_cli
 from app.cli.postgres import postgres as postgres_cli
+from app.models import Map, db
 
 
 @click.command(help="clear map directory")
@@ -21,6 +22,15 @@ def clear_maps():
 def create_tables():
     from app.models import db
     db.create_all()
+
+
+@click.command(help="remove outdated maps from DB")
+@with_appcontext
+def remove_outdated_maps():
+    outdated_maps = db.session.query(Map).filter_by(outdated=True).all()
+    for m in outdated_maps:
+        db.session.delete(m)
+    db.session.commit()
 
 
 @click.command(help="generate markers")
