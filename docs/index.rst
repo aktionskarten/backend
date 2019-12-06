@@ -76,12 +76,13 @@ Setup
   $ python -m venv env
   $ . env/bin/activate
   $ pip install -r requirements.txt
-  $ python app/cli/mapnik.py install # install custom python mapnik package
-                                     # can call through flask cli because it
-                                     # is essential to instantiate the app
+  $ python app/cli/pymapnik.py install # install custom python mapnik package
+                                       # can call through flask cli because it
+                                       # is essential to instantiate the app
   $ flask postgres init     # create app database
   $ flask osm init          # download osm dump and create db for it
   $ flask gen-markers       # generate markers
+  $ flask create-tables     # create app sql tables
   $ rq worker               # start task queue worker
   $ flask run --with-threads --no-reload # start backend
 

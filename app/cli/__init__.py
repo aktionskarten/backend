@@ -16,7 +16,14 @@ def clear_maps():
     static_dir = current_app.static_folder
     rmtree(path.join(static_dir, 'maps'), ignore_errors=True)
 
+@click.command(help="create all tables")
+@with_appcontext
+def create_tables():
+    from app.models import db
+    db.create_all()
+
 
 @click.command(help="generate markers")
 def gen_markers():
     sh.Command('styles/markers/generate_markers')(_fg=True)
+

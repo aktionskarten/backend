@@ -54,11 +54,6 @@ def initdb(name, owner):
     create_db(name, owner)
     psql('-Upostgres', "-d"+name, "-c CREATE EXTENSION IF NOT EXISTS postgis")
 
-#@postgres.command(help="Creates tables")
-#def createtables():
-#    from app.models import db
-#    db.create_all()
-
 @postgres.command(help="Deletes database")
 @click.argument('name', default=default_option('DB_NAME'))
 def dropdb(name):
