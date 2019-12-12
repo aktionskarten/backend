@@ -1,0 +1,25 @@
+<Map srs="+init=epsg:3857">
+  <Style name="scalebar">
+       <Rule>
+          <Filter>[mapnik::geometry_type]=linestring and ([color] = null)</Filter>
+          <LineSymbolizer geometry-transform="skewX(1)" stroke="#999999" stroke-width="22" allow-overlap="true"/>
+      </Rule>
+       <Rule>
+          <Filter>[mapnik::geometry_type]=linestring</Filter>
+          <LineSymbolizer stroke="[color]" stroke-width="20"  allow-overlap="true"/>
+      </Rule>
+      <Rule>
+          <Filter>[mapnik::geometry_type]=point</Filter>
+          <TextSymbolizer fill="[color]" size="14" face-name="DejaVu Sans Bold" dy="14" allow-overlap="true" halo-fill="white" halo-radius="1">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+  </Style>
+  <Layer name="layer" clear-label-cache="on">
+      <StyleName>scalebar</StyleName>
+      <Datasource>
+          <Parameter name="type">geojson</Parameter>
+          <Parameter name="inline"><![CDATA[{}]]></Parameter>
+      </Datasource>
+  </Layer>
+</Map>

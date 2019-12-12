@@ -3,12 +3,15 @@ import cairo
 
 from io import BytesIO
 from mapnik import Map, Projection, ProjTransform, Box2d, load_map, \
-                   load_map_from_string, render, register_fonts
+                   load_map_from_string, render, register_fonts, Coord
 from flask import current_app
 from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
 from app.utils import datetime_fromisoformat, get_xml, strip
 from datetime import datetime, timezone
+from numpy import linspace
+from geojson import LineString
+from haversine import haversine, Unit
 
 register_fonts('/usr/share/fonts')
 
@@ -36,11 +39,11 @@ class MapRenderer:
                                 +nadgrids=@null +no_defs +over')
         proj_longlat = Projection('+proj=longlat +ellps=WGS84 +datum=WGS84  \
                                    +no_defs')
-        transformer = ProjTransform(proj_longlat, proj_merc)
+        self._transformer = ProjTransform(proj_longlat, proj_merc)
 
         # our maps should be printable on a DIN A4 page with 150dpi
         self._map = Map(1754, 1240)
-        bbox = transformer.forward(Box2d(*content['bbox']))
+        bbox = self._transformer.forward(Box2d(*content['bbox']))
         self._map.zoom_to_box(bbox)
         self._map.buffer_size = 5
 
@@ -52,6 +55,7 @@ class MapRenderer:
         mid = timer()
 
         self._add_grid(content['grid'])
+        self._add_scalebar()
         self._add_features(content['features'])
         self._add_legend(content['name'], content['place'], content['datetime'],
                         content['attributes'])
@@ -61,6 +65,56 @@ class MapRenderer:
         print("Map.init - OSM: ", mid - start)
         print("Map.init - Map: ", end - mid)
         print("Map.init - Total: ", end - start)
+
+    def _add_scalebar(self):
+        pixel_per_meter = self._map.scale()
+        width = self._map.width * 0.1 * pixel_per_meter
+        num = 5
+
+        box = self._map.envelope()
+        max_x = box.maxx-width*.2
+        min_x = max_x-width
+        y = box.maxy-width*.25
+
+        # border
+        features = []
+        geo = LineString([(max_x,y), (min_x, y)])
+        features.append(Feature(geometry=geo))
+
+        # rectangles
+        entries = linspace(min_x, max_x, num=num)
+        x_tmp = entries[0]
+        colors = ('#333333', '#ffffff')
+        for i, x_end in enumerate(entries[1:]):
+            geo = LineString([(x_tmp, y), (x_end, y)])
+            data = {
+                'color': colors[i%2],
+            }
+            features.append(Feature(geometry=geo, properties=data.copy()))
+            x_tmp = x_end
+
+        latlon_start_cord = self._transformer.backward(Coord(min_x, y))
+        latlon_start = (latlon_start_cord.y, latlon_start_cord.x)
+
+        latlon_end = self._transformer.backward(Coord(max_x, y))
+        latlon_end = (latlon_end.y, latlon_end.x)
+        dist_in_m = haversine(latlon_start, latlon_end, Unit.METERS)
+
+        if dist_in_m >= 1000:
+            dist = '{}km'.format(round((dist_in_m)/1000.))
+        else:
+            dist = '{}m'.format(round(dist_in_m))
+
+        for xy, i in [((min_x,y), 0), ((max_x,y), dist)]:
+            features.append(Feature(geometry=Point(xy), properties={
+                'label': str(i),
+                'color': '#333333'
+            }))
+
+        collection = json.dumps(FeatureCollection(features))
+        xml_str = get_xml("styles/scalebar.xml").format(collection).encode()
+        load_map_from_string(self._map, xml_str)
+
 
     def _add_legend(self, name, place, date, attributes):
         features = []
