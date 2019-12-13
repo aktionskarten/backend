@@ -44,6 +44,8 @@ class MapRenderer:
         self._map.zoom_to_box(bbox)
         self._map.buffer_size = 5
 
+        self._description = content['description']
+
         start = timer()
 
         # add osm data (background)
@@ -112,6 +114,21 @@ class MapRenderer:
     def _add_grid(self, grid):
         xml_str = get_xml("styles/grid.xml").format(json.dumps(grid)).encode()
         load_map_from_string(self._map, xml_str)
+
+    def _create_description_pdf(self):
+          from fpdf import FPDF
+
+          pdf = FPDF()
+          pdf.add_page()
+          pdf.set_font('Arial', size=12)
+          pdf.multi_cell(0, 5, self._description)
+          data = pdf.output(dest='S').encode('latin-1')
+
+          f = BytesIO()
+          f.write(data)
+          f.seek(0)
+
+          return f
 
     def render(self, mimetype='application/pdf', scale=1):
         """
@@ -186,6 +203,27 @@ class MapRenderer:
             surface.finish()
 
         f.seek(0)
+
+        # add description as second page if pdf
+        if mimetype == 'application/pdf' and len(self._description) > 0:
+          from PyPDF2 import PdfFileReader, PdfFileWriter
+
+          # Merge both PDFs
+          writer = PdfFileWriter()
+
+          map_reader = PdfFileReader(f)
+          page = map_reader.getPage(0)
+          writer.addPage(page)
+
+          txt_f = self._create_description_pdf()
+          txt_reader = PdfFileReader(txt_f)
+          page = txt_reader.getPage(0)
+          page.rotateClockwise(270)
+          writer.addPage(page)
+
+          f = BytesIO()
+          writer.write(f)
+          f.seek(0)
 
         end = timer()
         print("Map.render: ", end - start)
