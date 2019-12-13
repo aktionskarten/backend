@@ -206,7 +206,7 @@ class MapRenderer:
         f.seek(0)
 
         # add description as second page if pdf
-        if mimetype == 'application/pdf' and len(self._description) > 0:
+        if mimetype == 'application/pdf' and self._description:
           writer = PdfFileWriter()
 
           map_reader = PdfFileReader(f)
