@@ -9,6 +9,9 @@ from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
 from app.utils import datetime_fromisoformat, get_xml, strip
 from datetime import datetime, timezone
+from fpdf import FPDF
+from PyPDF2 import PdfFileReader, PdfFileWriter
+
 
 register_fonts('/usr/share/fonts')
 
@@ -116,8 +119,6 @@ class MapRenderer:
         load_map_from_string(self._map, xml_str)
 
     def _create_description_pdf(self):
-          from fpdf import FPDF
-
           pdf = FPDF()
           pdf.add_page()
           pdf.set_font('Arial', size=12)
@@ -206,9 +207,6 @@ class MapRenderer:
 
         # add description as second page if pdf
         if mimetype == 'application/pdf' and len(self._description) > 0:
-          from PyPDF2 import PdfFileReader, PdfFileWriter
-
-          # Merge both PDFs
           writer = PdfFileWriter()
 
           map_reader = PdfFileReader(f)
