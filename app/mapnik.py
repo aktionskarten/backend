@@ -1,13 +1,14 @@
 import json
 import cairo
 
+from math import pi, cos
 from io import BytesIO
 from mapnik import Map, Projection, ProjTransform, Box2d, load_map, \
                    load_map_from_string, render, register_fonts, Coord
 from flask import current_app
 from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
-from app.utils import datetime_fromisoformat, get_xml, strip
+from app.utils import datetime_fromisoformat, get_xml, strip, nearest_n
 from datetime import datetime, timezone
 from numpy import linspace
 from geojson import LineString
@@ -66,51 +67,55 @@ class MapRenderer:
         print("Map.init - Map: ", end - mid)
         print("Map.init - Total: ", end - start)
 
+
     def _add_scalebar(self):
-        pixel_per_meter = self._map.scale()
-        width = self._map.width * 0.1 * pixel_per_meter
-        num = 5
-
-        box = self._map.envelope()
-        max_x = box.maxx-width*.2
-        min_x = max_x-width
-        y = box.maxy-width*.25
-
-        # border
         features = []
-        geo = LineString([(max_x,y), (min_x, y)])
-        features.append(Feature(geometry=geo))
 
-        # rectangles
-        entries = linspace(min_x, max_x, num=num)
+        # round scalebar width to have nice values
+        pixel_per_meter = self._map.scale()
+        dist_in_m = nearest_n(self._map.width * 0.1 * pixel_per_meter)
+
+        # calculate start and end points in wsg84 (not mercator)
+        # see https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
+        # should be refactored into own utility function
+        box = self._map.envelope()
+        offset_mercator = box.width()*0.03
+        end_mercator = Coord(box.maxx-offset_mercator, box.maxy-offset_mercator)
+        end_wsg84 = self._transformer.backward(end_mercator)
+
+        r_earth = 6378*1000.
+        _start_lon = end_wsg84.x + (-dist_in_m / r_earth) * (180. / pi) / cos(end_wsg84.y * pi/180.);
+        start_wsg84 = Coord(_start_lon, end_wsg84.y)
+        start_mercator = self._transformer.forward(start_wsg84)
+
+        # testing debug output - should be added as a test with fuzzy compare
+        print('DISTANCE', dist_in_m, haversine((start_wsg84.y, start_wsg84.x), (end_wsg84.y,end_wsg84.x), Unit.METERS))
+
+        # 5 rectangles for scalebar (in black and white)
+        min_x = start_mercator.x
+        max_x = end_mercator.x
+        y = start_mercator.y
+        entries = linspace(min_x, max_x, num=5)
+
         x_tmp = entries[0]
-        colors = ('#333333', '#ffffff')
         for i, x_end in enumerate(entries[1:]):
             geo = LineString([(x_tmp, y), (x_end, y)])
-            data = {
-                'color': colors[i%2],
-            }
-            features.append(Feature(geometry=geo, properties=data.copy()))
+            props = {'i': i}
+            features.append(Feature(geometry=geo, properties=props))
             x_tmp = x_end
 
-        latlon_start_cord = self._transformer.backward(Coord(min_x, y))
-        latlon_start = (latlon_start_cord.y, latlon_start_cord.x)
-
-        latlon_end = self._transformer.backward(Coord(max_x, y))
-        latlon_end = (latlon_end.y, latlon_end.x)
-        dist_in_m = haversine(latlon_start, latlon_end, Unit.METERS)
-
+        # add distance labels
         if dist_in_m >= 1000:
-            dist = '{}km'.format(round((dist_in_m)/1000.))
+            dist = '{}km'.format(round(dist_in_m/1000.,1))
         else:
             dist = '{}m'.format(round(dist_in_m))
 
         for xy, i in [((min_x,y), 0), ((max_x,y), dist)]:
-            features.append(Feature(geometry=Point(xy), properties={
-                'label': str(i),
-                'color': '#333333'
-            }))
+            geo = Point(xy)
+            props = {'label': str(i)}
+            features.append(Feature(geometry=geo, properties=props))
 
+        # add all features to map
         collection = json.dumps(FeatureCollection(features))
         xml_str = get_xml("styles/scalebar.xml").format(collection).encode()
         load_map_from_string(self._map, xml_str)

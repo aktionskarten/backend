@@ -3,6 +3,7 @@ import mimetypes
 from os import path
 from flask import current_app
 from hashlib import sha256
+from math import floor, log10
 
 from datetime import datetime
 try:
@@ -94,3 +95,14 @@ def get_file_info(map_id, version, file_type):
 
 def datetime_fromisoformat(isoformat):
     return datetime.fromisoformat(isoformat)
+
+
+def nearest_n(x):
+    n = 5*(10**floor(log10(x/5.)))
+    if n < 50:
+        n = 50
+    y = round(x/float(n))*n
+    if y < n:
+        return n
+    return y
+
