@@ -15,6 +15,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 
 register_fonts('/usr/share/fonts/TTF')
 register_fonts('/usr/share/fonts/noto')
+register_fonts('/usr/share/fonts/truetype/noto/') # ubuntu noto dir
 
 
 class MapRenderer:
