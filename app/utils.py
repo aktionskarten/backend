@@ -98,11 +98,8 @@ def datetime_fromisoformat(isoformat):
 
 
 def nearest_n(x):
+    if x < 50:
+        return 50
     n = 5*(10**floor(log10(x/5.)))
-    if n < 50:
-        n = 50
-    y = round(x/float(n))*n
-    if y < n:
-        return n
-    return y
+    return round(x/float(n))*n
 
