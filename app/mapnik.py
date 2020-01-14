@@ -10,11 +10,16 @@ from geojson import FeatureCollection, Feature, Point
 from timeit import default_timer as timer
 from app.utils import datetime_fromisoformat, get_xml, strip, nearest_n
 from datetime import datetime, timezone
+from fpdf import FPDF
+from PyPDF2 import PdfFileReader, PdfFileWriter
 from numpy import linspace
 from geojson import LineString
 from haversine import haversine, Unit
 
-register_fonts('/usr/share/fonts')
+
+register_fonts('/usr/share/fonts/TTF')
+register_fonts('/usr/share/fonts/noto')
+register_fonts('/usr/share/fonts/truetype/noto/') # ubuntu noto dir
 
 
 class MapRenderer:
@@ -47,6 +52,8 @@ class MapRenderer:
         bbox = self._transformer.forward(Box2d(*content['bbox']))
         self._map.zoom_to_box(bbox)
         self._map.buffer_size = 5
+
+        self._description = content['description']
 
         start = timer()
 
@@ -172,6 +179,19 @@ class MapRenderer:
         xml_str = get_xml("styles/grid.xml").format(json.dumps(grid)).encode()
         load_map_from_string(self._map, xml_str)
 
+    def _create_description_pdf(self):
+          pdf = FPDF()
+          pdf.add_page()
+          pdf.set_font('Arial', size=12)
+          pdf.multi_cell(0, 5, self._description)
+          data = pdf.output(dest='S').encode('latin-1')
+
+          f = BytesIO()
+          f.write(data)
+          f.seek(0)
+
+          return f
+
     def render(self, mimetype='application/pdf', scale=1):
         """
             Renders a map through mapnik and in cases uses cairo to export in
@@ -245,6 +265,24 @@ class MapRenderer:
             surface.finish()
 
         f.seek(0)
+
+        # add description as second page if pdf
+        if mimetype == 'application/pdf' and self._description:
+          writer = PdfFileWriter()
+
+          map_reader = PdfFileReader(f)
+          page = map_reader.getPage(0)
+          writer.addPage(page)
+
+          txt_f = self._create_description_pdf()
+          txt_reader = PdfFileReader(txt_f)
+          page = txt_reader.getPage(0)
+          page.rotateClockwise(270)
+          writer.addPage(page)
+
+          f = BytesIO()
+          writer.write(f)
+          f.seek(0)
 
         end = timer()
         print("Map.render: ", end - start)
