@@ -278,6 +278,7 @@ class MapRenderer:
           txt_f = self._create_description_pdf()
           txt_reader = PdfFileReader(txt_f)
           page = txt_reader.getPage(0)
+          page.scaleTo(1240, 1754)
           page.rotateClockwise(270)
           writer.addPage(page)
 
