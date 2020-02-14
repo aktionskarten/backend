@@ -181,8 +181,9 @@ class MapRenderer:
 
     def _create_description_pdf(self):
           pdf = FPDF()
+          pdf.add_font('DejaVu', '', current_app.config['DEJAVU_FONT_PATH'], uni=True)
+          pdf.set_font('DejaVu', size=12)
           pdf.add_page()
-          pdf.set_font('Arial', size=12)
           pdf.multi_cell(0, 5, self._description)
           data = pdf.output(dest='S').encode('latin-1')
 
