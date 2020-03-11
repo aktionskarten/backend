@@ -73,9 +73,7 @@ def map_download(map_id, file_type, version=None):
 
     # map is already rendered
     if os.path.exists(path):
-        return send_file(path,
-                         attachment_filename=filename,
-                         mimetype=mimetype, cache_timeout=0)
+        return send_file(path, attachment_filename=filename, mimetype=mimetype)
 
     # map is not yet rendered
     return map_render(map_id, file_type)

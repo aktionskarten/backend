@@ -21,6 +21,8 @@ class DefaultConfig(object):
     # needed for events
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    DEJAVU_FONT_PATH = '/usr/share/fonts/TTF/DejaVuSansCondensed.ttf'
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):
         return 'postgres://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS,

@@ -76,3 +76,6 @@ deploy/ansible/*.retry
 
 # ignore osm data
 data
+
+# ignore tmp boost data
+libs/boost*

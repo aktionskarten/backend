@@ -25,3 +25,8 @@ gunicorn
 Flask-Migrate
 backports-datetime-fromisoformat; python_version < '3.7'
 wand
+fpdf
+pypdf2
+wheel
+Haversine
+

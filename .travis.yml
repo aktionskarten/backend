@@ -25,6 +25,7 @@ addons:
       - libcairo2-dev
       - postgresql-10-postgis-2.4
       - osm2pgsql
+      - fonts-noto
 before_install:
   - python --version
   - pip install -U pip
