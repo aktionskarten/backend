@@ -233,18 +233,3 @@ def map_export_geojson(map_id):
         abort(404)
     features = [f.to_dict() for f in m.features]
     return jsonify(FeatureCollection(features, properties=m.to_dict(False)))
-
-@api.route('/api/maps/<string:map_id>/twitter')
-def map_export_twitter(map_id):
-    m = Map.get(map_id)
-
-    if not m or not (m.published or auth()):
-        abort(404)
-
-    data = {
-        'card': 'summary_large_image',
-        'site': '@aktionskarten_',
-        'title': m.name,
-        'image': url_for('Renderer.map_download', map_id=map_id, file_type='png', _external=True)
-    }
-    return render_template('twitter.html', data=data)
