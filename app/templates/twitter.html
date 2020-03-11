@@ -5,7 +5,12 @@
     {% for key, value in data.items() %}
     <meta name="twitter:{{key}}" content="{{value}}">
     {% endfor %}
+    <script>
+      function redirect() {
+        window.location.replace("http://stackoverflow.com");
+      }
+    </script>
   </head>
-  <body>
+  <body onload="redirect()">
   </body>
 </html>

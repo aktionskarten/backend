@@ -219,3 +219,19 @@ def map_render(map_id, file_type):
     job = queue.enqueue("app.tasks.render_map", *args, meta=meta)
 
     return status_by_job(job)
+
+@renderer.route('/maps/<string:map_id>/twitter')
+def map_export_twitter(map_id):
+    m = Map.get(map_id)
+
+    if not m or not m.published:
+        abort(404)
+
+    data = {
+        'card': 'summary_large_image',
+        'site': '@aktionskarten_',
+        'title': 'Aktionskarten - ' + m.name,
+        'description': '%s @ %s' % (m.place, m.datetime),
+        'image': url_for('Renderer.map_download', map_id=map_id, file_type='png', _external=True)
+    }
+    return render_template('twitter.html', data=data)
