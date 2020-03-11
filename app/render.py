@@ -227,11 +227,12 @@ def map_export_twitter(map_id):
     if not m or not m.published:
         abort(404)
 
+    datetime = m.datetime.strftime("%d.%m.%Y %H:%M")
     data = {
         'card': 'summary_large_image',
         'site': '@aktionskarten_',
         'title': 'Aktionskarten - ' + m.name,
-        'description': '%s @ %s' % (m.place, m.datetime),
+        'description': '%s @ %s' % (datetime, m.place),
         'image': url_for('Renderer.map_download', map_id=map_id, file_type='png', _external=True)
     }
     return render_template('twitter.html', data=data)
