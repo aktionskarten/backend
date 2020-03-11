@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    {% for key, value in data.items() %}
+    <meta name="twitter:{{key}}" content="{{value}}">
+    {% endfor %}
+  </head>
+  <body>
+  </body>
+</html>
