@@ -1,12 +1,6 @@
 <Map srs="+init=epsg:3857">
   <Style name="legend">
       <Rule>
-          <Filter>[type] = 'copyright'</Filter>
-          <TextSymbolizer dx="-32" dy="-32" placement="point" vertical-alignment="top" horizontal-alignment="left" size="20" fill="grey" halo-fill="white" halo-radius="1" face-name="DejaVu Sans Bold" allow-overlap="true">
-            [text]
-          </TextSymbolizer>
-      </Rule>
-      <Rule>
           <Filter>not ([name] = null)</Filter>
           <TextSymbolizer dx="35" dy="40" wrap-width="1500" placement="point" vertical-alignment="bottom" horizontal-alignment="right" size="60" fill="black" halo-fill="white" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
             [name]

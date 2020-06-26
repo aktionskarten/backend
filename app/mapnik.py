@@ -64,6 +64,7 @@ class MapRenderer:
 
         self._add_grid(content['grid'])
         self._add_scalebar()
+        self._add_copyright()
         self._add_features(content['features'])
         self._add_legend(content['name'], content['place'], content['datetime'],
                         content['attributes'])
@@ -127,6 +128,21 @@ class MapRenderer:
         xml_str = get_xml("styles/scalebar.xml").format(collection).encode()
         load_map_from_string(self._map, xml_str)
 
+    def _add_copyright(self):
+        features = []
+        box = self._map.envelope()
+
+        # add osm copyright
+        properties = {
+            'text': 'Tiles © OpenStreetMap contributers, CC-BY-SA'
+        }
+        point = Point((box.maxx, box.miny))
+        features.append(Feature(geometry=point, properties=properties))
+
+        # render them
+        collection = json.dumps(FeatureCollection(features))
+        xml_str = get_xml("styles/copyright.xml").format(collection).encode()
+        load_map_from_string(self._map, xml_str)
 
     def _add_legend(self, name, place, date, attributes):
         features = []
@@ -151,14 +167,6 @@ class MapRenderer:
                 point = Point((x, y+offset*i))
                 properties = {'key': k, 'value': v}
                 features.append(Feature(geometry=point, properties=properties))
-
-        # add osm copyright
-        properties = {
-            'type': 'copyright',
-            'text': 'Tiles © OpenStreetMap contributers, CC-BY-SA'
-        }
-        point = Point((box.maxx, box.miny))
-        features.append(Feature(geometry=point, properties=properties))
 
         # render them
         collection = json.dumps(FeatureCollection(features))
