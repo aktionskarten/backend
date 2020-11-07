@@ -22,7 +22,7 @@ from blinker import Namespace
 from sqlalchemy import event
 from flask import url_for
 from app.grid import grid_for_bbox
-from haversine import haversine, Unit
+from app.utils import orientation_for_bbox
 
 
 db = flask_sqlalchemy.SQLAlchemy()
@@ -106,16 +106,7 @@ class Map(db.Model):
     def orientation(self):
         if self._bbox is None:
             return ''
-        minx, miny, maxx, maxy = self.bbox
-        width = haversine((miny, minx), (miny,maxx), Unit.METERS)
-        height = haversine((miny, minx), (maxy,minx), Unit.METERS)
-        ratio = height/width
-
-        if abs(ratio - 1240/1754) < 0.1:
-            return 'landscape'
-        elif abs(ratio - 1754/1240) < 0.1:
-            return 'portrait'
-        return ''
+        return orientation_for_bbox(*self.bbox)
 
     @property
     def grid(self):

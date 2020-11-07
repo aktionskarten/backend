@@ -4,6 +4,7 @@ from os import path
 from flask import current_app
 from hashlib import sha256
 from math import floor, log10
+from haversine import haversine, Unit
 
 from datetime import datetime
 try:
@@ -103,3 +104,14 @@ def nearest_n(x):
     n = 5*(10**floor(log10(x/5.)))
     return round(x/float(n))*n
 
+
+def orientation_for_bbox(minx, miny, maxx, maxy):
+        width = haversine((miny, minx), (miny,maxx), Unit.METERS)
+        height = haversine((miny, minx), (maxy,minx), Unit.METERS)
+        ratio = height/width
+
+        if abs(ratio - 1240/1754) < 0.1:
+            return 'landscape'
+        elif abs(ratio - 1754/1240) < 0.1:
+            return 'portrait'
+        return ''

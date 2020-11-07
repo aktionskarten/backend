@@ -8,7 +8,7 @@ from werkzeug.security import safe_str_cmp
 from geojson import Feature, FeatureCollection
 from datetime import datetime, timedelta
 from app.models import db, Map, Feature as MapFeature
-from app.grid import Grid
+from app.grid import grid_for_bbox
 from app.utils import datetime_fromisoformat
 
 api = Blueprint('API', __name__)
@@ -206,7 +206,14 @@ def map_feature_edit(map_id, feature_id):
 
 @api.route('/api/grid/<string:bbox>')
 def grid_get(bbox):
-    return jsonify(Grid(*map(float, bbox.split(','))).generate())
+    cells = {
+        '': [5, 5],
+        'landscape': [5, 3],
+        'portrait': [3, 5],
+    }
+    bbox = list(map(float, bbox.split(',')))
+    orientation = orientation_for_bbox(*bbox)
+    return grid_for_bbox(*bbox, *cells[orientation])
 
 
 @api.route('/api/maps/<string:map_id>/grid')
