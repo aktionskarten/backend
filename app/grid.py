@@ -1,81 +1,116 @@
-from geojson import FeatureCollection, Feature, MultiLineString, LineString
-from numpy import linspace
+import numpy
+import geojson
+import json
 from string import ascii_uppercase
+from pprint import pprint
+import itertools
 
-STYLES = {
-    'red': (("#000000", "#ffffff"), ('#FF0000', '#000000')),
-    'green': (("#000000", "#ffffff"), ('#00FF00', '#000000')),
-    'violet': (("#000000", "#ffffff"), ('#8A2BE2', '#ffffff')),
-    'blue': (("#ffffff", "#000000"), ('#00b1f0', '#ffffff'))
-}
+GRID_STYLES = [
+    ('red', [("#000", "#fff"), ('#F00', '#000')]),
+    ('black', [("#000", "#fff")]),
+    ('green', [("#000", "#fff"), ('#00ba60', '#000')]),
+    ('violet', [("#000", "#fff"), ('#8A2BE2', '#fff')]),
+    ('blue', [("#000", "#fff"), ('#00b1f0', '#fff')]),
+    ('labels_only', [('#000',)])
+]
 
-class Grid:
+def steps(start, end, num, endpoint=True):
+    if endpoint:
+        num += 1
+    numbers = numpy.linspace(start, end, num=num, endpoint=endpoint)
+    start = numbers[0]
+    for end in numbers[1:]:
+        yield (start, end)
+        start = end
 
-    def __init__(self, min_x, min_y, max_x, max_y, style='red'):
-        self.min_x = min_x
-        self.max_x = max_x
-        self.min_y = min_y
-        self.max_y = max_y
-        self.style = style
+def gen_lines(start, stop, start_fixed, end_fixed, num):
+    for _,point in steps(start, stop, num, endpoint=False):
+        _from = (point,start_fixed)
+        to = (point,end_fixed)
+        yield [_from,to]
 
-    def generate(self, cells = 12):
-        features = []
+def grid_lines_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y):
+    # top-down
+    lines = list(gen_lines(x_min, x_max, y_min, y_max, cells_x))
 
-        # top and bottom labels
-        entries = linspace(self.min_x, self.max_x, num=cells)
-        start = entries[0]
-        for i, end in enumerate(entries[1:]):
-            geos = [
-                LineString([(start, self.min_y), (end, self.min_y)]),  # bottom
-                LineString([(start, self.max_y), (end, self.max_y)]),  # top
-            ]
+    # left-right
+    for _from,to in gen_lines(y_min, y_max, x_min, x_max, cells_y):
+        lines.append([_from[::-1], to[::-1]]) # flip coordinates
 
-            data = {
-                'label': ascii_uppercase[i],
-                'color': STYLES[self.style][i%2][0],
-                'labelColor': STYLES[self.style][i%2][1]
+    return geojson.MultiLineString(lines)
+
+def grid_corners_for_bbox(x_min, y_min, x_max, y_max):
+    points = ((x_min,y_min), (x_min,y_max), (x_max, y_min), (x_max, y_max))
+    return (geojson.LineString([coord,coord]) for coord in points)
+
+def gen_labels(start, end, fixed, num):
+    for (start, end) in steps(start, end, num):
+        _from = (start, fixed)
+        to = (end, fixed)
+        yield (_from, to)
+
+def grid_labels_horizontally(start, end, y, num):
+    labels = gen_labels(start, end, y, num)
+    return [geojson.LineString(coords) for coords in labels]
+
+def grid_labels_vertically(start, end, x, num):
+    flipped = gen_labels(start, end, x, num)
+    labels = ((_from[::-1], to[::-1]) for _from,to in flipped)
+    return [geojson.LineString(coords) for coords in labels]
+
+def grid_labels_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y):
+    labels = [
+        (grid_labels_horizontally(x_min, x_max, y_min, cells_x), 'bottom'),
+        (grid_labels_horizontally(x_min, x_max, y_max, cells_x), 'top'),
+        (grid_labels_vertically(y_min, y_max, x_min, cells_y), 'left'),
+        (grid_labels_vertically(y_min, y_max, x_max, cells_y), 'right')
+    ]
+    return labels
+        
+def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRID_STYLES[0][0]):
+    features = []
+    density = [cells_x, cells_y]
+    style = dict(GRID_STYLES)[style_family]
+
+    # grid lines
+    properties = {
+        'color': '#999',
+        'opacity': 0.3,
+        'weight': 2
+    }
+    coords = grid_lines_for_bbox(x_min, y_min, x_max, y_max, *density)
+    feature = geojson.Feature(geometry=coords, properties=properties)
+    features.append(feature)
+
+    # grid labels
+    labels = grid_labels_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y)
+    for side, orientation in labels:
+        size = len(side)
+        for i,geometry in enumerate(side):
+            use_numbers = orientation in ['left', 'right']
+            properties = {
+                'orientation': orientation,
+                'lineCap': 'butt',
+                'label': size-i if use_numbers else ascii_uppercase[i],
             }
-            for j, geo in enumerate(geos):
-                data['pos'] = 'TOP' if j % 2 else 'BOTTOM'
-                features.append(Feature(geometry=geo, properties=data.copy()))
 
-            start = end
+            color_pair= style[i%len(style)]
+            if len(color_pair)>1:
+                properties['color'] = color_pair[0]
+                properties['labelColor'] = color_pair[1]
+            else:
+                properties['labelColor'] = color_pair[0]
 
-        # left and right labels
-        entries = linspace(self.min_y, self.max_y, num=cells)
-        start = entries[0]
-        for i, end in enumerate(entries[1:]):
-            geos = [
-                LineString([(self.min_x, start), (self.min_x, end)]),  # left
-                LineString([(self.max_x, start), (self.max_x, end)])   # right
-            ]
+            feature = geojson.Feature(geometry=geometry, properties=properties)
+            features.append(feature)
 
-            data = {
-                'label': len(entries) - i - 1,
-                'color': STYLES[self.style][i%2][0],
-                'labelColor': STYLES[self.style][i%2][1]
-            }
-            for j, geo in enumerate(geos):
-                data['pos'] = 'RIGHT' if j % 2 else 'LEFT'
-                features.append(Feature(geometry=geo, properties=data.copy()))
-
-            start = end
-
-        # grid
-        coords = []
-        for x in linspace(self.min_x, self.max_x, num=cells):  # columns
-            coords.append([(x, self.min_y), (x, self.max_y)])
-
-        for y in linspace(self.min_y, self.max_y, num=cells):  # rows
-            coords.append([(self.min_x, y), (self.max_x, y)])
-
-        prop = {
-            'type': 'grid',
-            'color': "#999",
-            'opacity': 0.3,
-            'weight': 2
+    # grid corner points
+    for geometry in grid_corners_for_bbox(x_min, y_min, x_max, y_max):
+        properties = {
+            'lineCap': 'square',
+            'color': style[0][0]
         }
-        grid = Feature(geometry=MultiLineString(coords), properties=prop)
-        features.append(grid)
+        feature = geojson.Feature(geometry=geometry, properties=properties)
+        features.append(feature)
 
-        return FeatureCollection(features)
+    return geojson.FeatureCollection(features)
