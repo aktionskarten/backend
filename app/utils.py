@@ -1,4 +1,5 @@
 import mimetypes
+import math
 
 from os import path
 from flask import current_app
@@ -115,3 +116,17 @@ def orientation_for_bbox(minx, miny, maxx, maxy):
         elif abs(ratio - 1754/1240) < 0.1:
             return 'portrait'
         return ''
+
+def get_size(bbox_width, bbox_height):
+    """
+    Calcualte width and height of our map. For DIN A4 Landscape maps we
+    aim for (1754, 1240), for DIN A4 portrait maps the inverse (1240,
+    1754) and for non of both we fix the longer side to 1754.
+    """
+    width = height = 1754
+    ratio = bbox_height / bbox_width
+    if bbox_width > bbox_height:
+        height = int(round(width*ratio))
+    else:
+        width = int(round(height*math.pow(ratio,-1)))
+    return (width, height)
