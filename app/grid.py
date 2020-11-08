@@ -7,10 +7,11 @@ import itertools
 
 GRID_STYLES = [
     ('red', [("#000", "#fff"), ('#F00', '#000')]),
-    ('black', [("#000", "#fff")]),
     ('green', [("#000", "#fff"), ('#00ba60', '#000')]),
     ('violet', [("#000", "#fff"), ('#8A2BE2', '#fff')]),
+    ('pink', [("#000", "#fff"), ('#E04F9E', '#fff')]),
     ('blue', [("#000", "#fff"), ('#00b1f0', '#fff')]),
+    ('only', [("#000", "#fff")]),
     ('labels_only', [('#000',)])
 ]
 
@@ -68,7 +69,7 @@ def grid_labels_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y):
     return labels
         
 def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRID_STYLES[0][0]):
-    features = []
+    grid = []
     density = [cells_x, cells_y]
     style = dict(GRID_STYLES)[style_family]
 
@@ -80,7 +81,7 @@ def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRI
     }
     coords = grid_lines_for_bbox(x_min, y_min, x_max, y_max, *density)
     feature = geojson.Feature(geometry=coords, properties=properties)
-    features.append(feature)
+    grid.append(feature)
 
     # grid labels
     labels = grid_labels_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y)
@@ -102,7 +103,7 @@ def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRI
                 properties['labelColor'] = color_pair[0]
 
             feature = geojson.Feature(geometry=geometry, properties=properties)
-            features.append(feature)
+            grid.append(feature)
 
     # grid corner points
     for geometry in grid_corners_for_bbox(x_min, y_min, x_max, y_max):
@@ -111,6 +112,67 @@ def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRI
             'color': style[0][0]
         }
         feature = geojson.Feature(geometry=geometry, properties=properties)
-        features.append(feature)
+        grid.append(feature)
 
-    return geojson.FeatureCollection(features)
+    scalebar = scalebar_for_bbox(x_min, y_min, x_max, y_max)
+
+    return geojson.FeatureCollection(grid+scalebar)
+
+
+import mapnik
+import math
+from app.utils import get_size, nearest_n
+
+def scalebar_for_bbox(lng_min, lat_min, lng_max, lat_max, cells=5):
+    south_east = mapnik.Coord(lng_min, lat_min)
+    north_west = mapnik.Coord(lng_max, lat_max)
+
+    # bbox in mercator
+    proj = mapnik.Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over')
+    south_east_merc = south_east.forward(proj)
+    north_west_merc = north_west.forward(proj)
+    bbox_merc = mapnik.Box2d(south_east_merc, north_west_merc)
+
+    # calculate distance of scalebar
+    width, height = get_size(bbox_merc.width(), bbox_merc.height())
+    _map = mapnik.Map(width, height, '+init=epsg:3857')
+    _map.zoom_to_box(bbox_merc)
+    pixel_per_meter = _map.scale()
+    dist_in_m = nearest_n(max(_map.width, _map.height) * pixel_per_meter * 0.1)
+
+    # calculate endpoint with padding-top and padding-right (so it is in our
+    # grid)
+    offset_x = bbox_merc.width() / 30
+    offset_y = bbox_merc.height() / 30
+    offset = mapnik.Coord(offset_x, offset_y)
+    end_merc = north_west_merc - offset
+    end = end_merc.inverse(proj)
+
+    # calculate start as end-distance_in_m
+    # see https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
+    r_earth = 6378*1000.
+    lng = end.x + ((-dist_in_m) / r_earth) * (180. / math.pi) / math.cos(end.y * math.pi/180.);
+    start = mapnik.Coord(lng, end.y)
+
+    # rectangles for scalebar (in black and white)
+    scalebar = []
+    geometries = grid_labels_horizontally(start.x, end.x, start.y, 5)
+    for i, geometry in enumerate(geometries):
+        properties = {
+            'lineCap': 'butt',
+            'color': '#fff' if i%2 else '#000'
+        }
+        scalebar.append(geojson.Feature(geometry=geometry, properties=properties))
+
+    # add distance labels
+    if dist_in_m >= 1000:
+        dist = '{}km'.format(round(dist_in_m/1000.,1))
+    else:
+        dist = '{}m'.format(round(dist_in_m))
+
+    for (coords, i) in [(start, 0), (end, dist)]:
+        geometry = geojson.Point((coords.x, coords.y))
+        properties = {'label': str(i)}
+        scalebar.append(geojson.Feature(geometry=geometry, properties=properties))
+
+    return scalebar
