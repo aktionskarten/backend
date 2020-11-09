@@ -25,7 +25,7 @@
     <p>
       You should be redirected as soon as the map is rendered. It may take some
       time. Otherwise check <a href="{{url_for('Renderer.map_download',
-        map_id=m.slug, file_type=file_type)}}">here</a>.
+        map_id=m.uuid.hex, file_type=file_type)}}">here</a>.
     </p>
   </body>
 </html>
