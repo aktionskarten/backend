@@ -40,7 +40,7 @@ class Map(db.Model):
     name = db.Column(db.Unicode)
     description = db.Column(db.Unicode)
     place = db.Column(db.Unicode)
-    datetime = db.Column(db.DateTime, default=_datetime.datetime.utcnow)
+    datetime = db.Column(db.DateTime(timezone=True), default=_datetime.datetime.utcnow)
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
@@ -103,6 +103,10 @@ class Map(db.Model):
         return cls.datetime < (func.now()-cls.lifespan)
 
     @property
+    def style(self):
+        return 'osm-liberty'
+
+    @property
     def orientation(self):
         if self._bbox is None:
             return ''
@@ -112,11 +116,11 @@ class Map(db.Model):
     def grid(self):
         if (self.bbox):
             cells = {
-                '': [5, 5],
-                'landscape': [5, 3],
-                'portrait': [3, 5],
+                '': [7, 7],
+                'landscape': [9, 5],
+                'portrait': [5, 9],
             }
-            return grid_for_bbox(*self.bbox, *cells[self.orientation])
+            return grid_for_bbox(*self.bbox, *cells[self.orientation], 'violet')
         return None
 
     @property
@@ -171,6 +175,7 @@ class Map(db.Model):
             'place': self.place,
             'lifespan': self.lifespan.days,
             'published': self.published,
+            'style': self.style
         }
 
         if version_included:
