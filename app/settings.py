@@ -23,6 +23,15 @@ class DefaultConfig(object):
 
     DEJAVU_FONT_PATH = '/usr/share/fonts/TTF/DejaVuSansCondensed.ttf'
 
+    # url encoded <bbox>,<width>,<height>
+    MAP_RENDERER = {
+        'basic-preview': 'http://localhost:8080/styles/basic-preview/static/{}/{}x{}.png',
+        'osm-liberty': 'http://localhost:8080/styles/osm-liberty/static/{}/{}x{}.png',
+        'osm-bright': 'http://localhost:8080/styles/osm-bright/static/{}/{}x{}.png',
+        'positron': 'http://localhost:8080/styles/positron/static/{}/{}x{}.png',
+        'maptiler-toner': 'http://localhost:8080/styles/maptiler-toner/static/{}/{}x{}.png'
+    }
+
     @property
     def SQLALCHEMY_DATABASE_URI(self):
         return 'postgres://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS,

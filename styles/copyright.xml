@@ -1,16 +1,12 @@
 <Map srs="+init=epsg:3857">
   <Style name="copyright">
-      <Rule>
-          <TextSymbolizer dx="-32" dy="-32" placement="point" vertical-alignment="top" horizontal-alignment="left" size="20" fill="grey" halo-fill="white" halo-radius="1" face-name="DejaVu Sans Bold" allow-overlap="true">
-            [text]
-          </TextSymbolizer>
-      </Rule>
+    <Rule>
+      <TextSymbolizer dx="-32" dy="-32" size="12" horizontal-alignment="left" placement="point" face-name="DejaVu Sans Bold" fill="grey" halo-fill="white" halo-radius="1">
+        [text]
+      </TextSymbolizer>
+    </Rule>
   </Style>
-  <Layer name="layer" clear-label-cache="on">
-      <StyleName>copyright</StyleName>
-      <Datasource>
-          <Parameter name="type">geojson</Parameter>
-          <Parameter name="inline"><![CDATA[{}]]></Parameter>
-      </Datasource>
+  <Layer name="layer" srs="+init=epsg:3857">
+    <StyleName>copyright</StyleName>
   </Layer>
 </Map>

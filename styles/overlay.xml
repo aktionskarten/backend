@@ -1,0 +1,40 @@
+<Map srs="+init=epsg:3857">
+  <Style name="scalebarBars" opacity="0.8">
+      <!-- Emulate border around scalebar -->
+       <Rule>
+          <Filter>[mapnik::geometry_type]=linestring</Filter>
+          <LineSymbolizer geometry-transform="skewX(1)" stroke="#999999" stroke-width="22" />
+      </Rule>
+
+      <Rule>
+          <Filter>[mapnik::geometry_type]=linestring</Filter>
+          <LineSymbolizer stroke="[color]" stroke-width="20"  />
+      </Rule>
+  </Style>
+
+  <Style name="scalebarLabels">
+      <Rule>
+          <Filter>[mapnik::geometry_type]=point</Filter>
+          <TextSymbolizer fill="#333333" size="14" face-name="DejaVu Sans Bold" dy="14" halo-fill="white" halo-radius="1">
+              [label]
+          </TextSymbolizer>
+      </Rule>
+  </Style>
+
+  <Style name="copyright">
+    <Rule>
+      <TextSymbolizer dx="-32" dy="-32" size="12" horizontal-alignment="left" placement="point" face-name="DejaVu Sans Bold" fill="grey" halo-fill="white" halo-radius="1">
+        [text]
+      </TextSymbolizer>
+    </Rule>
+  </Style>
+
+  <Layer name="scalebar" srs="+init=epsg:4326">
+      <StyleName>scalebarBars</StyleName>
+      <StyleName>scalebarLabels</StyleName>
+  </Layer>
+
+  <Layer name="copyright" srs="+init=epsg:3857">
+    <StyleName>copyright</StyleName>
+  </Layer>
+</Map>

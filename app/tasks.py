@@ -2,7 +2,7 @@ import os
 
 from tempfile import NamedTemporaryFile
 from flask import current_app, has_app_context
-from app.mapnik import MapRenderer
+from app.surface import SurfaceRenderer
 from app.utils import file_exists, get_file_info
 
 
@@ -24,8 +24,8 @@ def render_map(data, file_type, force=False):
     map_dir = os.path.join(static_dir, file_info['dir'])
     os.makedirs(map_dir, exist_ok=True)
 
-    m = MapRenderer(data)
-    data = m.render(file_info['mimetype']).read()
+    renderer = SurfaceRenderer(data)
+    data = renderer.render(file_info['mimetype']).read()
 
     # write file atomically (otherwise we end up in serving incomplete files)
     path = os.path.join(static_dir, file_info['path'])
