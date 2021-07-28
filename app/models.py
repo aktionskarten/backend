@@ -4,6 +4,7 @@ import geojson
 import json
 import datetime as _datetime
 import string
+import pytz
 import random
 
 from uuid import uuid4
@@ -95,7 +96,7 @@ class Map(db.Model):
 
     @hybrid_property
     def outdated(self):
-        now = _datetime.datetime.utcnow()
+        now = _datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
         return self.datetime < (now - self.lifespan)
 
     @outdated.expression
