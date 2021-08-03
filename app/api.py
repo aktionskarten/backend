@@ -70,9 +70,12 @@ def maps_new():
     name = json['name']
 
     m = Map(name)
-    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
+    for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published', 'theme']:
         if key in json:
             setattr(m, key, json[key])
+
+    if 'theme' in json and json['theme'] in current_app.config['MAP_RENDERER']:
+        m.theme = json['theme']
 
     if 'datetime' in json:
         m.datetime = datetime_fromisoformat(request.json['datetime'])
@@ -109,6 +112,10 @@ def map_edit(map_id):
     for key in ['name', 'bbox', 'description', 'place', 'attributes', 'published']:
         if key in json:
             setattr(m, key, json[key])
+
+
+    if 'theme' in json and json['theme'] in current_app.config['MAP_RENDERER']:
+        m.theme = json['theme']
 
     if 'datetime' in json:
         m.datetime = datetime_fromisoformat(request.json['datetime'])

@@ -47,6 +47,7 @@ class Map(db.Model):
     attributes = db.Column(JSONB)
     published = db.Column(db.Boolean, default=False)
     lifespan = db.Column(db.Interval, default=_datetime.timedelta(days=30))
+    theme = db.Column(db.Unicode, default='bright')
 
     on_created = db_signals.signal('map-created')
     on_updated = db_signals.signal('map-updated')
@@ -102,10 +103,6 @@ class Map(db.Model):
     @outdated.expression
     def outdated(cls):
         return cls.datetime < (func.now()-cls.lifespan)
-
-    @property
-    def style(self):
-        return 'osm-liberty'
 
     @property
     def orientation(self):
@@ -176,7 +173,7 @@ class Map(db.Model):
             'place': self.place,
             'lifespan': self.lifespan.days,
             'published': self.published,
-            'style': self.style
+            'theme': self.theme
         }
 
         if version_included:
