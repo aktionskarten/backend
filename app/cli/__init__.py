@@ -8,11 +8,12 @@ from shutil import rmtree
 from app.cli.pymapnik import pymapnik as pymapnik_cli
 from app.cli.postgres import postgres as postgres_cli
 from app.models import Map, db
-
 from wand.image import Image
 from path import Path
+from app.tasks import render_map
 from os import makedirs
 from urllib.request import urlopen
+from app.surface import SurfaceRenderer
 
 
 @click.command(help="clear map directory")
@@ -66,3 +67,14 @@ def gen_markers():
                             name = NAMES[j]
                             chunk.save(filename='{}.png'.format(name))
                             print("\t* " + name)
+
+@click.command(help="Render a given map")
+@click.option('--mid')
+@click.option('--filename')
+@with_appcontext
+def render(mid, filename):
+    m = Map.get(mid)
+    data = m.to_dict(grid_included=True, features_included=True)
+    renderer = SurfaceRenderer(data)
+    with open(filename, 'wb') as f2:
+        f2.write(renderer.render('application/pdf').read())
