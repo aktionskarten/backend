@@ -70,7 +70,7 @@ class ProductionConfig(DefaultConfig):
 
     @property
     def DB_PASS(self):
-        return get_env_variable("POSTGRES_PASS")
+        return get_env_variable("POSTGRES_PASSWORD")
 
     @property
     def DB_NAME(self):
