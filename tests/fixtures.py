@@ -59,7 +59,7 @@ def client(app):
 @pytest.fixture(scope="function")
 def uuid(app, db):
     rmtree(path.join(app.static_folder, 'maps'), ignore_errors=True)
-    m = Map('my-new-map', bbox=[1, 1, 1, 1])
+    m = Map('my-new-map', bbox=[13.421731,52.455879,13.494473,52.477631])
     db.session.add(m)
     db.session.commit()
     yield m.uuid.hex
