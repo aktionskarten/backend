@@ -5,8 +5,8 @@ FLASK_APP=app
 FLASK_ENV=testing
 EOT
 
-while ! pg_isready -h ${DB_HOST} > /dev/null 2> /dev/null; do
-    echo "Connecting to ${DB_HOST} Failed"
+while ! pg_isready -h ${POSTGRES_HOST} > /dev/null 2> /dev/null; do
+    echo "Connecting to ${POSTGRES_HOST} Failed"
     sleep 1
 done
 
