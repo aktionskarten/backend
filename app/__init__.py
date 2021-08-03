@@ -11,8 +11,8 @@ from app.test import test
 from app.models import db
 from app.render import renderer
 from app.settings import DefaultConfig
-from app.cli import pymapnik_cli, osm_cli, postgres_cli, clear_maps,\
-                    create_tables, gen_markers, remove_outdated_maps
+from app.cli import pymapnik_cli, postgres_cli, clear_maps,\
+                    create_tables, gen_markers, remove_outdated_maps, render
 
 from uuid import UUID
 from werkzeug.routing import BaseConverter, ValidationError
@@ -44,6 +44,8 @@ def create_app():
     app.task_queue = rq.Queue(connection=Redis(app.config['REDIS_HOST']))
     app.url_map.converters['uuid'] = UUIDConverter
 
+    print("app.config", app.config['DB_HOST'])
+
     blueprints = [renderer, api]
     if app.config['TESTING']:
         blueprints.append(test)
@@ -53,8 +55,8 @@ def create_app():
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
-    cmds = [clear_maps, create_tables, gen_markers, remove_outdated_maps]
-    for command in [pymapnik_cli, osm_cli, postgres_cli] + cmds:
+    cmds = [clear_maps, create_tables, gen_markers, remove_outdated_maps, render]
+    for command in [pymapnik_cli, postgres_cli] + cmds:
         app.cli.add_command(command)
 
     return app
