@@ -45,7 +45,7 @@ class DefaultConfig(object):
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):
-        return 'postgres://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS,
+        return 'postgresql://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASS,
                                                self.DB_HOST, self.DB_NAME)
 
 class DevelopmentConfig(DefaultConfig):
