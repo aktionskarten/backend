@@ -1,3 +1,15 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def get_env_variable(name):
+    try:
+        return os.environ[name]
+    except KeyError:
+        message = "Expected env variable '{}' not set.".format(name)
+        raise Exception(message)
+
 class DefaultConfig(object):
     """Base config, uses staging database server."""
     DEBUG = False
@@ -12,19 +24,24 @@ class DefaultConfig(object):
 
     REDIS_HOST = 'localhost'
 
+    TILESERVER_HOST = 'localhost:8080'
+
     # needed for events
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     DEJAVU_FONT_PATH = '/usr/share/fonts/TTF/DejaVuSansCondensed.ttf'
 
     # url encoded <bbox>,<width>,<height>
-    MAP_RENDERER = {
-        'basic': 'http://localhost:8080/styles/basic-preview/static/{}/{}x{}.png',
-        'bright': 'http://localhost:8080/styles/osm-bright/static/{}/{}x{}.png',
-        'positron': 'http://localhost:8080/styles/positron/static/{}/{}x{}.png',
-        #'liberty': 'http://localhost:8080/styles/osm-liberty/static/{}/{}x{}.png',
-        #'maptiler-toner': 'http://localhost:8080/styles/maptiler-toner/static/{}/{}x{}.png'
-    }
+    @property
+    def MAP_RENDERER(self):
+        base_url = 'http://{}/styles/'.format(self.TILESERVER_HOST)
+        return {
+            'basic': base_url + 'basic-preview/static/{}/{}x{}.png',
+            'bright': base_url + 'osm-bright/static/{}/{}x{}.png',
+            'positron': base_url + 'positron/static/{}/{}x{}.png'
+            #'liberty': 'http://localhost:8080/styles/osm-liberty/static/{}/{}x{}.png',
+            #'maptiler-toner': 'http://localhost:8080/styles/maptiler-toner/static/{}/{}x{}.png'
+        }
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):
@@ -36,8 +53,30 @@ class DevelopmentConfig(DefaultConfig):
 
 class TestingConfig(DevelopmentConfig):
     TESTING = True
-#    DB_HOST = 'db'
-#    REDIS_HOST = 'redis'
+    DB_HOST = 'db'
+    REDIS_HOST = 'redis'
 
 class ProductionConfig(DefaultConfig):
-    pass
+    @property
+    def DB_HOST(self):
+        return get_env_variable("POSTGRES_HOST")
+
+    @property
+    def DB_USER(self):
+        return get_env_variable("POSTGRES_USER")
+
+    @property
+    def DB_PASS(self):
+        return get_env_variable("POSTGRES_PASS")
+
+    @property
+    def DB_NAME(self):
+        return get_env_variable("POSTGRES_DB")
+
+    @property
+    def REDIS_HOST(self):
+        return get_env_variable("REDIS_HOS")
+
+    @property
+    def TILESERVER_HOST(self):
+        return get_env_variable("TILESERVER_HOST")
