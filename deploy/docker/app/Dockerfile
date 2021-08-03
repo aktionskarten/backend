@@ -27,18 +27,6 @@ RUN set -ex; \
                 imagemagick \
                 wget
 
-# install recent node (see https://github.com/nodesource/distributions/blob/master/README.md#debmanual )
-RUN wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-RUN set -ex; \
-        apt-get install -y apt-transport-https; \
-        VERSION=node_8.x; \
-        DISTRO="$(lsb_release -s -c)" ; \
-        echo $VERSION $DISTRO ; \
-        echo "deb https://deb.nodesource.com/$VERSION $DISTRO main" > /etc/apt/sources.list.d/nodesource.list; \
-        echo "deb-src https://deb.nodesource.com/$VERSION $DISTRO main" >> /etc/apt/sources.list.d/nodesource.list; \
-        apt-get update; \
-        apt-get install -y nodejs
-
 WORKDIR /source
 
 # python virtual environment
@@ -49,10 +37,6 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # python deps
 COPY requirements.txt ./
 RUN pip install -r /source/requirements.txt
-
-# node deps (recent carto for openstreetmap-carto)
-RUN npm install npx carto
-ENV PATH="/source/node_modules/.bin:$PATH"
 
 # run pymapnik before source to create cache
 COPY libs ./libs
