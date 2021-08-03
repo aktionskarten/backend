@@ -1,14 +1,10 @@
 # vim:set ft=dockerfile:
 FROM python:3.9-buster
 
-#ENV DEBIAN_FRONTEND noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 RUN set -ex; \
-        # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=866729
-        # mkdir -p /usr/share/man/man1; \
-        # mkdir -p /usr/share/man/man7; \
         apt-get update; \
         apt-get install -y \
                 build-essential \
@@ -26,11 +22,6 @@ RUN set -ex; \
                 wget
 
 WORKDIR /source
-
-# python virtual environment
-# ENV VIRTUAL_ENV=/source/venv
-# RUN python3 -m virtualenv --python=/usr/bin/python3 $VIRTUAL_ENV
-# ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # python deps
 COPY requirements.txt ./
