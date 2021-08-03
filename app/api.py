@@ -200,6 +200,10 @@ def map_feature_edit(map_id, feature_id):
                 rgb = re.findall(r'\d+', props['iconColor'])
                 iconColor = ''.join([('%02x' % int(x)) for x in rgb])
                 props['iconColor'] = '#' + iconColor
+
+        if 'weight' in props:
+            props['weight'] = int(props['weight'])
+
         f.style = props
 
     if 'geometry' in request.json:
