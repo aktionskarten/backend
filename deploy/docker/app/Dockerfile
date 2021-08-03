@@ -11,9 +11,6 @@ RUN set -ex; \
                 git \
                 libmapnik3.0 \
                 libmapnik-dev \
-                python3 \
-                python3-dev \
-                python3-virtualenv \
                 libboost-python-dev \
                 libcairo2 \
                 libcairo2-dev \
@@ -35,8 +32,6 @@ RUN python pymapnik.py install
 # copy source
 COPY . ./
 
-# should be moved somehow before source copy to prevent run for each time
-COPY .flaskenv ./
 RUN flask gen-markers
 
 COPY deploy/docker/app/docker-entrypoint.sh /usr/local/bin
