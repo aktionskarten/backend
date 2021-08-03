@@ -53,8 +53,11 @@ class DevelopmentConfig(DefaultConfig):
 
 class TestingConfig(DevelopmentConfig):
     TESTING = True
-    DB_HOST = 'db'
-    REDIS_HOST = 'redis'
+    DB_HOST = '127.0.0.1'  # db
+    DB_USER = 'postgres'
+    DB_PASS = 'postgres'
+    DB_NAME = 'test'
+    #REDIS_HOST = 'redis'
 
 class ProductionConfig(DefaultConfig):
     @property
