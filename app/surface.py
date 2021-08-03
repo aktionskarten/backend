@@ -13,6 +13,7 @@ import numpy
 
 from io import BytesIO
 from flask import current_app
+from pyproj import Transformer
 from app.models import Map
 from app.utils import strip, nearest_n, get_size
 
@@ -21,8 +22,15 @@ class SurfaceRenderer:
     def __init__(self, obj):
         # bbox in mercator
         proj = mapnik.Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over')
+
+        # use pyproj as mapnik is built without proj4 support
+        wgs_to_merc = Transformer.from_crs(4326, 3857, always_xy=True)
+
         bbox_wgs84 = mapnik.Box2d(*obj['bbox'])
-        bbox_merc = mapnik.Box2d(*proj.forward(bbox_wgs84))
+
+        south_west_merc = wgs_to_merc.transform(bbox_wgs84.minx, bbox_wgs84.miny)
+        north_east_merc = wgs_to_merc.transform(bbox_wgs84.maxx, bbox_wgs84.maxy)
+        bbox_merc = mapnik.Box2d(*south_west_merc, *north_east_merc)
 
         # instantiate mapnik (used as renderer) with web mercator projection
         width, height = get_size(bbox_merc.width(), bbox_merc.height())
@@ -66,9 +74,11 @@ class SurfaceRenderer:
     def _get_features(self):
         # add all features (as features are rendered on top of each other in the
         # order we provide it to mapnik, make sure markers are on top)
-        types = ['Polygon', 'LineString', 'Point']
-        getter = lambda x: types.index(x['geometry']['type'])
-        features = sorted([strip(f) for f in self.obj['features']], key=getter)
+        features = []
+        if len(self.obj['features']) > 0:
+            types = ['GeometryCollection', 'Polygon', 'LineString', 'Point']
+            getter = lambda x: types.index(x['geometry']['type'])
+            features = sorted([strip(f) for f in self.obj['features']], key=getter)
         return geojson.FeatureCollection(features)
 
     def _get_overlay(self):
@@ -80,7 +90,7 @@ class SurfaceRenderer:
         # copyright (in mercator projection)
         bbox = self._map.envelope()
         geometry = geojson.Point((bbox.maxx, bbox.miny))
-        properties = {'text': 'Tiles © OpenMapTiles © OpenStreetMap contributors, CC-BY-SA'}
+        properties = {'text': 'Tiles © OpenMapTiles © OSM contributors, CC-BY-SA'}
         feature = geojson.Feature(geometry=geometry, properties=properties)
         collection_copyright = geojson.FeatureCollection([feature])
 
@@ -88,7 +98,7 @@ class SurfaceRenderer:
 
     def _get_background(self):
         bbox = ','.join(str(x) for x in self.obj['bbox'])
-        renderer_url = current_app.config['MAP_RENDERER'][self.obj['style']]
+        renderer_url = current_app.config['MAP_RENDERER'][self.obj['theme']]
         url = renderer_url.format(bbox, self.width, self.height)
         response = requests.get(url, stream=True)
         if (response.status_code != 200):

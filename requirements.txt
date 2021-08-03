@@ -29,4 +29,5 @@ fpdf
 pypdf2
 wheel
 Haversine
-
+geopy
+pyproj

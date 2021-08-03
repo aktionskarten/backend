@@ -12,7 +12,8 @@ GRID_STYLES = [
     ('pink', [("#000", "#fff"), ('#E04F9E', '#fff')]),
     ('blue', [("#000", "#fff"), ('#00b1f0', '#fff')]),
     ('only', [("#000", "#fff")]),
-    ('labels_only', [('#000',)])
+    ('labels_only', [('#000',)]),
+    ('labels_only_white', [('#fff',)])
 ]
 
 def steps(start, end, num, endpoint=True):
@@ -122,15 +123,16 @@ def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRI
 import mapnik
 import math
 from app.utils import get_size, nearest_n
+from pyproj import Transformer
 
 def scalebar_for_bbox(lng_min, lat_min, lng_max, lat_max, cells=5):
     south_east = mapnik.Coord(lng_min, lat_min)
     north_west = mapnik.Coord(lng_max, lat_max)
 
     # bbox in mercator
-    proj = mapnik.Projection('+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over')
-    south_east_merc = south_east.forward(proj)
-    north_west_merc = north_west.forward(proj)
+    wgs_to_merc = Transformer.from_crs(4326, 3857, always_xy=True)
+    south_east_merc = mapnik.Coord(*wgs_to_merc.transform(lng_min, lat_min))
+    north_west_merc = mapnik.Coord(*wgs_to_merc.transform(lng_max, lat_max))
     bbox_merc = mapnik.Box2d(south_east_merc, north_west_merc)
 
     # calculate distance of scalebar
@@ -146,7 +148,7 @@ def scalebar_for_bbox(lng_min, lat_min, lng_max, lat_max, cells=5):
     offset_y = bbox_merc.height() / 30
     offset = mapnik.Coord(offset_x, offset_y)
     end_merc = north_west_merc - offset
-    end = end_merc.inverse(proj)
+    end = mapnik.Coord(*wgs_to_merc.transform(end_merc.x, end_merc.y, direction='INVERSE'))
 
     # calculate start as end-distance_in_m
     # see https://stackoverflow.com/questions/7477003/calculating-new-longitude-latitude-from-old-n-meters
