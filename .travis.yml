@@ -3,12 +3,13 @@ language: python
 python:
   - "3.6"
   - "3.7"
+  - "3.8"
+  - "3.9"
 cache:
   - pip: true
   - directories:
     - data/
     - libs/python-mapnik/build
-    - libs/openstreetmap-carto/data
 services:
   - postgresql
   - redis-server
@@ -24,7 +25,6 @@ addons:
       - libcairo2
       - libcairo2-dev
       - postgresql-10-postgis-2.4
-      - osm2pgsql
       - fonts-noto
 before_install:
   - python --version
@@ -35,6 +35,5 @@ install:
   - python app/cli/pymapnik.py install
 before_script:
   - flask postgres init
-  - flask osm init --path=kotti-latest.osm.pbf
 script:
   - python -m pytest -s tests/
