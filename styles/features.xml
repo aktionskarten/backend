@@ -30,30 +30,17 @@
     </Rule>
     <Rule>
       <Filter>[mapnik::geometry_type]=linestring</Filter>
-      <LineSymbolizer stroke="[color]" stroke-linejoin="round" stroke-width="15" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
+      <LineSymbolizer stroke="[color]" stroke-linejoin="round" stroke-width="[weight]*1.2" stroke-opacity="[opacity]" stroke-dasharray="[dashArray]" />
     </Rule>
-
-    <!--
-    <Rule>
-        <Filter>[mapnik::geometry_type]=point and [radius]</Filter>
-        <MarkersSymbolizer fill="[color]" fill-opacity="[fillOpacity]" width="[radius]" height="[radius]" stroke="[color]" stroke-width="[weight]" stroke-opacity="[opacity]" placement="point" marker-type="ellipse" allow-overlap="true" />
-    </Rule>
-    -->
 
     <!-- MARKER -->
     <Rule>
       <Filter>[mapnik::geometry_type]=point and not ([scale] = null)</Filter>
-      <PointSymbolizer transform="scale([scale],[scale])" file="markers/[iconColor]/[icon].png" />
+      <PointSymbolizer transform="scale([scale],[scale])" file="markers/[iconColor]/[icon].png" allow-overlap="true"/>
     </Rule>
     <Rule>
       <Filter>[mapnik::geometry_type]=point and ([scale] = null)</Filter>
-      <PointSymbolizer file="markers/[iconColor]/[icon].png" />
-    </Rule>
-    <Rule>
-      <Filter>[mapnik::geometry_type]=point and not ([label] = null)</Filter>
-      <TextSymbolizer vertical-alignment="bottom" dy="[scale]*32*3" placement="point" size="[scale]*16*3" fill="black" halo-fill="white" halo-radius="2" face-name="DejaVu Sans Bold" allow-overlap="true">
-          [label]
-      </TextSymbolizer>
+      <PointSymbolizer file="markers/[iconColor]/[icon].png" allow-overlap="true"/>
     </Rule>
   </Style>
 
