@@ -78,7 +78,7 @@ class ProductionConfig(DefaultConfig):
 
     @property
     def REDIS_HOST(self):
-        return get_env_variable("REDIS_HOS")
+        return get_env_variable("REDIS_HOST")
 
     @property
     def TILESERVER_HOST(self):
