@@ -8,8 +8,9 @@ from os import path
 
 @pytest.fixture(scope="session")
 def app(request):
+    import os
+    os.environ['FLASK_ENV'] = 'testing'
     app = create_app()
-    app.config['TESTING'] = True
     return app
 
 
