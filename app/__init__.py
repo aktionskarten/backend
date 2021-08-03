@@ -44,13 +44,13 @@ def create_app():
     app.task_queue = rq.Queue(connection=Redis(app.config['REDIS_HOST']))
     app.url_map.converters['uuid'] = UUIDConverter
 
-    print("app.config", app.config['DB_HOST'])
-
     blueprints = [renderer, api]
     if app.config['TESTING']:
         blueprints.append(test)
-        with app.app_context():
-            db.create_all()
+
+    # create tables if not exist
+    with app.app_context():
+        db.create_all()
 
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
