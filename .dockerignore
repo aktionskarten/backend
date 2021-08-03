@@ -1,0 +1,4 @@
+deploy/ansible/
+docs/
+env/
+tests/

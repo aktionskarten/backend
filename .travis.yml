@@ -1,39 +1,50 @@
-dist: bionic
-language: python
-python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "3.9"
-cache:
-  - pip: true
-  - directories:
-    - data/
-    - libs/python-mapnik/build
-services:
-  - postgresql
-  - redis-server
-env:
-  SETTINGS: ../tests/settings.py
-addons:
-  postgresql: 10
-  apt:
-    packages:
-      - libmapnik-dev
-      - libboost-all-dev
-      - python3-dev
-      - libcairo2
-      - libcairo2-dev
-      - postgresql-10-postgis-2.4
-      - fonts-noto
-before_install:
-  - python --version
-  - pip install -U pip
-  - pip install -U pytest
-install:
-  - pip install -r requirements.txt
-  - python app/cli/pymapnik.py install
-before_script:
-  - flask postgres init
-script:
-  - python -m pytest -s tests/
+jobs:
+  include:
+    - dist: bionic
+      language: python
+      python:
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.9"
+      cache:
+        - pip: true
+        - directories:
+          - data/
+          - libs/python-mapnik/build
+      services:
+        - postgresql
+        - redis-server
+      env:
+        SETTINGS: ../tests/settings.py
+      addons:
+        postgresql: 10
+        apt:
+          packages:
+            - libmapnik-dev
+            - libboost-all-dev
+            - python3-dev
+            - libcairo2
+            - libcairo2-dev
+            - postgresql-10-postgis-2.4
+            - fonts-noto
+      before_install:
+        - python --version
+        - pip install -U pip
+        - pip install -U pytest
+      install:
+        - pip install -r requirements.txt
+        - python app/cli/pymapnik.py install
+      before_script:
+        - flask postgres init
+      script:
+        - python -m pytest -s tests/
+
+    - language: ruby
+      services:
+        - docker
+      before_install:
+        - docker build -t kombinat451/aktionskarten-backend-app -f deploy/docker/app/Dockerfile .
+      script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push kombinat451/aktionskarten-backend-app
