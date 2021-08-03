@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from tests.fixtures import *
 from tests.utils import db_reset
 from json import dumps as json_dump
@@ -116,7 +117,7 @@ def test_maps_new_public(app, db):
 
 def test_maps_new_datetime(app, db):
     name = 'foo-new-private'
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
     uuid, token = _create_map(app, {'name': name, 'datetime': now.isoformat()})
 
     m = Map.get(uuid)
