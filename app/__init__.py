@@ -30,12 +30,12 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_object(DefaultConfig())
-    if app.env == 'testing':
-        cfg = import_string('app.settings.TestingConfig')()
-        app.config.from_object(cfg)
-        print("it's testing")
-    else:
-        print("it's not testing")
+    env = app.env.capitalize()
+    cfg = import_string('app.settings.{}Config'.format(env))()
+    app.config.from_object(cfg)
+
+    if app.testing:
+        print("TESTING enabled")
 
     db.init_app(app)
     Migrate(app, db)
