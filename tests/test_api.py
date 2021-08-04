@@ -205,10 +205,11 @@ def test_live(app, db):
         m = Map('foo', bbox=[1, 1, 1, 1])
         db.session.add(m)
         db.session.commit()
+        uuid = m.uuid.hex
 
         from app.live import socketio
         socketio_client = socketio.test_client(app, flask_test_client=client)
-        socketio_client.emit('join', m.uuid.hex)
+        socketio_client.emit('join', uuid)
         assert socketio_client.is_connected()
 
         r = socketio_client.get_received()
