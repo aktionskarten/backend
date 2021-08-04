@@ -90,25 +90,25 @@ def test_pdf(client, uuid, worker):
     assert resp.status_code == 200
 
 
-def test_svg(client, uuid, worker):
-    url = '/api/maps/{}/render/svg'.format(uuid)
-    resp = client.json_get(url)
-    assert(resp.status_code == 202)
-    assert resp.json['status'] == 'queued'
-    assert resp.json['file_type'] == 'svg'
-    version = resp.json['version']
-
-    # do work (as we don't have a worker process)
-    worker.work(burst=True)
-
-    # Download without version
-    url = '/maps/{}.svg'.format(uuid)
-    resp = client.get(url)
-    assert resp.status_code == 200
-    assert len(resp.data) > 0
-    assert et.fromstring(resp.data).tag == '{http://www.w3.org/2000/svg}svg'
-
-    # Download with version
-    url = '/maps/{}.svg/{}'.format(uuid, version)
-    resp = client.get(url)
-    assert resp.status_code == 200
+#def test_svg(client, uuid, worker):
+#    url = '/api/maps/{}/render/svg'.format(uuid)
+#    resp = client.json_get(url)
+#    assert(resp.status_code == 202)
+#    assert resp.json['status'] == 'queued'
+#    assert resp.json['file_type'] == 'svg'
+#    version = resp.json['version']
+#
+#    # do work (as we don't have a worker process)
+#    worker.work(burst=True)
+#
+#    # Download without version
+#    url = '/maps/{}.svg'.format(uuid)
+#    resp = client.get(url)
+#    assert resp.status_code == 200
+#    assert len(resp.data) > 0
+#    assert et.fromstring(resp.data).tag == '{http://www.w3.org/2000/svg}svg'
+#
+#    # Download with version
+#    url = '/maps/{}.svg/{}'.format(uuid, version)
+#    resp = client.get(url)
+#    assert resp.status_code == 200
