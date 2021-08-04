@@ -15,6 +15,7 @@ jobs:
       services:
         - postgresql
         - redis-server
+        - docker
       env:
         FLASK_APP: app
         FLASK_ENV: testing
@@ -33,6 +34,10 @@ jobs:
         - python --version
         - pip install -U pip
         - pip install -U pytest
+        - docker pull kombinat451/tileserver-gl
+        - git clone --recurse-submodules https://github.com/aktionskarten/config.git
+        - docker run -d -p 127.0.0.1:80:8080 --mount type=bind,source="$(pwd)"/config/tileserver-gl/,target=/data  kombinat451/tileserver-gl
+        - docker ps -a
       install:
         - pip install -r requirements.txt
         - python app/cli/pymapnik.py install
