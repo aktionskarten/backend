@@ -9,6 +9,8 @@ from app.utils import file_exists, get_file_info
 def render_map(data, file_type, force=False):
     if not has_app_context():
         from app import create_app
+        from dotenv import load_dotenv
+        load_dotenv('.flaskenv')
         app = create_app()
         app.app_context().push()
 
