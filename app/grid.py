@@ -123,7 +123,47 @@ def grid_for_bbox(x_min, y_min, x_max, y_max, cells_x, cells_y, style_family=GRI
 import mapnik
 import math
 from app.utils import get_size, nearest_n
+
+
 from pyproj import Transformer
+from geopy.distance import distance
+
+class Projection:
+    def __init__(self, width, height, bbox):
+        self._wgs_to_merc = Transformer.from_crs(4326, 3857, always_xy=True)
+
+        south_east = bbox[:2]
+        north_west = bbox[2:]
+        south_west = (south_east[0], south_west[1])
+
+        self._width_in_m = distance(south_east, south_west)
+        self._height_in_m = distance(north_west, south_west)
+
+        self._width_in_px = width
+        self._height_in_px = height
+
+    def _project(self, xy):
+        # only use x and y part according to origin
+        origin = self.south_west
+        x_ =(origin[0], xy[1])
+        y_ =(xy[0], origin[1])
+
+        # calculate xy as floating point between [0,1] given width
+        # of bbox
+        norm = lambda factor: min(max(factor, 0), 1)
+        x_ratio = norm(distance(x_, sw) / self._width_in_m )
+        y_ratio = norm(distance(y, sw)  / self._height_in_m)
+
+        # calculate xy in pixels
+        x = round(x_ratio * self._width_in_px,  2)
+        y = round(y_ratio * self._height_in_px, 2)
+
+        return (x,y)
+
+    def forward(self, lat, lon):
+        x_merc,y_merc = wgs_to_merc.transform(lat, lon)
+        return self._project(x_merc, y_merc)
+
 
 def scalebar_for_bbox(lng_min, lat_min, lng_max, lat_max, cells=5):
     south_east = mapnik.Coord(lng_min, lat_min)
