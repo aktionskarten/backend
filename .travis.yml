@@ -37,6 +37,7 @@ jobs:
         - python app/cli/pymapnik.py install
       before_script:
         - flask postgres init
+        - flask db upgrade
       script:
         - python -m pytest -s tests/
 

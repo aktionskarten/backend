@@ -29,7 +29,6 @@ class UUIDConverter(BaseConverter):
 def create_app():
     app = Flask(__name__)
 
-    app.config.from_object(DefaultConfig())
     env = app.env.capitalize()
     cfg = import_string('app.settings.{}Config'.format(env))()
     app.config.from_object(cfg)
@@ -44,13 +43,9 @@ def create_app():
     app.task_queue = rq.Queue(connection=Redis(app.config['REDIS_HOST']))
     app.url_map.converters['uuid'] = UUIDConverter
 
-    print("app.config", app.config['DB_HOST'])
-
     blueprints = [renderer, api]
     if app.config['TESTING']:
         blueprints.append(test)
-        with app.app_context():
-            db.create_all()
 
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
