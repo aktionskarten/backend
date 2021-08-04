@@ -36,7 +36,7 @@ jobs:
         - pip install -U pytest
         - docker pull kombinat451/tileserver-gl
         - git clone --recurse-submodules https://github.com/aktionskarten/config.git docker-configs
-        - docker run -d -p 127.0.0.1:8080:80 --mount type=bind,source="$(pwd)"/docker-configs/tileserver-gl/,target=/data  kombinat451/tileserver-gl
+        - docker run -d -p 8080:80 --mount type=bind,source="$(pwd)"/docker-configs/tileserver-gl/,target=/data  kombinat451/tileserver-gl
         - docker ps -a
       install:
         - pip install -r requirements.txt
