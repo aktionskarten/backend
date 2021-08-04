@@ -2,7 +2,7 @@ import os
 import flask_sqlalchemy
 import geojson
 import json
-import datetime as _datetime
+import datetime as pydatetime
 import string
 import pytz
 import random
@@ -11,6 +11,7 @@ from uuid import uuid4
 from hashlib import sha256
 from geoalchemy2.shape import from_shape, to_shape
 from sqlalchemy import desc, inspect, text, func
+from sqlalchemy.sql import func
 from sqlalchemy.sql.functions import concat
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -41,12 +42,12 @@ class Map(db.Model):
     name = db.Column(db.Unicode)
     description = db.Column(db.Unicode)
     place = db.Column(db.Unicode)
-    datetime = db.Column(db.DateTime(timezone=True), default=_datetime.datetime.utcnow)
+    _datetime = db.Column(db.DateTime(timezone=True), default=func.now())
     _bbox = db.Column(Geometry('POLYGON'))
     features = db.relationship('Feature', backref='map', lazy=True, order_by="Feature.id", cascade="all, delete-orphan")
     attributes = db.Column(JSONB)
     published = db.Column(db.Boolean, default=False)
-    lifespan = db.Column(db.Interval, default=_datetime.timedelta(days=30))
+    lifespan = db.Column(db.Interval, default=pydatetime.timedelta(days=30))
     theme = db.Column(db.Unicode, default='bright')
 
     on_created = db_signals.signal('map-created')
@@ -71,7 +72,7 @@ class Map(db.Model):
         return db.session.query(Map).filter(Map._bbox.isnot(None),
                                             Map.published.is_(True), \
                                             Map.outdated.is_(False)) \
-                                    .order_by(desc(Map.datetime))    \
+                                    .order_by(desc(Map._datetime))    \
                                     .all()
 
     @classmethod
@@ -97,12 +98,12 @@ class Map(db.Model):
 
     @hybrid_property
     def outdated(self):
-        now = _datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
-        return self.datetime < (now - self.lifespan)
+        now = pydatetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+        return self._datetime < (now - self.lifespan)
 
     @outdated.expression
     def outdated(cls):
-        return cls.datetime < (func.now()-cls.lifespan)
+        return cls._datetime < (func.now()-cls.lifespan)
 
     @property
     def orientation(self):
@@ -128,16 +129,24 @@ class Map(db.Model):
         return sha256(raw.encode()).hexdigest()
 
     @hybrid_property
+    def datetime(self):
+        return self._datetime.astimezone(pydatetime.timezone.utc)
+
+    @datetime.setter
+    def datetime(self, d):
+        self._datetime = d
+
+    @hybrid_property
     def time(self):
         return self.datetime.time()
 
     @time.setter
     def time(self, t):
         args = {'hour': t.hour, 'minute': t.minute, 'second': t.second}
-        if self.datetime:
-            self.datetime.replace(**args)
+        if self._datetime:
+            self._datetime.replace(**args)
         else:
-            self.datetime = _datetime.datetime(**args)
+            self._datetime = pydatetime.datetime(**args)
 
     @hybrid_property
     def date(self):
@@ -146,10 +155,10 @@ class Map(db.Model):
     @date.setter
     def date(self, value):
         args = [value.year, value.month, value.day]
-        if self.datetime:
-            self.datetime.replace(*args)
+        if self._datetime:
+            self._datetime.replace(*args)
         else:
-            self.datetime = _datetime.datetime(*args)
+            self._datetime = pydatetime.datetime(*args)
 
     @hybrid_property
     def bbox(self):
