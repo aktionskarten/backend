@@ -3,8 +3,7 @@ from __future__ import with_statement
 import logging
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from flask import current_app
 
 from alembic import context
 
@@ -21,10 +20,9 @@ logger = logging.getLogger('alembic.env')
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from flask import current_app
 config.set_main_option(
-    'sqlalchemy.url', current_app.config.get(
-        'SQLALCHEMY_DATABASE_URI').replace('%', '%%'))
+    'sqlalchemy.url',
+    str(current_app.extensions['migrate'].db.engine.url).replace('%', '%%'))
 target_metadata = current_app.extensions['migrate'].db.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -32,6 +30,13 @@ target_metadata = current_app.extensions['migrate'].db.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+exclude_tables = config.get_main_option('exclude_tables', '').split(',')
+
+print("EXCLUDED TABLES", exclude_tables)
+
+def include_object(object, name, type_, reflected, compare_to):    
+    print("INCLUDING", name, not (type_ == "table" and name in exclude_tables))
+    return not (type_ == "table" and name in exclude_tables)
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -47,7 +52,8 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True
+        url=url, target_metadata=target_metadata, literal_binds=True,
+        include_object=include_object
     )
 
     with context.begin_transaction():
@@ -72,17 +78,14 @@ def run_migrations_online():
                 directives[:] = []
                 logger.info('No changes in schema detected.')
 
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool,
-    )
+    connectable = current_app.extensions['migrate'].db.engine
 
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
+            include_object=include_object,
             **current_app.extensions['migrate'].configure_args
         )
 

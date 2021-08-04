@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # flask migrate
-migrations
+#migrations
 
 # local settings
 local_settings
