@@ -16,7 +16,8 @@ jobs:
         - postgresql
         - redis-server
       env:
-        SETTINGS: ../tests/settings.py
+        FLASK_APP: app
+        FLASK_ENV: testing
       addons:
         postgresql: 10
         apt:
