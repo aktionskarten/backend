@@ -1,7 +1,7 @@
 # based on debian:stretch-slim
-FROM postgis/postgis:13-3.1-alpine
+FROM postgis/postgis:13-3.1
 
-RUN apk add py-virtualenv
+RUN apt install python3-virtualenv
 
 WORKDIR /source
 
