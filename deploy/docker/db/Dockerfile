@@ -1,6 +1,13 @@
 # based on debian:stretch-slim
 FROM postgis/postgis:13-3.1-alpine
 
+RUN set -ex; \
+        apt-get update; \
+        apt-get install -y \
+                python3 \
+                python3-dev \
+                python3-virtualenv;
+
 WORKDIR /source
 
 # python virtual environment
