@@ -1,7 +1,9 @@
 # based on debian:stretch-slim
 FROM postgis/postgis:13-3.1
 
-RUN apt install python3-virtualenv
+RUN set -ex; \
+￼        apt-get update; \
+         apt-get install -y python3-virtualenv
 
 WORKDIR /source
 
