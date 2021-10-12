@@ -1,5 +1,5 @@
 # based on debian:stretch-slim
-FROM postgis/postgis/postgis:13-3.1-alpine
+FROM postgis/postgis:13-3.1-alpine
 
 WORKDIR /source
 
