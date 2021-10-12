@@ -10,8 +10,6 @@ while ! pg_isready -h ${POSTGRES_HOST} > /dev/null 2> /dev/null; do
     sleep 1
 done
 
-flask postgres init
-flask create-tables
 rq worker --url "redis://${REDIS_HOST}" &
 
 flask run --with-threads --no-reload --host=0.0.0.0
