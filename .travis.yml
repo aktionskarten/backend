@@ -64,4 +64,4 @@ jobs:
         - docker build -t kombinat451/aktionskarten-backend-db -f deploy/docker/db/Dockerfile .
       script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker push kombinat451/aktionskarten-backend-db       - docker push kombinat451/aktionskarten-backend-db
+        - docker push kombinat451/aktionskarten-backend-db
