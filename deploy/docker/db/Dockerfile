@@ -2,7 +2,8 @@
 FROM postgis/postgis:13-3.1
 
 RUN apt-get update; \
-    apt-get install -y build-essential python3-virtualenv
+    apt-get install -y build-essential python3-virtualenv libmapnik3.0 \
+    libmapnik-dev redis python3-venv python3-dev libcairo2 libcairo2-dev
 
 WORKDIR /source
 
