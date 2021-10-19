@@ -20,6 +20,3 @@ RUN pip install -r /source/requirements.txt
 COPY libs /source/libs
 RUN chown -R postgres:postgres /source/libs
 COPY app/cli/* ./
-
-# db init script (run on startup)
-COPY deploy/docker/db/aktionskarten.sh /docker-entrypoint-initdb.d/z-aktionskarten.sh
