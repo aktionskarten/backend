@@ -1,7 +1,7 @@
 jobs:
   include:
     - dist: bionic
-      name: Run tests
+      name: Run tests 🔎 🐛
       language: python
       python:
         - "3.6"
@@ -50,7 +50,7 @@ jobs:
         - python -m pytest -s tests/
 
     - language: ruby
-      name: Build aktionskarten-backend-app Docker image
+      name: 🛠 aktionskarten-backend-app 🐋
       services:
         - docker
       before_install:
@@ -61,7 +61,7 @@ jobs:
 
 
     - language: ruby
-      name: Build aktionskarten-backend-db
+      name: 🛠 aktionskarten-backend-db 🐋
       services:
         - docker
       before_install:
