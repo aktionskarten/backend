@@ -11,7 +11,8 @@ while ! pg_isready -h ${POSTGRES_HOST} > /dev/null 2> /dev/null; do
     sleep 1
 done
 
+flask db upgrade
+
 rq worker --url "redis://${REDIS_HOST}" &
 
-#flask run --with-threads --no-reload --host=0.0.0.0
 gunicorn --worker-class eventlet -w 1 "app:create_app()" --bind 0.0.0.0:5000
