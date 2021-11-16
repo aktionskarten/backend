@@ -17,6 +17,6 @@ jobs:
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: Start docker containers
-        run: docker-compose up
+        run: docker-compose up -f deploy/docker/docker-compose.yml
       - name: Run tests
         run: python -m pytest -s tests/
