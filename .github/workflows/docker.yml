@@ -1,0 +1,22 @@
+name: github-actions
+on: [push]
+
+jobs:
+  all:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+      - name: Checkout repo and subrepos
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Build docker image
+        run: docker build -t kombinat451/aktionskarten-backend-app -f deploy/docker/app/Dockerfile .
+      - name: Download mbtiles
+        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
+      - name: Start docker containers
+        run: docker-compose up
+      - name: Run tests
+        run: python -m pytest -s tests/
