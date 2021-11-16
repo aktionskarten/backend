@@ -1,3 +1,7 @@
+# files we sometimes have for building
+tiles.mbtiles
+postgres-data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

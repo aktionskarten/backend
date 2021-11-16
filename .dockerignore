@@ -1,4 +1,5 @@
 deploy/ansible/
 docs/
 env/
-tests/
+postgres-data/
+tiles.mbtiles
