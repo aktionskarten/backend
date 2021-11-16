@@ -36,3 +36,4 @@ services:
     env_file:
       - "postgis.env"
       - "backend.env"
+    command: python -m pytest -s tests/
