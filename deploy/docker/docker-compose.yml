@@ -36,4 +36,4 @@ services:
     env_file:
       - "postgis.env"
       - "backend.env"
-    command: python -m pytest -s tests/
+    command: ./docker-test-entrypoint.sh
