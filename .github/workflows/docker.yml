@@ -1,12 +1,9 @@
-name: github-actions
+name: tests on docker
 on: [push]
 
 jobs:
   all:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
     steps:
       - name: Checkout repo and subrepos
         uses: actions/checkout@v2
@@ -17,6 +14,6 @@ jobs:
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: Start docker containers
-        run: docker-compose up -f deploy/docker/docker-compose.yml
+        run: docker-compose -f deploy/docker/docker-compose.yml up
       - name: Run tests
-        run: python -m pytest -s tests/
+        run: docker exec it backend-backend-1 python -m pytest -s tests/
