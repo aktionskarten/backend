@@ -1,0 +1,21 @@
+{
+  "data": {
+    "v3": {
+      "mbtiles": "tiles.mbtiles",
+      "styles": "styles"
+    }
+  },
+  "styles": {
+    "osm-bright": {
+      "style": "osm-bright/style.json",
+      "tilejson": {
+        "bounds": [
+          12.26,
+          51.849,
+          14.699,
+          52.994
+        ]
+      }
+    }
+  }
+}

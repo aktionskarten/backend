@@ -78,8 +78,8 @@ styles/markers/#*
 # ignore retrys of ansible playbooks
 deploy/ansible/*.retry
 
-# ignore osm data
-data
+# ignore osm bright style 
+osm-bright
 
 # ignore tmp boost data
 libs/boost*
