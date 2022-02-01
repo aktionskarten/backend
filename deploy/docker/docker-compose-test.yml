@@ -43,6 +43,8 @@ services:
     image: kombinat451/aktionskarten-backend-app
     networks:
       - backend
+    volumes:
+      - ./tests:/opt
     depends_on:
       - tileserver-gl
       - postgis
@@ -57,8 +59,7 @@ services:
       - "postgis.env"
       - "backend.env"
     command: >
-      sh -c "flask db upgrade &&
-             python -m pytest -s tests/"
+      sh -c "/opt/docker-test-entrypoint.sh"
 
 networks:
   backend:
