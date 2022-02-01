@@ -11,12 +11,6 @@ jobs:
           submodules: recursive
       - name: Build docker image
         run: docker build -t kombinat451/aktionskarten-backend-app -f deploy/docker/app/Dockerfile .
-      - name: Start docker containers
-        run: docker-compose -f deploy/docker/docker-compose-test.yml up -d download-tiles clone-osm-bright tileserver-gl postgis redis
-      - name: Log running containers
-        run: docker container ls
-      - name: Log docker networks
-        run: docker network ls
       - name: Run tests
         run: docker-compose -f deploy/docker/docker-compose-test.yml run backend-tests
       - name: Stop docker containers
