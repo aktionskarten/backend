@@ -14,6 +14,8 @@ services:
       "clone https://github.com/aktionskarten/osm-bright-gl-style.git /data/osm-bright"
   tileserver-gl:
     image: kombinat451/tileserver-gl
+    networks:
+      - tiles
     depends_on:
       - download-tiles
       - clone-osm-bright
@@ -23,6 +25,8 @@ services:
       - ./data:/data
   postgis:
     image: "postgis/postgis:13-3.1-alpine"
+    networks:
+      - database
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     env_file:
@@ -31,10 +35,16 @@ services:
       - "127.0.0.1:5432:5432"
   redis:
     image: "redis"
+    networks:
+      - redis
     ports:
       - "127.0.0.1:6379:6379"
   backend-tests:
     image: kombinat451/aktionskarten-backend-app
+    networks:
+      - files
+      - database
+      - redis
     depends_on:
       - tileserver-gl
       - postgis
