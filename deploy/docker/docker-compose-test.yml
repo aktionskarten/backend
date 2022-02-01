@@ -13,7 +13,7 @@ services:
     command: 
       "clone https://github.com/aktionskarten/osm-bright-gl-style.git /data/osm-bright"
   tileserver-gl:
-    image: kombinat451/tileserver-gl-test
+    image: kombinat451/tileserver-gl
     depends_on:
       - download-tiles
       - clone-osm-bright
