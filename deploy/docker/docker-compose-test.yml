@@ -15,7 +15,7 @@ services:
   tileserver-gl:
     image: kombinat451/tileserver-gl
     networks:
-      - tiles
+      - backend
     depends_on:
       - download-tiles
       - clone-osm-bright
@@ -26,7 +26,7 @@ services:
   postgis:
     image: "postgis/postgis:13-3.1-alpine"
     networks:
-      - database
+      - backend
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     env_file:
@@ -36,15 +36,13 @@ services:
   redis:
     image: "redis"
     networks:
-      - redis
+      - backend
     ports:
       - "127.0.0.1:6379:6379"
   backend-tests:
     image: kombinat451/aktionskarten-backend-app
     networks:
-      - tiles
-      - database
-      - redis
+      - backend
     depends_on:
       - tileserver-gl
       - postgis
@@ -63,9 +61,5 @@ services:
              python -m pytest -s tests/"
 
 networks:
-  tiles:
-    name: tile_network
-  database:
-    name: database_network
-  redis:
-    name: redis_network
+  backend:
+    name: backend_networks
