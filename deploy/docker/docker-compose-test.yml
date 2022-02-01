@@ -42,7 +42,7 @@ services:
   backend-tests:
     image: kombinat451/aktionskarten-backend-app
     networks:
-      - files
+      - tiles
       - database
       - redis
     depends_on:
@@ -61,3 +61,11 @@ services:
     command: >
       sh -c "flask db upgrade &&
              python -m pytest -s tests/"
+
+networks:
+  tiles:
+    name: tile_network
+  database:
+    name: database_network
+  redis:
+    name: redis_network
