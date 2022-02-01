@@ -13,5 +13,3 @@ jobs:
         run: docker build -t kombinat451/aktionskarten-backend-app -f deploy/docker/app/Dockerfile .
       - name: Run tests
         run: docker-compose -f deploy/docker/docker-compose-test.yml run backend-tests
-      - name: Stop docker containers
-        run: docker-compose down
