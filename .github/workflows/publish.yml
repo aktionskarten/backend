@@ -33,4 +33,5 @@ jobs:
         with:
           context: .
           push: true
+          tags: kombinat451/aktionskarten-backend-app:latest
           file: deploy/docker/app/Dockerfile
