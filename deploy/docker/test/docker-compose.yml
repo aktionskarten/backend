@@ -4,7 +4,7 @@ services:
     image: alpine:latest
     volumes:
       - ./data:/data
-    command: >
+    command:
       ash -c "cd /data && wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles"
   clone-osm-bright:
     image: alpine/git:latest
@@ -14,8 +14,6 @@ services:
       "clone https://github.com/aktionskarten/osm-bright-gl-style.git /data/osm-bright"
   tileserver-gl:
     image: kombinat451/tileserver-gl
-    networks:
-      - backend
     depends_on:
       - download-tiles
       - clone-osm-bright
@@ -25,25 +23,22 @@ services:
       - ./data:/data
   postgis:
     image: "postgis/postgis:13-3.1-alpine"
-    networks:
-      - backend
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     env_file:
-      - "postgis.env"
+      - "env/postgis.env"
     ports:
       - "127.0.0.1:5432:5432"
   redis:
     image: "redis"
-    networks:
-      - backend
     ports:
       - "127.0.0.1:6379:6379"
   backend-tests:
     image: kombinat451/aktionskarten-backend-app
-    networks:
-      - backend
     volumes:
+      - type: bind
+        source: ./docker-test-entrypoint.sh
+        target: /usr/bin/docker-test-entrypoint.sh
       - ./tests:/opt
     depends_on:
       - tileserver-gl
@@ -56,11 +51,7 @@ services:
       - REDIS_HOST=redis
       - TILESERVER_HOST=tileserver-gl
     env_file:
-      - "postgis.env"
-      - "backend.env"
-    command: >
-      sh -c "/opt/docker-test-entrypoint.sh"
-
-networks:
-  backend:
-    name: backend_networks
+      - "env/postgis.env"
+      - "env/backend.env"
+    command:
+      docker-test-entrypoint.sh

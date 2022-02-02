@@ -3,3 +3,4 @@ docs/
 env/
 postgres-data/
 tiles.mbtiles
+osm-bright/
