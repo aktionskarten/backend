@@ -1,9 +1,6 @@
 name: tests and publish docker container
 
-on:
-  push:
-    branches:
-      - 'chore/githubActionsRelease'
+on: [push]
 
 jobs:
   all:
