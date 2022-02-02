@@ -3,7 +3,7 @@ name: tests and publish docker container
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
 
 jobs:
   all:
