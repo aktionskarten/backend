@@ -37,8 +37,9 @@ services:
     image: kombinat451/aktionskarten-backend-app
     volumes:
       - type: bind
-        source: ./docker-entrypoint.sh
-        target: /usr/bin/docker-entrypoint.sh
+        source: ./docker-test-entrypoint.sh
+        target: /usr/bin/docker-test-entrypoint.sh
+      - ../../../tests:/tests/
     depends_on:
       - tileserver-gl
       - postgis
@@ -53,4 +54,4 @@ services:
       - "./postgis.env"
       - "./backend.env"
     command:
-      docker-entrypoint.sh
+      docker-test-entrypoint.sh
