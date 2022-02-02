@@ -2,8 +2,8 @@ name: tests
 on:
   push:
     branches:
-      - *
-      - !chore/githubActionsRelease
+      - '*'
+      - '!chore/githubActionsRelease'
 
 jobs:
   all:

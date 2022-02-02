@@ -3,7 +3,7 @@ name: publish docker container
 on:
   push:
     branches:
-      - chore/githubActionsRelease
+      - 'chore/githubActionsRelease'
 
 jobs:
   all:
