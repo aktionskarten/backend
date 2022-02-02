@@ -7,7 +7,7 @@ on:
       - completed
   push:
     branches:
-      - master
+      - chore/githubActionsRelease
 
 jobs:
   all:
@@ -33,5 +33,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: kombinat451/aktionskarten-backend-app:latest
+          tags: kombinat451/aktionskarten-backend-app:test
           file: deploy/docker/app/Dockerfile
