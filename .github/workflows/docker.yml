@@ -17,5 +17,6 @@ jobs:
           context: .
           load: true
           tags: ${{ env.TEST_TAG }}
+          file: deploy/docker/app/Dockerfile
       - name: Run tests
         run: docker-compose -f deploy/docker/test/docker-compose.yml run backend-tests
