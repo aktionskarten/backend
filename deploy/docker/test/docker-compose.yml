@@ -34,7 +34,7 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
   backend-tests:
-    image: kombinat451/aktionskarten-backend-app:test
+    image: backend-tests
     depends_on:
       - tileserver-gl
       - postgis

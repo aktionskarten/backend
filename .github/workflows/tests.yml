@@ -25,7 +25,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: test
+          tags: backend-tests
           file: deploy/docker/test/test.Dockerfile
       - 
         name: Run tests
