@@ -1,4 +1,4 @@
-backend [![tests](https://github.com/aktionskarten/backend/actions/workflows/tests.yml/badge.svg)](https://github.com/aktionskarten/backend/actions/workflows/tests.yml)
+backend [![tests](https://github.com/aktionskarten/backend/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/aktionskarten/backend/actions/workflows/tests.yml)
 =======
 
 backend for [aktioskarten/frontend](https://github.com/aktionskarten/frontend)
