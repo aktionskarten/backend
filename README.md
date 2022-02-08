@@ -1,4 +1,4 @@
-backend [![Build Status](https://travis-ci.org/aktionskarten/backend.svg?branch=master)](https://travis-ci.org/aktionskarten/backend)
+backend [![tests](https://github.com/aktionskarten/backend/actions/workflows/tests.yml/badge.svg)](https://github.com/aktionskarten/backend/actions/workflows/tests.yml)
 =======
 
 backend for [aktioskarten/frontend](https://github.com/aktionskarten/frontend)
