@@ -2,8 +2,8 @@ name: tests and publish docker container
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - '**'
 
 jobs:
   all:
@@ -30,6 +30,7 @@ jobs:
           context: .
           load: true
           tags: kombinat451/aktionskarten-backend-app:latest
+                kombinat451/aktionskarten-backend-app:${{github.ref_name}}
           file: deploy/docker/app/Dockerfile
       -
         name: Run tests
@@ -41,4 +42,5 @@ jobs:
           context: .
           push: true
           tags: kombinat451/aktionskarten-backend-app:latest
+                kombinat451/aktionskarten-backend-app:${{github.ref_name}}
           file: deploy/docker/app/Dockerfile
