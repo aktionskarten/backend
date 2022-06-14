@@ -1,3 +1,7 @@
+# files we sometimes have for building
+tiles.mbtiles
+postgres-data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -74,8 +78,8 @@ styles/markers/#*
 # ignore retrys of ansible playbooks
 deploy/ansible/*.retry
 
-# ignore osm data
-data
+# ignore osm bright style 
+osm-bright
 
 # ignore tmp boost data
 libs/boost*

@@ -51,14 +51,6 @@ class DefaultConfig(object):
 class DevelopmentConfig(DefaultConfig):
     DEBUG = True
 
-class TestingConfig(DevelopmentConfig):
-    TESTING = True
-    DB_HOST = '127.0.0.1'  # db
-    DB_USER = 'postgres'
-    DB_PASS = 'postgres'
-    DB_NAME = 'test'
-    #REDIS_HOST = 'redis'
-
 class ProductionConfig(DefaultConfig):
     @property
     def DB_HOST(self):
@@ -83,3 +75,7 @@ class ProductionConfig(DefaultConfig):
     @property
     def TILESERVER_HOST(self):
         return get_env_variable("TILESERVER_HOST")
+
+class TestingConfig(ProductionConfig):
+    TESTING = True
+

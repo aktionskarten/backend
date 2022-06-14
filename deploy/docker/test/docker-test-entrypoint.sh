@@ -7,6 +7,4 @@ done
 
 flask db upgrade
 
-rq worker --url "redis://${REDIS_HOST}" &
-
-gunicorn --worker-class eventlet -w 1 "app:create_app()" --bind 0.0.0.0:5000
+python -m pytest -s tests/

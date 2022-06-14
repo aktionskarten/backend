@@ -1,4 +1,8 @@
 deploy/ansible/
 docs/
 env/
+postgres-data/
+tiles.mbtiles
+osm-bright/
 tests/
+test/
